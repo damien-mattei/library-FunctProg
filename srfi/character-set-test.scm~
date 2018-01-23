@@ -1,0 +1,5 @@
+(define-record-type pare
+  (cons x y)
+  pare?
+  (x car set-car!)
+  (y cdr))
