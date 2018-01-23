@@ -72,25 +72,55 @@
 	      ;; |  - bump the base (+1)
 	      ;; |  - decrement polynomial by calling
 	      ;; |
-	      ;; |    -> h: rec-atomic-symbolic-polynomial-1 function which FIND the _lower_ _degree_ _monomial_ and call
+	      ;; |    -> h: rec-atomic-symbolic-polynomial-1 function which FIND the _lower_ _degree_ _monomial_ M and call f(M)
 	      ;; |        (despite his name it's not a recursive function but she calls the recursive function f which
 	      ;; |         makes recursive calls by f" which calls again h, so there is some recursion)
 	      ;; |
 	      ;; |       -> f:rec-atomic-hereditary-base-monomial-1 which depending monomial M=c.b^n call one of those functions:
-	      ;; |            (again not a true recursive function but calls f"' which is recursive)
+	      ;; |            (again not a true recursive function but calls f' which is recursive)
 	      ;; |          
 	      ;; |          -> M number => monomial-1-number : f"' : M -> M-1
 	      ;; |                                             (not recursive ,it's a "leaf" function)
 	      ;; |          -> c#1 => monomial-1-product: f'
-	      ;; |                     \        f'( (c-1).b^n + b^n ) = (c-1).b^n + f"(b^n) which always call this function:
-	      ;; |                      \       (not recursive and not "leaf" function, it's a "path" function : f->f'->f") 
+	      ;; |                     \        f'(c.b^n) = f'( (c-1).b^n + b^n ) = (c-1).b^n + f"(b^n) which always call the function f":
+	      ;; |                      \       (f' not recursive and not "leaf" function, it's a "path" function : f->f'->f") 
 	      ;; |                       \
 	      ;; |          -> c=1 => -->-`-->  f" : rec-monomial-1-power, compute recursively
-	      ;; |                               if M number,return M-1 
-	      ;; |                               else : f"(b^n) =  (b-1).b^h(n)  + f"(b^h(n))
-	      ;; |          h is a "lift" function that go up in the exponential level, it guarantees that we will reach the highest levels of exponentiation, and by consequence that the function h always erodes the degrees of the upper polynomial,causing the fall of the goodstein function by the reduction of the exponentiation level. 
-	      ;; |    TODO: write it in iterative form...
-	      ;; |        
+	      ;; |                               if M number then return M-1 
+	      ;; |                               else : f"(b^n) =  (b-1).b^h(n) + f"(b^h(n))
+	      ;; |
+	      ;; |                                      note that: h^k(n)=n-k
+	      ;; |                    f"(b^n) = (b-1).b^h(n) + (b-1).b^h(h(n)) + (b-1).b^h(h(h(n))) + (b-1).b^h⁴(n) + ... + (b-1).b  + (b-1)
+	      ;; |                                 h(n)=n-1         h²(n)=n-2         h³(n)=n-3         h⁴(n)=n-4         h^(n-1)(n)=n-(n-1)=1 
+	      ;; |                    f"(b^n) = (b-1).b^h(n) + (b-1).b^h(h(n)) + (b-1).b^h(h(h(n))) + (b-1).b^h⁴(n) + ... + (b-1).b^[h^(n-1)](n)  + (b-1)
+	      ;; |                numerically:
+	      ;; |                    f"(b^n) = (b-1).b^(n-1) + (b-1).b^(n-2) + (b-1).b^(n-3) + ... + (b-1).b^3 + (b-1).b^2 + (b-1).b + b-1
+	      ;; |            
+	      ;; |                    h is a "lift" function that go up in the exponential level, it guarantees that we will reach the highest levels of exponentiation, and by consequence that the function h always erodes the degrees of the upper polynomial,causing the fall of the goodstein function by the reduction of the exponentiation level. Note h is applied on all the monomials of lower degree and so their exponentiation will be recursively reduced.
+	      ;; |             note:
+	      ;; |                f'(c.b^n) = (c-1).b^n + (b-1).b^h(n) + (b-1).b^h(h(n)) + (b-1).b^h(h(h(n))) + (b-1).b^h⁴(n) + ... + (b-1).b^[h^(n-1)](n)  + (b-1)
+	      ;; |       so, here is the expression of h:
+	      ;; |             h(P(b)) = Pu(b) + (c-1).b^n + (b-1).b^h(n) + (b-1).b^h(h(n)) + (b-1).b^h(h(h(n))) + (b-1).b^h⁴(n) + ... + (b-1).b^[h^(n-1)](n)  + (b-1)
+	      ;; |       keeping in mind that n is a function of b, we have:
+	      ;; |       h(P(b)) = Pu(b) + (c-1).b^n(b) + (b-1).b^h(n(b)) + (b-1).b^h(h(n(b))) + (b-1).b^h(h(h(n(b)))) + (b-1).b^h⁴(n(b)) + ... + (b-1).b^[h^(n-1)](n(b))  + (b-1)
+	      ;; |       h(Pu(b) + c.b^n(b)) = Pu(b) + (c-1).b^n(b) + (b-1).b^h(n(b)) + (b-1).b^h(h(n(b))) + (b-1).b^h(h(h(n(b)))) + (b-1).b^h⁴(n(b)) + ...
+	      ;; |                               ... + (b-1).b^[h^(n-1)](n(b))  + (b-1)
+	      ;; |       h(Pu(b) + c.b^n(b)) = Pu(b) + (c-1).b^n(b) + (b-1).b^(n-1) + (b-1).b^(b-2) + (b-1).b^(n-3) + ... + (b-1).b^3 + (b-1).b^2 + (b-1).b + b-1
+	      ;; |       h(Pu(b) + c.b^n(b)) = Pu(b) + (c-1).b^n(b) + (b-1).b^h(n(b)) + (b-1).b^h(h(n(b))) + (b-1).b^h³(n(b)) + ....
+	      ;; |                               ... + (b-1).b^b + (b-1).b^h(b) + ... + (b-1).b^3 + (b-1).b^2 + (b-1).b + b-1
+	      ;; |       h(Pu(b) + c.b^n(b)) = Pu(b) + (c-1).b^n(b) + (b-1).b^h(n(b)) + (b-1).b^h(h(n(b))) + (b-1).b^h³(n(b)) + ....
+	      ;; |                               ... + (b-1).b^b + (b-1).b^(b-1) + ... + (b-1).b^3 + (b-1).b^2 + (b-1).b + b-1
+	      ;; |       knowing that (b-1).b^(b-1) + ... + (b-1).b^3 + (b-1).b^2 + (b-1).b + b-1 is going to 0 by goodstein function
+	      ;; |       we have to proove that this is also going to 0 by goodstein function:
+	      ;; |       h(Pu(b) + c.b^n(b)) = Pu(b) + (c-1).b^n(b) + (b-1).b^h(n(b)) + (b-1).b^h(h(n(b))) + (b-1).b^h³(n(b)) + ....
+	      ;; |                               ... + (b-1).b^b
+	      ;; |         (b-1).b^b = (b-1-1).b^b + b^b = (b-2).b^b + b^b
+	      ;; |         with :b^b = (b-1).b^(b-1) + (b-1).b^(b-2) + (b-1).b^(b-3) + ... + (b-1).b^3 + (b-1).b^2 + (b-1).b + b
+	      ;; |         (b-1).b^b = (b-2).b^b + (b-1).b^(b-1) + (b-1).b^(b-2) + (b-1).b^(b-3) + ... + (b-1).b^3 + (b-1).b^2 + (b-1).b + b
+
+	      ;; |         (b-1).b^b = (b-1)².b^(b-1) + (b-1)².b^(b-2) + (b-1)².b^(b-3) + ... + (b-1)².b^3 + (b-1)².b^2 + (b-1)².b + (b-1).b
+	      ;; |         (b-1).b^b = (b-1).b.b^(b-1) = (b-1).(b-1+1).b^(b-1) = (b-1).[(b-1).b^(b-1) + b^(b-1)]
+	      
 	      ;; |_ - recursively call itself
     
 
@@ -483,11 +513,18 @@
   ;; x^n = (x-1).x^(n-1) + (x-1).x^(n-2) + (x-1).x^(n-3) + ... + (x-1).x^3 + (x-1).x^2 + x^2
   ;; x^n = (x-1).x^(n-1) + (x-1).x^(n-2) + (x-1).x^(n-3) + ... + (x-1).x^3 + (x-1).x^2 + (x-1).x + x
 
-  ;; M = b^n = b.b^(n-1) = (b-1).b^(n-1) + b^(n-1) => f"(M) = f"( (b-1).b^(n-1) + b^(n-1) )
+  ;; general case:
+  ;; M = b^n = b.b^(n-1) = (b-1).b^(n-1) + b^(n-1) => f"(M) = f"[(b-1).b^(n-1) + b^(n-1)]
   ;;                                                        = (b-1).b^(n-1) + f"(b^(n-1)) 
   ;;                                                        = (b-1).b^h(n)  + f"(b^h(n))
-  
+
   ;;  with n-1 computed with h(n) as n could be a polynomial,h=atomic-symbolic-polynomial-1
+
+  ;; we recursively go to h(n)=1 which occurs when computing for n=2 : f"(M) = f"(b²) = (b-1).b^h(2)  + f"(b^h(2)) , at this point we have:
+  ;; f"(M) = f"(b²) = (b-1).b^h(n)  + f"(b^h(n)) = (b-1).b^1  + f"(b^1) = (b-1).b  + f"(b) = (b-1).b  + (b-1)
+
+  ;; constant case:
+  ;; M = b => f"(M) = f"(b) = b - 1
 
   (if (number? M)
       
