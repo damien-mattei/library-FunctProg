@@ -1,5 +1,6 @@
 ;; set definitions
 
+;; Damien MATTEI
 
 ;; (singleton-set? '(a)) -> #t
 (define-syntax singleton-set?
@@ -65,10 +66,16 @@
 
 
 ;; (associate-elem-with-set 'a '(b c d)) -> '((a b) (a c) (a d))
+;; DEPRECATED (utilise append ce qui est lent)
 (define (associate-elem-with-set elem set)
   (if (null? set)
       set
       (append (list (list elem (first set))) (associate-elem-with-set elem (rest set)))))
+
+(define (product-elem-with-set elem set)
+  (if (null? set)
+      set
+      (cons (list elem (first set)) (product-elem-with-set elem (rest set)))))
 
 
 ;; set multiplication : find all the combinations of the possible association of two elements
@@ -78,6 +85,11 @@
   (if (null? set1)
       set1
       (append (associate-elem-with-set (first set1) set2) (associate-set-with-set (rest set1) set2))))
+
+(define (product-set-with-set set1 set2)
+  (if (null? set1)
+      set1
+      (append (product-elem-with-set (first set1) set2) (product-set-with-set (rest set1) set2))))
 
 
 (define (set-of-empty-set? s)
@@ -150,3 +162,10 @@
 	 (or
 	  (fct (car list))
 	  (some? fct (cdr list))))))
+
+
+
+(define (union E F)        ; ensemble x ensemble --> ensemble, les matheux notent E U F
+  (cond ((null? E) F)
+        ((member (first E) F) (union (rest E) F))
+        (else (cons (first E) (union (rest E) F)))))
