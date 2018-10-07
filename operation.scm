@@ -1,4 +1,5 @@
 ;; return the operator of an operation
+;; TODO: use macro
 (define (operator expr)
   (car expr))
 
@@ -110,6 +111,7 @@
 
 ;; insert operator between variables where it should be to make an infix expression
 ;; (insert-op '^ '(a b c d)) -> '(a ^ b ^ c ^ d)
+;; TODO: see if we can use foldr (reduce en Lisp)
 (define (insert-op op lst)
   ;; (insert-op 'and '(a b)) -> '(a and b)
   ;; (insert-op 'and '(a b c d)) -> '(a and b and c and d)

@@ -4,13 +4,17 @@
 ;;#lang racket
 ;;#lang r5rs
 
+;; syracuse.scm
+
+;; Damien Mattei
+
 ;; for DrRacket Scheme uncomment above
 
 
 ;; include files
 
 ;;for DrRacket Scheme uncomment below !
-;; do not let two #lang racket because you will have two environment -> becoming schizophrenic.....
+;;
 ;;(include "../logiki-DrRacket-2.0.scm")
 ;;(include "../info/logos.scm")
 ;; for MIT Scheme : 

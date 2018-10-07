@@ -1,0 +1,11 @@
+#lang racket
+;; this is the bootstrap file for Goodstein recursive
+
+;; Damien Mattei
+
+;; 5/10/2018
+
+(include "operation.scm")
+(include "simplify.scm")
+(include "goodstein-symbolic-recursive.scm")
+

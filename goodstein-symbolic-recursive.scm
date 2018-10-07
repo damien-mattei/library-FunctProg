@@ -16,16 +16,31 @@
 ;;            - call (recursively) goodstein-rec
 
 ;; >  (goodstein-init-atomic-rec 266)
-;; G(266)(1)=((2 ^ (2 ^ (2 + 1))) + (2 ^ (2 + 1)) + 2)
-;; P(266)(1)=((ω ^ (ω ^ (ω + 1))) + (ω ^ (ω + 1)) + ω)
-;; G(266)(2)=((3 ^ (3 ^ (3 + 1))) + (3 ^ (3 + 1)) + 2)
-;; P(266)(2)=((ω ^ (ω ^ (ω + 1))) + (ω ^ (ω + 1)) + 2)
+;; G(266)(1)=((2 ^ (2 ^ (2 + 1))) + (2 ^ (2 + 1)) + 2) = xn = x2
+;; P(266)(1)=((ω ^ (ω ^ (ω + 1))) + (ω ^ (ω + 1)) + ω) = αn = α2 = fn[xn]
+;;                                                               = f2[((2 ^ (2 ^ (2 + 1))) + (2 ^ (2 + 1)) + 2)]
+;;                                                               = f3[x3 + 1]
+;;                                                               = f3[((3 ^ (3 ^ (3 + 1))) + (3 ^ (3 + 1)) + 2) + 1]
+;;                                                               = f3[((3 ^ (3 ^ (3 + 1))) + (3 ^ (3 + 1)) + 3]
+;;                                                               = ((ω ^ (ω ^ (ω + 1))) + (ω ^ (ω + 1)) + ω)
+;;                                                               =
+;;
+;; G(266)(2)=((3 ^ (3 ^ (3 + 1))) + (3 ^ (3 + 1)) + 2) = x(n+1) = x3
+;; P(266)(2)=((ω ^ (ω ^ (ω + 1))) + (ω ^ (ω + 1)) + 2) = α(n+1) = α3 = f(n+1)[x(n+1)]
+;;                                                                   = f3[((3 ^ (3 ^ (3 + 1))) + (3 ^ (3 + 1)) + 2)]
+;;
+;; f(n+1)[x(n+1)+1] = f3[((3 ^ (3 ^ (3 + 1))) + (3 ^ (3 + 1)) + 2) + 1] = f3[((3 ^ (3 ^ (3 + 1))) + (3 ^ (3 + 1)) + 3]
+;;                                                                      = ((ω ^ (ω ^ (ω + 1))) + (ω ^ (ω + 1)) + ω)
+;;                                                                      = fn[xn]
+;;
 ;; G(266)(3)=((4 ^ (4 ^ (4 + 1))) + (4 ^ (4 + 1)) + 1)
 ;; P(266)(3)=((ω ^ (ω ^ (ω + 1))) + (ω ^ (ω + 1)) + 1)
 ;; G(266)(4)=((5 ^ (5 ^ (5 + 1))) + (5 ^ (5 + 1)))
 ;; P(266)(4)=((ω ^ (ω ^ (ω + 1))) + (ω ^ (ω + 1)))
+
 ;; G(266)(5)=((6 ^ (6 ^ (6 + 1))) + (5 * (6 ^ 6)) + (5 * (6 ^ 5)) + (5 * (6 ^ 4)) + (5 * (6 ^ 3)) + (5 * (6 ^ 2)) + (5 * 6) + 5)
 ;; P(266)(5)=((ω ^ (ω ^ (ω + 1))) + (5 * (ω ^ ω)) + (5 * (ω ^ 5)) + (5 * (ω ^ 4)) + (5 * (ω ^ 3)) + (5 * (ω ^ 2)) + (5 * ω) + 5)
+
 ;; G(266)(6)=((7 ^ (7 ^ (7 + 1))) + (5 * (7 ^ 7)) + (5 * (7 ^ 5)) + (5 * (7 ^ 4)) + (5 * (7 ^ 3)) + (5 * (7 ^ 2)) + (5 * 7) + 4)
 ;; P(266)(6)=((ω ^ (ω ^ (ω + 1))) + (5 * (ω ^ ω)) + (5 * (ω ^ 5)) + (5 * (ω ^ 4)) + (5 * (ω ^ 3)) + (5 * (ω ^ 2)) + (5 * ω) + 4)
 ;; G(266)(7)=((8 ^ (8 ^ (8 + 1))) + (5 * (8 ^ 8)) + (5 * (8 ^ 5)) + (5 * (8 ^ 4)) + (5 * (8 ^ 3)) + (5 * (8 ^ 2)) + (5 * 8) + 3)
@@ -70,9 +85,9 @@
 	      ;; .> - check if we have reached zero 
 	      ;; |  - display polynomial at each step
 	      ;; |  - bump the base (+1)
-	      ;; |  - decrement polynomial by calling
+	      ;; |  - decrement polynomial and rewrite it in hereditary base by calling
 	      ;; |
-	      ;; |    -> h: rec-atomic-symbolic-polynomial-1 function which FIND the _lower_ _degree_ _monomial_ M and call f(M)
+	      ;; |    -> h: rec-atomic-symbolic-polynomial-1 function which FIND the _lowest_ _degree_ _monomial_ M and call f(M)
 	      ;; |        (despite his name it's not a recursive function but she calls the recursive function f which
 	      ;; |         makes recursive calls by f" which calls again h, so there is some recursion)
 	      ;; |
@@ -87,7 +102,7 @@
 	      ;; |                       \
 	      ;; |          -> c=1 => -->-`-->  f" : rec-monomial-1-power, compute recursively
 	      ;; |                               if M number then return M-1 
-	      ;; |                               else : f"(b^n) =  (b-1).b^h(n) + f"(b^h(n))
+	      ;; |                               else : f"(b^n) = f"(b.b^h(n)) =f"([b-1+1].b^h(n)) = f"([b-1].b^h(n) + b^h(n))= (b-1).b^h(n) + f"(b^h(n))
 	      ;; |
 	      ;; |                                      note that: h^k(n)=n-k
 	      ;; |                    f"(b^n) = (b-1).b^h(n) + (b-1).b^h(h(n)) + (b-1).b^h(h(h(n))) + (b-1).b^h⁴(n) + ... + (b-1).b  + (b-1)
@@ -216,12 +231,12 @@
 ;;
 ;; polynomial P = (+ e_n e_n-1 e_n-2 ... e_k) = Cn.b^n + Cn-1.b^(n-1) .... + Ck.b^k
 ;; at left is LisP/Scheme prefix expression, at right is mathematical expression
-;; note: e_n are monomials , e_n is a monomial of degree n, in this list monomials are sorted from higher to lower degree
+;; note: e_n are monomials , e_n is a monomial of degree n, in this list monomials are sorted from highest to lowest degree
 ;;
 ;;
 ;; Polynomial case:
 ;;
-;; -GET THE MONOMIAL OF LOWER DEGREE: reverse polynomial list to get e_k the first monomial of lower degree 
+;; -GET THE MONOMIAL OF LOWER DEGREE: reverse polynomial list to get e_k the first monomial of lowest degree 
 ;;  P_rev = (e_k .... e_n-2 e_n-1 e_n +) = Ck.b^k + ... + Cn-1.b^(n-1) + Cn.b^n
 ;;
 ;; note that the list expression P_rev is now a postfix notation with operator at end, this does not change the mathematical meaning. 
@@ -541,8 +556,8 @@
 
 	      (then-block
 	       (when debug-mode
-		     (display-nl "unity symbol !"))
-	       `(+ ;; (b-1).b^h(n) + f"(b)
+		     (display-nl "rec-monomial-1-power : unity symbol !"))
+	       `(+ ;; (b-1).b^h(n) + f"(b^(n-1)) with n-1 = 1 and so (b-1).b^h(n) + f"(b^(n-1)) = (b-1).b^h(n) + f"(b)
 		 (* ,b-1 (expt ,b ,n-1))   ;; (b-1).b^(n-1)
 		 ;;,(rec-monomial-1-power b)) ;; f"(b)
 		 ;;,(- b 1)) ;; f"(b)

@@ -120,3 +120,15 @@
 		L)))
 
 
+(define (debut n L)
+  (if (or (null? L) (= n 0))
+      '()
+      (cons (first L) (debut (- n 1) (rest L)))))
+
+(define (debut-iter n L)
+  (define (iter acc ncur Lcur)
+     (if (or (null? Lcur) (= ncur 0))
+         acc
+         (iter (cons (first Lcur) acc) (- ncur 1) (rest Lcur))))
+  (reverse (iter '() n L)))
+    

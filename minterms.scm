@@ -6,7 +6,7 @@
 ;;
 ;; e-mail: damien.mattei@gmail.com 
 ;;         (damien.mattei@unice.fr , damien.mattei@oca.eu)
-;; 
+;;   
 
 
 ;;  (var->binary '((not A) B)) -> '(0 1)
@@ -30,6 +30,11 @@
 ;;  (binary->term  '(1 1 0 1) '(a b c d)) -> '(a b (not c) d)
 (define (binary->term blst varlist)
   (map-nil bin->symb blst varlist))
+;; le gain de temps de la definition ci dessous n est pas significatif voire negatif
+;;(define (binary->term blst varlist)
+;;  (filter (lambda (x) (not (null? x))) 
+;;	  (map bin->symb blst varlist)))
+
 
 ;; > (bin->symb 1 'a)
 ;; 'a
