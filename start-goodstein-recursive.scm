@@ -15,5 +15,6 @@
 (include "binary_arithmetic.scm")
 (include "debug.scm")
 (include "tree.scm")
+(include "recursive-symbolic-polynomial-1.scm")
 (include "goodstein-symbolic-recursive.scm")
 
