@@ -12,9 +12,10 @@
 (include "racket/escape-char-racket-scheme.scm")
 (include "display.scm")
 (include "syntactic-sugar.scm")
-(include "binary_arithmetic.scm")
+(include "binary-arithmetic.scm")
 (include "debug.scm")
 (include "tree.scm")
-(include "recursive-symbolic-polynomial-1.scm")
+(include "hereditary-base.scm")
+(include "recursive-hereditary-base-polynomial-1.scm")
 (include "goodstein-symbolic-recursive.scm")
 

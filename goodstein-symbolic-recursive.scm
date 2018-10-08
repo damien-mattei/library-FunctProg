@@ -104,7 +104,7 @@
 	      ;; |                               if M number then return M-1 
 	      ;; |                               else : f"(b^n) = f"(b.b^h(n)) =f"([b-1+1].b^h(n)) = f"([b-1].b^h(n) + b^h(n))= (b-1).b^h(n) + f"(b^h(n))
 	      ;; |
-	      ;; |                                      note that: h^k(n)=n-k
+	      ;; |                                      note that: (h^k)(n)=n-k
 	      ;; |                    f"(b^n) = (b-1).b^h(n) + (b-1).b^h(h(n)) + (b-1).b^h(h(h(n))) + (b-1).b^h⁴(n) + ... + (b-1).b  + (b-1)
 	      ;; |                                 h(n)=n-1         h²(n)=n-2         h³(n)=n-3         h⁴(n)=n-4         h^(n-1)(n)=n-(n-1)=1 
 	      ;; |                    f"(b^n) = (b-1).b^h(n) + (b-1).b^h(h(n)) + (b-1).b^h(h(h(n))) + (b-1).b^h⁴(n) + ... + (b-1).b^[h^(n-1)](n)  + (b-1)
@@ -114,8 +114,8 @@
 	      ;; |                    h is a "lift" function that go up in the exponential level, it guarantees that we will reach the highest levels of exponentiation, and by consequence that the function h always erodes the degrees of the upper polynomial,causing the fall of the goodstein function by the reduction of the exponentiation level. Note h is applied on all the monomials of lower degree and so their exponentiation will be recursively reduced.
 	      ;; |             note:
 	      ;; |                f'(c.b^n) = (c-1).b^n + (b-1).b^h(n) + (b-1).b^h(h(n)) + (b-1).b^h(h(h(n))) + (b-1).b^h⁴(n) + ... + (b-1).b^[h^(n-1)](n)  + (b-1)
-	      ;; |       so, here is the expression of h:
-	      ;; |             h(P(b)) = Pu(b) + (c-1).b^n + (b-1).b^h(n) + (b-1).b^h(h(n)) + (b-1).b^h(h(h(n))) + (b-1).b^h⁴(n) + ... + (b-1).b^[h^(n-1)](n)  + (b-1)
+	      ;; |       as we are in hereditary base b, n is in fact a polynomial of variable b so n=P(b), and here is the expression of h:
+	      ;; |         h(n) = h(P(b)) = Pu(b) + (c-1).b^n + (b-1).b^h(n) + (b-1).b^h(h(n)) + (b-1).b^h(h(h(n))) + (b-1).b^h⁴(n) + ... + (b-1).b^[h^(n-1)](n)  + (b-1)
 	      ;; |       keeping in mind that n is a function of b, we have:
 	      ;; |       h(P(b)) = Pu(b) + (c-1).b^n(b) + (b-1).b^h(n(b)) + (b-1).b^h(h(n(b))) + (b-1).b^h(h(h(n(b)))) + (b-1).b^h⁴(n(b)) + ... + (b-1).b^[h^(n-1)](n(b))  + (b-1)
 	      ;; |       h(Pu(b) + c.b^n(b)) = Pu(b) + (c-1).b^n(b) + (b-1).b^h(n(b)) + (b-1).b^h(h(n(b))) + (b-1).b^h(h(h(n(b)))) + (b-1).b^h⁴(n(b)) + ...

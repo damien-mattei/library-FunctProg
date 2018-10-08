@@ -328,8 +328,8 @@
 
   ;;  with n-1 computed with h(n) as n could be a polynomial,h=atomic-symbolic-polynomial-1
 
-  ;; we recursively go to h(n)=1 which occurs when computing for n=2 : f"(M) = f"(b²) = (b-1).b^h(2)  + f"(b^h(2)) , at this point we have:
-  ;; f"(M) = f"(b²) = (b-1).b^h(n)  + f"(b^h(n)) = (b-1).b^1  + f"(b^1) = (b-1).b  + f"(b) = (b-1).b  + (b-1)
+  ;; we recursively go to h(n)=1 which occurs when computing for n=2 : f"(M) = f"(b²) = (b-1).b^h(2) + f"(b^h(2)) , at this point we have:
+  ;; f"(M) = f"(b²) = (b-1).b^h(n)  + f"(b^h(n)) = (b-1).b^1  + f"(b^1) = (b-1).b  + f"(b) = (b-1).b + (b-1)
 
   ;; constant case:
   ;; M = b => f"(M) = f"(b) = b - 1
