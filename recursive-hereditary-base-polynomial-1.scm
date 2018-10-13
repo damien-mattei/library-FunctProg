@@ -286,6 +286,9 @@
 	;; call function monomial-1-product    
 	((is*? M) ;; M = (* c (^ b n)) = c.b^n = (c-1).b^n + b^n => f(M) = f( (c-1).b^n + b^n ) = (c-1).b^n + f(b^n)  by (*)
 	 ;; note: n could be equal to 1, so M could be equal to c.b
+	 ;; note 2: (c-1).b^n + b^n is not in hereditary base but (c-1).b^n + f(b^n) yes
+	 ;; because f(b^n) = b^n - 1 < b^n and the hereditary base notation of b^n - 1 will be a polynomial of degree n-1
+	 ;; as we have : b^n - 1 = (b-1).b^(n-1) + (b-1).b^(n-2) + (b-1).b^(n-3) + ... + (b-1).b^3 + (b-1).b^2 + (b-1).b + b-1
 	 
 	 (monomial-1-product M))
 	

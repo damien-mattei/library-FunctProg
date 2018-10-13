@@ -358,7 +358,7 @@
 ;; cas avec n=b:
 ;;  b^n = (b-1).b^(n-1) + (b-1).b^(n-2) + (b-1).b^(n-3) + ... + (b-1).b^3 + (b-1).b^2 + (b-1).b + b
 ;;  b^b = (b-1).b^(b-1) + (b-1).b^(b-2) + (b-1).b^(b-3) + ... + (b-1).b^3 + (b-1).b^2 + (b-1).b + b
-;; la base b devien b1=b+1
+;; la base b devient b1=b+1
 ;; on a alors:
 ;; b1^b1 = (b1-1).b1^(b1-1) + (b1-1).b1^(b1-2) + (b1-1).b1^(b1-3) + ... + (b1-1).b1^3 + (b1-1).b1^2 + (b1-1).b1 + b1
 ;; on sait que tous les monomes de degré inferieur à b1 vont converger,donc b^b converge CQFD
@@ -427,8 +427,29 @@
 
 ;; b^(n+1) 
 
+;; attention: lorsque 2 nombres se suivent et lorsque on augmente la base
+;; la difference n'est plus forcement de l'unité ce qui empeche de pouvoir generaliser
+;; une preuve par recurence:
 
-
+;; > (number->hereditary-base-k-expt (expt 3 5) 3)
+;; '(expt 3 (+ 3 2))
+;; > (number->hereditary-base-k-expt (+ (expt 3 5) 1) 3)
+;; '(+ (expt 3 (+ 3 2)) 1)
+;; > (number->hereditary-base-k-expt (- (expt 3 5) 1) 3)
+;; '(+ (* 2 (expt 3 (+ 3 1))) (* 2 (expt 3 3)) (* 2 (expt 3 2)) (* 2 3) 2)
+;; > (define s1 (number->hereditary-base-k-expt (- (expt 3 5) 1) 3))
+;; > (define s2 (number->hereditary-base-k-expt (expt 3 5) 3))
+;; > (eval s1)
+;; 242
+;; > (replace s1 3 4)
+;; '(+ (* 2 (expt 4 (+ 4 1))) (* 2 (expt 4 4)) (* 2 (expt 4 2)) (* 2 4) 2)
+;; > (eval (replace s1 3 4))
+;; 2602
+;; > (eval (replace s2 3 4))
+;; 4096
+;; > (- (expt 3 5) (- (expt 3 5) 1))
+;; 1
+;; ecart de 1 entre les nombres mais plus de 1 ensuite: 4096 - 2602
 
 
 ;; TODO: check bug: exposants ne devraient pas etre calculé (26,25....)
