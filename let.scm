@@ -1,5 +1,5 @@
 (define-macro (let-optionals* arg bindings . body)
-  ;;(display "Entering let-optionals* ...")
+  ;;(display "Entering let-optionals* ... ")
   ;;(newline)
   `(let ((rest ,arg))
      (%let-optionals* rest ,bindings ,body)))

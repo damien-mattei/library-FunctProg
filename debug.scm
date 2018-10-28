@@ -1,6 +1,6 @@
 ;; debug Macros and Functions
 ;; 
-
+       
 
 
 (define debug-mode #t) ;; global debug-mode definition (you must set it in the function to debug to avoid a lot of information on display) 
