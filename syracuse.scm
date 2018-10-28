@@ -1662,7 +1662,7 @@
   (collatz-rec n))
 
 
-;;  (collatz-comp-stat-mod-8 10) -> '#(1 0 1 0 0 0 0 0)
+;;  (collatz-comp-stat-mod-8 10) -> '#(1 0 1 0 0 0 0 0)  
 (define (collatz-comp-stat-mod-8 n)
   ;; congruence class list
   (define C (make-vector 8 0))
