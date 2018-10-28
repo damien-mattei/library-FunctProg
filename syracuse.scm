@@ -1662,6 +1662,7 @@
   (collatz-rec n))
 
 
+;; copute the statistic of congruences for the cycles on a single number
 ;;  (collatz-comp-stat-mod-8 10) -> '#(1 0 1 0 0 0 0 0)  
 (define (collatz-comp-stat-mod-8 n)
   ;; congruence class list
@@ -1859,11 +1860,11 @@
   (define s (apply + (vector->list C)))
   (define C-freq (vector-map (lambda (x) (exact->inexact (/ x s)))
 			     C))
-  (define C-freq-theoric (vector-map exact->inexact
-				     ;;#(1/8 1/16 1/8 1/16 1/8 1/16 1/8 1/16)
-				     #(1/6 1/12 1/6 1/12 1/6 1/12 1/6 1/12)
-				     ))
+  (define C-freq-theoric-symbolic  ;;#(1/8 1/16 1/8 1/16 1/8 1/16 1/8 1/16)
+				     #(1/6 1/12 1/6 1/12 1/6 1/12 1/6 1/12))
+  (define C-freq-theoric (vector-map exact->inexact C-freq-theoric-symbolic))
   (define delta (vector-map - C-freq C-freq-theoric))
+  (dv C-freq-theoric-symbolic)
   (dv C-freq)
   (dv delta))
 
@@ -1877,6 +1878,7 @@
 			     C))
   (define C-freq-theoric (vector-map exact->inexact #(1/3 1/6 1/3 1/6)))
   (define delta (vector-map - C-freq C-freq-theoric))
+  (display-nl "Theoric frequencies for 4: 1/3 1/6 1/3 1/6")
   (dv C-freq)
   (dv delta))
 
