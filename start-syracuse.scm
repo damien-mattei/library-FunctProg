@@ -1,6 +1,6 @@
 #lang racket
 
-
+;; init and start the syracuse program
 
 (include "syntactic-sugar.scm")
 (include "debug.scm")
