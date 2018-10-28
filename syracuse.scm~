@@ -1,16 +1,31 @@
 ;;#lang racket
 ;;#lang r6rs
 
+;;#lang racket
 ;;#lang r5rs
-
-;; for DrRacket Scheme uncomment above
 
 ;; syracuse.scm
 
 ;; Damien Mattei
 
+;; for DrRacket Scheme uncomment above
 
 
+;; include files
+
+;;for DrRacket Scheme uncomment below !
+;;
+;;(include "../logiki-DrRacket-2.0.scm")
+;;(include "../info/logos.scm")
+;; for MIT Scheme : 
+;;(load "c:/Users/mattei/Google Drive/info/logos.scm")
+;;
+;; type at REPL (Read Eval Print Loop): 
+;;
+;; windows : (load "c:/Users/mattei/Google Drive/syracuse_conjecture/syracuse2.scm")
+
+
+(require racket/format)
 
 
 ;; compute carries recursively
@@ -1661,8 +1676,6 @@
 	     (collatz-rec (fc n))))))
   (collatz-rec n))
 
-
-;;  (collatz-comp-stat-mod-8 10) -> '#(1 0 1 0 0 0 0 0)
 (define (collatz-comp-stat-mod-8 n)
   ;; congruence class list
   (define C (make-vector 8 0))
@@ -1680,7 +1693,7 @@
 	     ;;(dv C)
 	     ;;(dv n)
 	     C)
-	    (else ; increment the congruence counter
+	    (else
 	     (vector-set! C 
 			  r 
 			  (+ 1 (vector-ref C r))) 

@@ -1,0 +1,8 @@
+#lang racket
+
+;(include "../git/LOGIKI/logiki-DrRacket-2.7.scm")
+
+;(include "../git/library-FunctProg/pair.scm")
+
+
+(include "syracuse.scm")
