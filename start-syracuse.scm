@@ -13,6 +13,7 @@
 (include "binary-arithmetic.scm")
 (include "for.scm")
 (include "pair.scm")
+(include "number.scm")
 
 (require racket/format)
 
