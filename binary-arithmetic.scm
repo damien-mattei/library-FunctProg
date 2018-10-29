@@ -430,3 +430,10 @@
   (symb-xor `(and ,A ,B) `(and ,Cin  ,(symb-xor A B))))
 
 
+(define (binary-length n)
+  (if (= 0 n)
+      1
+      (integer-length n)))
+
+
+(define (last-bit-position n) (- (binary-length n) 1))
