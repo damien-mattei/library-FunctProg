@@ -431,7 +431,7 @@
 ;; compute Collatz until it reach 1
 (define (collatz-verbose n)
 
-  (let ((orig (integer-length n))
+  (let ((orig (binary-length n))
 	(display-enabled #t))
 
     (letrec ((collatz-verbose-rec
@@ -1463,7 +1463,7 @@
 
 ;; first compute the tables
 
-(define k 12) ;; size in bits 24 seems a max with Racket and extending memory many times
+(define k 16) ;; size in bits 24 seems a max with Racket and extending memory many times
 
 ;;(define d (make-vector (arithmetic-shift 1 k))) ;; size = 2^k
 
@@ -1496,12 +1496,16 @@
 
 
 
-
+;; count the 0 and 1 of a number 
 ;; (scan-and-stat-bits #b10101 0 4) -> '(2 . 3)
 (define (scan-and-stat-bits n start stop)
   (define v-one-sum 0)
   (define v-zero-sum 0)
   (for (k start stop)
+       (when (or (< k 0)
+		 (>= k (binary-length n)))
+	     (dv k)
+	     (error "scan-and-stat-bits : testing bits out of range, check k"))
        (if (bit-test? n k)
 	   (incf v-one-sum)
 	   (incf v-zero-sum)))
@@ -1511,7 +1515,7 @@
 ;; no high significant bit in stats
 ;; (scan-and-stat-bits-no-HSB 27) -> '(1 . 3)
 (define (scan-and-stat-bits-no-HSB n)
-  (define stop (- (integer-length n) 2))
+  (define stop (- (binary-length n) 2))
   (define v-one-sum 0)
   (define v-zero-sum 0)
   (for (k 0 stop)
@@ -1520,30 +1524,68 @@
 	   (incf v-zero-sum)))
   (cons v-zero-sum v-one-sum))
 
-;; > (stat-collatz-time-space-trade-off-bits)
-;; collatz-values = (0 1 2 2 1 1 1 8 2 10 2 4 2 2 5 5 1 2 20 20 1 1 8 8 1 26 1 242 10 10 10 91 2 11 4 4 13 13 13 38 2 121 2 14 5 5 5 137 2 17 17 17 2 2 161 161 20 56 20 19 20 20 182 182 1 7 22 22 8 8 8 206 26 71 26 8 26 26 76 76 1 80 242 242 1 1 28 28 10 29 10 263 10 10 91 91 4 94 11 11 11 11 11 890 4 101 4 103 107 107 107 319 13 4 37 37 13 13 38 38 40 350 40 118 121 121 364 1093 2 125 14 14 44 44 44 43 5 395 5 134 5 5 137 137 17 47 47 47 17 17 16 16 17 49 17 445 152 152 152 1367 2 155 53 53 161 161 161 479 2 1457 2 164 56 56 56 167 20 19 19 19 20 20 175 175 20 59 20 179 182 182 182 1640 8 62 188 188 7 7 7 190 22 64 22 65 22 22 593 593 8 67 202 202 8 8 206 206 71 23 71 209 71 71 638 638 26 647 8 8 74 74 74 661 26 668 26 674 76 76 76 2051 80 26 233 233 80 80 236 236 242 238 242 719 728 728 2186 6560)
-;; stat-on-each-value = ((0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (1 . 0) (0 . 0) (1 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (1 . 1) (1 . 1) (0 . 0) (0 . 0) (1 . 0) (1 . 0) (0 . 0) (1 . 1) (0 . 0) (2 . 3) (1 . 0) (1 . 0) (1 . 0) (2 . 2) (0 . 0) (1 . 0) (0 . 0) (0 . 0) (0 . 1) (0 . 1) (0 . 1) (2 . 1) (0 . 0) (1 . 3) (0 . 0) (0 . 1) (0 . 0) (0 . 0) (0 . 0) (4 . 1) (0 . 0) (2 . 0) (2 . 0) (2 . 0) (0 . 0) (0 . 0) (4 . 1) (4 . 1) (1 . 1) (1 . 2) (1 . 1) (2 . 0) (1 . 1) (1 . 1) (2 . 3) (2 . 3) (0 . 0) (0 . 0) (1 . 1) (1 . 1) (1 . 0) (1 . 0) (1 . 0) (2 . 3) (1 . 1) (3 . 1) (1 . 1) (1 . 0) (1 . 1) (1 . 1) (2 . 2) (2 . 2) (0 . 0) (3 . 1) (2 . 3) (2 . 3) (0 . 0) (0 . 0) (0 . 2) (0 . 2) (1 . 0) (0 . 2) (1 . 0) (5 . 1) (1 . 0) (1 . 0) (2 . 2) (2 . 2) (0 . 0) (1 . 3) (1 . 0) (1 . 0) (1 . 0) (1 . 0) (1 . 0) (2 . 5) (0 . 0) (2 . 2) (0 . 0) (2 . 2) (2 . 2) (2 . 2) (2 . 2) (2 . 4) (0 . 1) (0 . 0) (2 . 1) (2 . 1) (0 . 1) (0 . 1) (2 . 1) (2 . 1) (2 . 1) (2 . 4) (2 . 1) (1 . 3) (1 . 3) (1 . 3) (2 . 4) (6 . 2) (0 . 0) (0 . 4) (0 . 1) (0 . 1) (1 . 2) (1 . 2) (1 . 2) (2 . 1) (0 . 0) (4 . 2) (0 . 0) (4 . 1) (0 . 0) (0 . 0) (4 . 1) (4 . 1) (2 . 0) (1 . 2) (1 . 2) (1 . 2) (2 . 0) (2 . 0) (2 . 0) (2 . 0) (2 . 0) (2 . 1) (2 . 0) (1 . 5) (3 . 2) (3 . 2) (3 . 2) (4 . 4) (0 . 0) (3 . 2) (1 . 2) (1 . 2) (4 . 1) (4 . 1) (4 . 1) (1 . 5) (0 . 0) (4 . 4) (0 . 0) (3 . 2) (1 . 2) (1 . 2) (1 . 2) (3 . 2) (1 . 1) (2 . 0) (2 . 0) (2 . 0) (1 . 1) (1 . 1) (2 . 3) (2 . 3) (1 . 1) (1 . 2) (1 . 1) (3 . 2) (2 . 3) (2 . 3) (2 . 3) (4 . 4) (1 . 0) (0 . 3) (1 . 4) (1 . 4) (0 . 0) (0 . 0) (0 . 0) (1 . 4) (1 . 1) (4 . 0) (1 . 1) (4 . 0) (1 . 1) (1 . 1) (5 . 2) (5 . 2) (1 . 0) (4 . 0) (3 . 2) (3 . 2) (1 . 0) (1 . 0) (2 . 3) (2 . 3) (3 . 1) (1 . 1) (3 . 1) (3 . 2) (3 . 1) (3 . 1) (2 . 5) (2 . 5) (1 . 1) (5 . 2) (1 . 0) (1 . 0) (3 . 1) (3 . 1) (3 . 1) (4 . 3) (1 . 1) (3 . 4) (1 . 1) (5 . 2) (2 . 2) (2 . 2) (2 . 2) (9 . 0) (3 . 1) (1 . 1) (2 . 3) (2 . 3) (3 . 1) (3 . 1) (1 . 4) (1 . 4) (2 . 3) (1 . 4) (2 . 3) (3 . 4) (3 . 4) (3 . 4) (7 . 2) (6 . 4))
-;; stat-on-all-values = (397 . 328)
 
-;;(stat-collatz-time-space-trade-offbits)
-;; stat-on-all-values = (299141 . 275088)
+
+;; count all the 0 and 1 of the timespace trade off values
 
 ;; with k,size in bits of 20:
 ;; (stat-collatz-time-space-tradeoff-bits)
 ;; stat-on-all-values = (7481216 . 7105222)
+
+;; with k,size in bits of 5:
+;; >  (stat-collatz-time-space-tradeoff-bits)
+;; stat-on-each-value = ((0 . 0) (1 . 0) (0 . 0) (0 . 0) (1 . 0) (1 . 0) (1 . 0) (3 . 1) (0 . 0) (2 . 2) (0 . 0) (2 . 1) (2 . 0) (2 . 0) (1 . 2) (4 . 1) (1 . 0) (1 . 1) (3 . 1) (3 . 1) (1 . 0) (1 . 0) (3 . 1) (3 . 1) (3 . 0) (2 . 2) (3 . 0) (3 . 3) (2 . 2) (2 . 2) (5 . 1) (3 . 4))
+;; zerosVSones = (#t #f #t #t #f #f #f #f #t #t #t #f #f #f #t #f #f #t #f #f #f #f #f #f #f #t #f #t #t #t #f #t)
+;; zeroWin = 13
+;; oneWin = 19
+;; ( zeros . ones )
+;; stat-on-all-values = (59 . 26)
+;; > (get-collatz-values)
+;; '(0 2 1 1 2 2 2 20 1 26 1 10 4 4 13 40 2 5 17 17 2 2 20 20 8 22 8 71 26 26 80 242)
+;; k=12 second verison (skip first bit)
+;;( zeros . ones )
+;;stat-on-all-values = (14366 . 12836)
+;;  k=7
+;;  (stat-collatz-time-space-tradeoff-bits)
+;; collatz-values = (0 2 1 1 2 2 2 5 1 20 1 8 1 1 10 10 2 4 13 13 2 2 5 5 2 17 2 161 20 20 20 182 1 22 8 8 26 26 26 76 1 242 1 28 10 10 10 91 4 11 11 11 4 4 107 107 13 37 13 38 40 40 121 364 2 14 44 44 5 5 5 137 17 47 17 16 17 17 152 152 2 53 161 161 2 2 56 56 20 19 20 175 20 20 182 182 8 188 7 7 22 22 22 593 8 202 8 206 71 71 71 638 26 8 74 74 26 26 76 76 80 233 80 236 242 242 728 2186)
+;; collatz-values-significant = (5 20 8 10 10 4 13 13 5 5 17 161 20 20 20 182 22 8 8 26 26 26 76 242 28 10 10 10 91 4 11 11 11 4 4 107 107 13 37 13 38 40 40 121 364 14 44 44 5 5 5 137 17 47 17 16 17 17 152 152 53 161 161 56 56 20 19 20 175 20 20 182 182 8 188 7 7 22 22 22 593 8 202 8 206 71 71 71 638 26 8 74 74 26 26 76 76 80 233 80 236 242 242 728 2186)
+;; stat-on-each-value = ((1 . 0) (2 . 1) (2 . 0) (1 . 1) (1 . 1) (1 . 0) (1 . 1) (1 . 1) (1 . 0) (1 . 0) (3 . 0) (5 . 1) (2 . 1) (2 . 1) (2 . 1) (2 . 4) (1 . 2) (2 . 0) (2 . 0) (1 . 2) (1 . 2) (1 . 2) (3 . 2) (2 . 4) (1 . 2) (1 . 1) (1 . 1) (1 . 1) (2 . 3) (1 . 0) (1 . 1) (1 . 1) (1 . 1) (1 . 0) (1 . 0) (2 . 3) (2 . 3) (1 . 1) (3 . 1) (1 . 1) (2 . 2) (3 . 1) (3 . 1) (2 . 3) (3 . 4) (0 . 2) (2 . 2) (2 . 2) (1 . 0) (1 . 0) (1 . 0) (5 . 1) (3 . 0) (1 . 3) (3 . 0) (3 . 0) (3 . 0) (3 . 0) (4 . 2) (4 . 2) (2 . 2) (5 . 1) (5 . 1) (2 . 2) (2 . 2) (2 . 1) (2 . 1) (2 . 1) (2 . 4) (2 . 1) (2 . 1) (2 . 4) (2 . 4) (2 . 0) (2 . 4) (0 . 1) (0 . 1) (1 . 2) (1 . 2) (1 . 2) (6 . 2) (2 . 0) (3 . 3) (2 . 0) (2 . 4) (3 . 2) (3 . 2) (3 . 2) (2 . 6) (1 . 2) (2 . 0) (3 . 2) (3 . 2) (1 . 2) (1 . 2) (3 . 2) (3 . 2) (4 . 1) (3 . 3) (4 . 1) (2 . 4) (2 . 4) (2 . 4) (4 . 4) (7 . 3))
+;; zerosVSones = (#f #f #f #t #t #f #t #t #f #f #f #f #f #f #f #t #t #f #f #t #t #t #f #t #t #t #t #t #t #f #t #t #t #f #f #t #t #t #f #t #t #f #f #t #t #t #t #t #f #f #f #f #f #t #f #f #f #f #f #f #t #f #f #t #t #f #f #f #t #f #f #t #t #f #t #t #t #t #t #t #f #f #t #f #t #f #f #f #t #t #f #f #f #t #t #f #f #f #t #f #t #t #t #t #f)
+;; zeroWin = 52
+;; oneWin = 53
+;; ( zeros . ones )
+;; stat-on-all-values = (221 . 168)
+
+;;  (stat-collatz-time-space-tradeoff-bits)
+;; zeroWin = 42355
+;; oneWin = 22817
+;; ( zeros . ones )
+;; stat-on-all-values = (331847 . 372726)
+;; delta01 = -40879 si on compte les MSB les 1 l'emportent sur les 0
 (define (stat-collatz-time-space-tradeoff-bits)
   (define collatz-values (get-collatz-values))
   ;;(dv collatz-values)
-  ;; compute stats on all values from first bit to before the last bit (skip the leftmost 1)
+  (define collatz-values-significant (filter (lambda (n) (> (last-bit-position n) 1))
+					     collatz-values))
+  ;; compute stats on all values from second bit (skip the first bit that is more often 0 than 1 (probability double for first bit) to before the last bit (skip the leftmost 1)
+ 
   (define stat-on-each-value (map (lambda (n)
-				    (scan-and-stat-bits n 0 (- (integer-length n) 2)))
-				  collatz-values))
-  (dv stat-on-each-value)
+				    ;;(scan-and-stat-bits n 0 (- (last-bit-position n) 1)))
+				    ;; skip first and last bit
+				    (scan-and-stat-bits n 1 (- (last-bit-position n) 1)))
+				    
+				    ;;(scan-and-stat-bits n 0 (last-bit-position n)))
+				  ;; skip first bit
+				    ;;(scan-and-stat-bits n 1 (last-bit-position n)))
+				  collatz-values-significant))
+  ;;(dv collatz-values)
+  ;;(dv collatz-values-significant)
+  ;;(dv stat-on-each-value)
 
   (define zerosVSones (map (lambda (p)
 			     (<= (car p) (cdr p)))
 			   stat-on-each-value))
-  (dv zerosVSones)
+  ;;(dv zerosVSones)
 
   (define zeroWin 0)
   (define oneWin 0)
@@ -1558,9 +1600,12 @@
   (define stat-on-all-values (apply proc-add-pair stat-on-each-value))
   (display-nl "( zeros . ones )")
   (dv stat-on-all-values)
+  (define delta01 (- (car stat-on-all-values) (cdr stat-on-all-values)))
+  (dv delta01)
   )
 
 
+  
 
 
 
@@ -1568,10 +1613,7 @@
 
 
 
-
-
-
-
+;; compute the statistic of congruences for the cycles on a single number
 
 
 ;; compute Collatz until it reach 1
@@ -1612,7 +1654,8 @@
 
 
 
-
+;; (collatz-comp-stat-mod-2 2127) -> '#(24 25)
+;; (collatz-comp-stat-mod-2 2100) -> '#(14 8)
 (define (collatz-comp-stat-mod-2 n)
   ;; congruence class list
   (define C (make-vector 2 0))
@@ -1935,7 +1978,7 @@
 ;; '(33632 . 31855)
 (define (stat L) ;; L : number list
 
-  (define L-size (map integer-length L)) ;; construct the list of the size of numbers
+  (define L-size (map binary-length L)) ;; construct the list of the size of numbers
   (define mx (apply max L-size)) ;; get the maximum size
   (dv mx)
   (define v-zero-sum (make-vector mx 0))
@@ -1943,11 +1986,11 @@
   (define P-one (make-vector mx 0))
   
   (for-each (lambda (n)
-	      (when (> (integer-length n) 1)
-	      ;;(when (= (integer-length n) 5)
+	      (when (> (binary-length n) 1)
+	      ;;(when (= (binary-length n) 5)
 		    (scan-and-stat n 
-				   ;;(integer-length n)
-				   (- (integer-length n) 2);1)
+				   ;;(binary-length n)
+				   (- (binary-length n) 2);1)
 				   ;;mx
 				   v-zero-sum 
 				   v-one-sum)))
@@ -3088,7 +3131,7 @@
 
   ;; initialisation of variables
   (let* (
-	 (k (- (integer-length Ck) 1))
+	 (k (- (binary-length Ck) 1))
 	 (Bk-1 (shift-right Ck)) ;; ex: Ck = 100000, Bk-1 = 10000
 	 (alea Ck) ;; 1000...00 = 111...11 + 1 , example with Ck, alea = 100000 
 	 (omega-universe 0)
@@ -3374,7 +3417,7 @@
 
   ;; initialisation of variables
   (let* (
-	 (n+1 (- (integer-length Cn+1) 1))
+	 (n+1 (- (binary-length Cn+1) 1))
 	 (Bn-1 (shift-right
 		(shift-right Cn+1))) ;; ex: Cn+1 = 100000, Bn-1 = 1000
 	 (omega-universe 0)
@@ -3589,7 +3632,7 @@
 
   ;; initialisation of variables
   (let* (
-	 (k (- (integer-length Ck) 1))
+	 (k (- (binary-length Ck) 1))
 	 (Bk-1 (shift-right Ck)) ;; ex: Ck = 100000, Bk-1 = 10000
 	 (alea Cn) ;; 1000...00 = 111...11 + 1 , example with Cn, alea = 100000 
 	 (omega-universe 0)
