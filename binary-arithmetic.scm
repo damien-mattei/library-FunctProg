@@ -429,7 +429,7 @@
   ;; todo: mettre sous forme disjunctive minimale
   (symb-xor `(and ,A ,B) `(and ,Cin  ,(symb-xor A B))))
 
-
+;; redondant avec size-bit
 (define (binary-length n)
   (if (= 0 n)
       1
@@ -437,3 +437,12 @@
 
 
 (define (last-bit-position n) (- (binary-length n) 1))
+
+
+;;(count-ones #b11001010) -> 4
+(define (count-ones n)
+  (define c 0)
+  (for (i 0 (size-bit n))
+       (when (bit-test? n i)
+	     (incf c)))
+  c)
