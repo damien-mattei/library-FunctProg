@@ -255,6 +255,12 @@
 (define (bit-test? x k)
   (flag-set? (expt 2 k) x))
 
+;;  (bit-value #b10110 2) -> 1
+;; > (bit-value #b10110 0) -> 0
+;; > (bit-value #b10110 3) -> 0
+(define (bit-value n pos)
+  (bitwise-and 1
+	       (arithmetic-shift n (- pos))))
 
 ;; logarithme binaire
 (define (lb x)
@@ -441,7 +447,7 @@
 ;;       (integer-length n)))
 
 
-(define (last-bit-position n) (- (binary-length n) 1))
+(define (last-bit-position n) (- (size-bit n) 1))
 
 
 ;;(count-ones #b11001010) -> 4
