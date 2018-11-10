@@ -1463,7 +1463,7 @@
 
 ;; first compute the tables
 
-(define k 16) ;; size in bits 24 seems a max with Racket and extending memory many times
+(define k 8) ;; size in bits 24 seems a max with Racket and extending memory many times
 
 ;;(define d (make-vector (arithmetic-shift 1 k))) ;; size = 2^k
 
@@ -1493,6 +1493,57 @@
 
 ;; second ,use them ! (the pre-computed tables)
 ;; TODO : write a function that use them on a number displaying step by step !
+
+
+;; > (study-time-space-tradeoff)
+;; number                    % of 1 initial     % of 1 final   result
+;;                        0    0 > #   0                         0
+;;                        1  100 > # 100                         1
+;;                       10   50 > #  50                        10
+;;                       11  100 > #  50                        10
+;;                      100   33 >   100                         1
+;;                      101   67 >   100                         1
+;;                      110   67 >   100                         1
+;;                      111  100   #  25                      1000
+;;                     1000   25 >    50                        10
+;;                     1001   50 > #  50                      1010
+;;                     1010   50 > #  50                        10
+(define (study-time-space-tradeoff)
+  ;; environement (bindings)
+  (define i 0)
+  (define (display-per100 p)
+    (display (~r p #:base 10 #:precision 0 #:min-width 3 #:pad-string " ")))
+  
+
+  ;; procedure that display statistic informations
+  (define (proc elem)
+    (define tsto (vector-ref collatz-odd i)) ;; time stapce tradeoff
+    (define res (car tsto)) ;; result value of collatz recursion
+    (define p100-i (per-cent (count-ones i)
+			     (size-bit i)))
+    (define p100-res (per-cent (count-ones res)
+			       (size-bit res)))
+    (display-binary-pad i)
+    (display "  ")
+    (display-per100 p100-i)
+    (display " ")
+    (if (>= (size-bit i) (size-bit res))
+	(display ">")
+	(display " "))
+    (display " ")
+    (if (>= p100-i p100-res)
+	(display "#")
+	(display " "))
+    (display " ")
+    (display-per100 p100-res)
+    (display "  ")
+    (display-binary-pad res)
+    (newline)
+    (incf i))
+
+  ;; application of procedure to array
+  (display-nl "number                    % of 1 initial     % of 1 final   result")
+  (vector-map proc collatz-odd))
 
 
 
@@ -1984,7 +2035,8 @@
   (define v-zero-sum (make-vector mx 0))
   (define v-one-sum (make-vector mx 0))
   (define P-one (make-vector mx 0))
-  
+
+  ;; scan and stat each number of the list
   (for-each (lambda (n)
 	      (when (> (binary-length n) 1)
 	      ;;(when (= (binary-length n) 5)
@@ -1996,6 +2048,7 @@
 				   v-one-sum)))
 	    L)
 
+  ;; compute probabilities
   (for (t 0 (- (vector-length P-one) 1))
        (if (not (zero? (+ (vector-ref v-one-sum t) (vector-ref v-zero-sum t))))
 	   (vector-set! P-one
@@ -3392,7 +3445,9 @@
 
 (if  (equal? (current-command-line-arguments) '#())
      (display-nl "If running the application in a standalone terminal then an argument must be provided otherwise ignore this message.")
-     (collatz-verbose (string->number (vector-ref (current-command-line-arguments) 0))))
+     (begin
+       (display-nl (string-red "Testing color in terminal: this string should display in RED."))
+		   (collatz-verbose (string->number (vector-ref (current-command-line-arguments) 0)))))
 
 
 ;; compute probability of Cn+1 knowing Bk-1 for Collatz (3x+1) function and 3x function
