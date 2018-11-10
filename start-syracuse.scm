@@ -14,6 +14,8 @@
 (include "for.scm")
 (include "pair.scm")
 (include "number.scm")
+(include "stat.scm")
+
 
 (require racket/format)
 
