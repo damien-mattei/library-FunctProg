@@ -238,6 +238,11 @@
 (define (padding-spc x)
   (~r x #:base 2 #:min-width 24 #:pad-string " "))
 
+
+(define (display-binary-pad x)
+  (display (padding-spc x)))
+
+
 ;; (flag-set? #b10 #b11) -> #t
 ;; (flag-set? #b100 #b11) -> #f
 (define (flag-set? f x)
