@@ -1463,7 +1463,7 @@
 
 ;; first compute the tables
 
-(define k 24) ;; size in bits 24 seems a max with Racket and extending memory many times
+(define k 10) ;; size in bits 24 seems a max with Racket and extending memory many times
 
 ;;(define d (make-vector (arithmetic-shift 1 k))) ;; size = 2^k
 
@@ -1551,7 +1551,7 @@
   mean
   )
 
-(define (stat-HSB-1-gap-collatz m)
+;; (define (stat-HSB-1-gap-collatz m)
 
   ;; (define min-len 2) ; minimal length of 2 for getting valid HSB-1
   
