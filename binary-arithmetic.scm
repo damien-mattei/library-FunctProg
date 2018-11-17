@@ -266,14 +266,16 @@
 (define (lb x)
   (/ (log x) (log 2)))
 
-;; > (size-bit #b1000) -> 4.0
-;; > (size-bit #b1001) -> 4.0
+;; > (size-bit #b1000) -> 4
+;; > (size-bit #b1001) -> 4
 ;; > (size-bit #b001) -> 1
 ;; > (size-bit #b0) -> 1
 (define (size-bit x)
   (if (= 0 x) ;; to avoid error with lb
       1
-      (+ 1 (floor (lb x)))))
+      (inexact->exact
+       (+ 1
+	  (floor (lb x))))))
 
 ;; increment variable
 ;; nota: DrRacket Scheme has it own add1 function 
