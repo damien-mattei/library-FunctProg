@@ -431,7 +431,7 @@
 ;; compute Collatz until it reach 1
 (define (collatz-verbose n)
 
-  (let ((orig (binary-length n))
+  (let ((orig (size-bit n))
 	(display-enabled #t))
 
     (letrec ((collatz-verbose-rec
@@ -1463,7 +1463,7 @@
 
 ;; first compute the tables
 
-(define k 8) ;; size in bits 24 seems a max with Racket and extending memory many times
+(define k 24) ;; size in bits 24 seems a max with Racket and extending memory many times
 
 ;;(define d (make-vector (arithmetic-shift 1 k))) ;; size = 2^k
 
@@ -1494,6 +1494,94 @@
 ;; second ,use them ! (the pre-computed tables)
 ;; TODO : write a function that use them on a number displaying step by step !
 
+;; compute statistics time space tradeoff numbers over HSB-1 and HSB-2 positions
+;; HSB = Highest Significant Bit
+;; DEPRECATED : replaced by stat-HSB-1-* and stat-HSB-2-*
+(define (stat-significant-bits-time-space-tradeoff)
+
+  ;; get all the values of collatz recursion over the tradeoff
+  (define lst-val-collatz-recursion (map car
+					 (vector->list collatz-odd)))
+  (define stat (cons 0 0)) ; for further statistics over HSB-1 and HSB-2 positions
+
+  
+  (define (stat-bits n) ; compute statistics for a number over HSB-1 and HSB-2 positions
+    (define hsb-pos (last-bit-position n)) ; position of HSB
+    (define hsb-1-pos (sub1 hsb-pos)) ; position HSB-1
+    (define hsb-2-pos (sub1 hsb-1-pos)) ;  position HSB-2
+    (define hsb-1-val (bit-value n hsb-1-pos)) ; value of HSB-1
+    (define hsb-2-val (bit-value n hsb-2-pos)) ; value of HSB-2
+    (define hsb-1-hsb-2-val (cons hsb-1-val hsb-2-val))
+    (set! stat (add-pair stat hsb-1-hsb-2-val))
+    hsb-1-hsb-2-val)
+
+  ;; stat all the number of the list of values of  collatz recursion over the tradeoff
+  (define stat-lst-val-collatz-recursion (map stat-bits lst-val-collatz-recursion))
+  stat
+  )
+
+;; mean = 0.41482724815599153 avec k=24
+;; TODO : faire une meme routine sans space time tradeoff  juste en calculant une iteration de collatz
+(define (stat-HSB-1-time-space-tradeoff)
+
+  (define min-len 2) ; minimal length of 2 for getting valid HSB-1
+  ;; get all the values of collatz recursion over the tradeoff
+  (define lst-val-collatz-recursion (filter ; filtering on length in bits
+				     (lambda (n) (>= (size-bit n)
+						     min-len)) 
+				     (map car
+					  (vector->list collatz-odd))))
+  ;;(dv lst-val-collatz-recursion)
+  
+  (define stat 0) ; for further statistics over HSB-1 positions
+  (define cnt 0) ; counter of elements in list,used for mean later
+  
+  (define (stat-bits n) ; compute statistics for a number over HSB-1 positions
+    (define hsb-pos (last-bit-position n)) ; position of HSB
+    (define hsb-1-pos (sub1 hsb-pos)) ; position HSB-1
+    (define hsb-1-val (bit-value n hsb-1-pos)) ; value of HSB-1
+    (set! stat (+ stat hsb-1-val))
+    (incf cnt)
+    hsb-1-val)
+
+  ;; stat all the number of the list of values of  collatz recursion over the tradeoff
+  (define stat-lst-val-collatz-recursion (map stat-bits lst-val-collatz-recursion))
+  (define mean (exact->inexact (/ stat cnt)))
+  (dv mean)
+  mean
+  )
+
+(define (stat-HSB-1-gap-collatz m)
+
+  ;; (define min-len 2) ; minimal length of 2 for getting valid HSB-1
+  
+  ;; ;; get all the values of collatz calculus over the gap
+  ;; (define lst-val-collatz-recursion (filter ; filtering on length in bits
+  ;; 				     (lambda (n) (>= (size-bit n)
+  ;; 						     min-len)) 
+  ;; 				     (map car
+  ;; 					  (vector->list collatz-odd))))
+  ;; ;;(dv lst-val-collatz-recursion)
+  
+  ;; (define stat 0) ; for further statistics over HSB-1 positions
+  ;; (define cnt 0) ; counter of elements in list,used for mean later
+  
+  ;; (define (stat-bits n) ; compute statistics for a number over HSB-1 positions
+  ;;   (define hsb-pos (last-bit-position n)) ; position of HSB
+  ;;   (define hsb-1-pos (sub1 hsb-pos)) ; position HSB-1
+  ;;   (define hsb-1-val (bit-value n hsb-1-pos)) ; value of HSB-1
+  ;;   (set! stat (+ stat hsb-1-val))
+  ;;   (incf cnt)
+  ;;   hsb-1-val)
+
+  ;; ;; stat all the number of the list of values of  collatz recursion over the tradeoff
+  ;; (define stat-lst-val-collatz-recursion (map stat-bits lst-val-collatz-recursion))
+  ;; (for (n 1 m 2)
+  ;;      (stat-bits n)
+  ;; (define mean (exact->inexact (/ stat cnt)))
+  ;; (dv mean)
+  ;; mean
+  ;; )
 
 ;; > (study-time-space-tradeoff)
 ;; number                    % of 1 initial     % of 1 final   result
@@ -1517,7 +1605,7 @@
 
   ;; procedure that display statistic informations
   (define (proc elem)
-    (define tsto (vector-ref collatz-odd i)) ;; time stapce tradeoff
+    (define tsto (vector-ref collatz-odd i)) ;; time space tradeoff
     (define res (car tsto)) ;; result value of collatz recursion
     (define p100-i (per-cent (count-ones i)
 			     (size-bit i)))
@@ -1554,7 +1642,7 @@
   (define v-zero-sum 0)
   (for (k start stop)
        (when (or (< k 0)
-		 (>= k (binary-length n)))
+		 (>= k (size-bit n)))
 	     (dv k)
 	     (error "scan-and-stat-bits : testing bits out of range, check k"))
        (if (bit-test? n k)
@@ -1566,7 +1654,7 @@
 ;; no high significant bit in stats
 ;; (scan-and-stat-bits-no-HSB 27) -> '(1 . 3)
 (define (scan-and-stat-bits-no-HSB n)
-  (define stop (- (binary-length n) 2))
+  (define stop (- (size-bit n) 2))
   (define v-one-sum 0)
   (define v-zero-sum 0)
   (for (k 0 stop)
@@ -2029,7 +2117,7 @@
 ;; '(33632 . 31855)
 (define (stat L) ;; L : number list
 
-  (define L-size (map binary-length L)) ;; construct the list of the size of numbers
+  (define L-size (map size-bit L)) ;; construct the list of the size of numbers
   (define mx (apply max L-size)) ;; get the maximum size
   (dv mx)
   (define v-zero-sum (make-vector mx 0))
@@ -2038,11 +2126,11 @@
 
   ;; scan and stat each number of the list
   (for-each (lambda (n)
-	      (when (> (binary-length n) 1)
-	      ;;(when (= (binary-length n) 5)
+	      (when (> (size-bit n) 1)
+	      ;;(when (= (size-bit n) 5)
 		    (scan-and-stat n 
-				   ;;(binary-length n)
-				   (- (binary-length n) 2);1)
+				   ;;(size-bit n)
+				   (- (size-bit n) 2);1)
 				   ;;mx
 				   v-zero-sum 
 				   v-one-sum)))
@@ -3184,7 +3272,7 @@
 
   ;; initialisation of variables
   (let* (
-	 (k (- (binary-length Ck) 1))
+	 (k (- (size-bit Ck) 1))
 	 (Bk-1 (shift-right Ck)) ;; ex: Ck = 100000, Bk-1 = 10000
 	 (alea Ck) ;; 1000...00 = 111...11 + 1 , example with Ck, alea = 100000 
 	 (omega-universe 0)
@@ -3472,7 +3560,7 @@
 
   ;; initialisation of variables
   (let* (
-	 (n+1 (- (binary-length Cn+1) 1))
+	 (n+1 (- (size-bit Cn+1) 1))
 	 (Bn-1 (shift-right
 		(shift-right Cn+1))) ;; ex: Cn+1 = 100000, Bn-1 = 1000
 	 (omega-universe 0)
@@ -3687,7 +3775,7 @@
 
   ;; initialisation of variables
   (let* (
-	 (k (- (binary-length Ck) 1))
+	 (k (- (size-bit Ck) 1))
 	 (Bk-1 (shift-right Ck)) ;; ex: Ck = 100000, Bk-1 = 10000
 	 (alea Cn) ;; 1000...00 = 111...11 + 1 , example with Cn, alea = 100000 
 	 (omega-universe 0)
