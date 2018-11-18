@@ -1551,37 +1551,67 @@
   mean
   )
 
-;; (define (stat-HSB-1-gap-collatz m)
+;; stat all the values of collatz calculus over the gap
+;; statistics: return mean and count optionally
+;; (stat-HSB-1-gap-collatz 256)
+;; mean = 0.3359375
+;; 0.3359375
+;; > (stat-HSB-1-gap-collatz 8192)
+;; mean = 0.33349609375
+;; 0.33349609375
+;; > (stat-HSB-1-gap-collatz 65536)
+;; mean = 0.333343505859375
+;; 0.333343505859375
+;; > (stat-HSB-1-gap-collatz 16000000)
+;; mean = 0.349525375
+;; 0.349525375
+;; > (stat-HSB-1-gap-collatz 96000000)
+;; mean = 0.46603379166666664
+;; 0.46603379166666664
+;; > (stat-HSB-1-gap-collatz 96)
+;; mean = 0.4583333333333333
+;; 0.4583333333333333
+;; > (stat-HSB-1-gap-collatz 16)
+;; mean = 0.375
+;; 0.375
 
-  ;; (define min-len 2) ; minimal length of 2 for getting valid HSB-1
-  
-  ;; ;; get all the values of collatz calculus over the gap
-  ;; (define lst-val-collatz-recursion (filter ; filtering on length in bits
-  ;; 				     (lambda (n) (>= (size-bit n)
-  ;; 						     min-len)) 
-  ;; 				     (map car
-  ;; 					  (vector->list collatz-odd))))
-  ;; ;;(dv lst-val-collatz-recursion)
-  
-  ;; (define stat 0) ; for further statistics over HSB-1 positions
-  ;; (define cnt 0) ; counter of elements in list,used for mean later
-  
-  ;; (define (stat-bits n) ; compute statistics for a number over HSB-1 positions
-  ;;   (define hsb-pos (last-bit-position n)) ; position of HSB
-  ;;   (define hsb-1-pos (sub1 hsb-pos)) ; position HSB-1
-  ;;   (define hsb-1-val (bit-value n hsb-1-pos)) ; value of HSB-1
-  ;;   (set! stat (+ stat hsb-1-val))
-  ;;   (incf cnt)
-  ;;   hsb-1-val)
+;; convergence vers 1/3:
+;; (stat-HSB-1-gap-collatz (expt 2 16))
+;; mean = 0.333343505859375
+;; 0.333343505859375
+;; > (stat-HSB-1-gap-collatz (expt 2 20))
+;; mean = 0.33333396911621094
+;; 0.33333396911621094
+;; > (stat-HSB-1-gap-collatz (expt 2 24))
+;; mean = 0.3333333730697632
+;; 0.3333333730697632
+;; > (stat-HSB-1-gap-collatz (expt 2 27))
+;; mean = 0.3333333432674408
+;; 0.3333333432674408
+(define (stat-HSB-1-gap-collatz m)
 
-  ;; ;; stat all the number of the list of values of  collatz recursion over the tradeoff
-  ;; (define stat-lst-val-collatz-recursion (map stat-bits lst-val-collatz-recursion))
-  ;; (for (n 1 m 2)
-  ;;      (stat-bits n)
-  ;; (define mean (exact->inexact (/ stat cnt)))
-  ;; (dv mean)
-  ;; mean
-  ;; )
+  (define min-len 2) ; minimal length of 2 for getting valid HSB-1
+  
+  (define stat 0) ; for further statistics over HSB-1 positions
+  (define cnt 0) ; counter of elements in list,used for mean later
+  
+  (define (stat-bits n) ; compute statistics for a number over HSB-1 positions
+    (define hsb-pos (last-bit-position n)) ; position of HSB
+    (define hsb-1-pos (sub1 hsb-pos)) ; position HSB-1
+    (define hsb-1-val (bit-value n hsb-1-pos)) ; value of HSB-1
+    (set! stat (+ stat hsb-1-val))
+    (incf cnt)
+    hsb-1-val)
+
+  ;; stat all the number of the gap
+ 
+  (for-next i = 1 to m step 2
+	    (stat-bits (mac-mult3 i)))
+  
+  (define mean (exact->inexact (/ stat cnt)))
+  (dv mean)
+  mean
+  )
 
 ;; > (study-time-space-tradeoff)
 ;; number                    % of 1 initial     % of 1 final   result
@@ -2183,8 +2213,7 @@
 (define (mult3add1 x)
   (+ (shift-left x) x 1)) ;; return 2x+x+1
 
-(define (mult3 x)
-  (+ (shift-left x) x)) ;; return 2x+x
+
 
 
 
