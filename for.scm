@@ -144,13 +144,13 @@
 	     b1 ...
 	     (loop (+ i inc)))))))
 
-
-(define-syntax for-next-step
-  (syntax-rules (= to step)
+;; deprecated
+;; (define-syntax for-next-step
+;;   (syntax-rules (= to step)
     
-    ((for-next-step i = start to finish step inc b1 ...)
+;;     ((for-next-step i = start to finish step inc b1 ...)
      
-     (let loop ((i start))
-       (when (<= i finish)
-	     b1 ...
-	     (loop (+ i inc)))))))
+;;      (let loop ((i start))
+;;        (when (<= i finish)
+;; 	     b1 ...
+;; 	     (loop (+ i inc)))))))
