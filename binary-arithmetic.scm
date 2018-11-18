@@ -459,3 +459,13 @@
        (when (bit-test? n i)
 	     (incf c)))
   c)
+
+
+(define (mult3 x)
+  (+ (shift-left x) x)) ;; return 2x+x
+
+(define-syntax mac-mult3
+  (syntax-rules ()
+
+    ((_ x)
+     (+ (shift-left x) x))))
