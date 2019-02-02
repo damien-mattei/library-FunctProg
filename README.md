@@ -7,4 +7,4 @@ start-λογικι.scm a symbolic calculus program for logical expressions
 
 start-syracuse.scm a Syracuse conjecture tool
 
-start-goodstein-recursive : a symbolic calculus program for goodstein sequences
+start-goodstein-recursive.scm : a symbolic calculus program for goodstein sequences
