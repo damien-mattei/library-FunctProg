@@ -1533,7 +1533,7 @@
 	       
 	       (for (y 1 lgt-pi) ;; loop over prime implicants
 		    
-		    (set! prim-imp (array-2d-ref iepi 0 y)) ;; prime implcant
+		    (set! prim-imp (array-2d-ref iepi 0 y)) ;; prime implicant
 		    
 		    ;; check wether prime implicant is a non essential one?
 		    (when (member prim-imp non-essential-prime-implicants)
