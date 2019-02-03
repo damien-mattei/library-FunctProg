@@ -10,16 +10,18 @@
 ;; uncomment above for DrRacket Scheme, leave commented for other Schemes
 ;;
 ;;
+;;                    λογικι
+;;
 ;;                    LOGIKI
 ;;
 ;;
 ;; a program to compute logic symbolically
 ;;
-;; Copyright (C) 2014-2018  Damien MATTEI
+;; Copyright (C) 2014-2019  Damien MATTEI
 ;;
 ;;
 ;; e-mail: damien.mattei@gmail.com 
-;;         (damien.mattei@unice.fr , damien.mattei@oca.eu)
+;;         (damien.mattei@univ-cotedazur.fr, damien.mattei@unice.fr, damien.mattei@oca.eu)
 ;; 
 ;;
 ;;
@@ -262,7 +264,7 @@
    ((isNOT? expr) 
 
     (let 
-	((p (arg expr))) ; not (p) 
+	((p (arg expr))) ; expr = not (p) 
 
       (cond
 
@@ -270,15 +272,15 @@
 	    (boolean? p)) ;; *
 	expr) 
 
-       ((isNOT? p) (move-in-negations (arg p))) ; (not p)
-					;; not(a and b) = not(a) or not(b)
-       ((isAND? p)
+       ((isNOT? p) (move-in-negations (arg p))) ; expr = not p with p = not s, so expr = not(not (s)) = s
+       					
+       ((isAND? p) ;; not(a and b) = not(a) or not(b)
 	(let
 	    ((a (arg1 p))
 	     (b (arg2 p)))
 	  `(or ,(move-in-negations `(not ,a)) ,(move-in-negations `(not ,b)))))
-					;; not(a or b) = not(a) and not(b)
-       ((isOR? p) 
+					
+       ((isOR? p) ;; not(a or b) = not(a) and not(b)
 	(let
 	    ((a (arg1 p))
 	     (b (arg2 p)))
@@ -392,6 +394,7 @@
 
 
 ;; (dnf '(not (or (not (and a b)) b)))  --> '(and (and a b) (not b))
+;; Warning : DNF takes binary expressions, NOT n-arity expressions
 (define (dnf expr)    ; disjunctive normal form
   ;; (dnf '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b)))))
   ;; -> '(or (or (or (and c (and (not a) a)) (and c (and (not a) (not b)))) (or (and c (and b a)) (and c (and b (not b)))))
@@ -402,6 +405,32 @@
   ;;         (or (and (not Cin) (and A (not #t))) (and (not Cin) (and (not A) #t))))
   
   (phase3-dnf (move-in-negations (elim-implications expr))))
+
+;; simplify NF of forms :
+;; ((a ^ b) v a) -> a
+;; (a v b) ^ a -> a
+
+(define (simplify-NF-by-unitary-reduction expr)
+  (cond
+   ((null? expr) expr)
+   ((is-single-form? expr) expr)
+   (else 
+    (let* ((oper (operator expr))
+	   (sL (args expr)) ; extract the arguments of operation
+	   (encaps (lambda (expression)  ; put any remaining element in a set (list)
+		     (if (symbol? expression)
+			 (list expression)
+			 expression)))
+	   (encaps-args (map encaps sL))
+	   (reducted-args (parse-args-by-unitary-reduction encaps-args encaps-args)) ; do unitary reduction
+	   (decaps (lambda (expression) ; extract any element from a list
+		     (if (singleton? expression)
+			 (first expression)
+			 expression)))
+	   (decaps-args (map decaps reducted-args)))
+      (if (only-one? decaps-args)
+	  (first decaps-args)
+	  (cons oper decaps-args)))))) ;; reconstruct operation expression with simplified arguments list
 
 
 ;; todo : sort arguments by size 
@@ -543,14 +572,20 @@
 ;;
 ;; (dnf-infix-symb '(((p . and . q) . => . r) . and . ((not (p . and . q)) . => . r))) -> 'r
 (define (dnf-infix-symb expr)
-  (prefix->infix-symb (simplify-DNF-by-unitary-reduction (simplify-logic (n-arity (simplify-OR (simplify-AND (dnf (n-arity-operation->binary-operation expr)))))))))
+  (prefix->infix-symb (dnf-n-arity-simp expr)))
+
+(define (dnf-infix expr)
+  (prefix->infix (dnf-n-arity-simp expr)))
 
 ;; put expression in DNF in n-arity and simplified
 ;;
 ;;  (dnf-n-arity-simp '(or (and (and a b) (not (and c (or (and a (not b)) (and (not a) b))))) (and (not (and a b)) (and c (or (and a (not b)) (and (not a) b)))))) -> '(or (and a b) (and (not a) b c) (and a (not b) c))
 ;;
+;; (dnf-n-arity-simp '(and (or b c d) (or a c (not d)) (or (not b) (not c))))
+;; '(or (and b (not c) (not d)) (and (not b) c) (and a b (not c)) (and a (not b) d) (and a (not c) d))
 (define (dnf-n-arity-simp expr)
   (simplify-DNF-by-unitary-reduction (simplify-logic (n-arity (simplify-OR (simplify-AND (dnf (n-arity-operation->binary-operation expr))))))))
+
 
 ;; (infix-symb-min-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d)  (and (not a) b c (not d))  (and (not a) b c d)  (and a (not b) (not c) (not d)) (and a (not b) (not c) d)  (and a (not b) c (not d))   (and a b c (not d))))
 ;; '((!b ^ !c) v (c ^ !d) v (!a ^ b ^ d))
@@ -562,11 +597,20 @@
 (define (infix-min-dnf expr)
   (prefix->infix  (minimal-dnf expr)))
 
+
+
 ;; put an expression in CNF in infix with symbols and all the simplifications
 ;;  (cnf-infix-symb '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b))))) -> '((a v b v c) ^ (!a v !b v c) ^ (!a v b v !c) ^ (a v !b v !c))
 (define (cnf-infix-symb expr)
-  (prefix->infix-symb (simplify-logic (n-arity (simplify-AND (simplify-OR (cnf (n-arity-operation->binary-operation expr))))))))
+  (prefix->infix-symb (cnf-n-arity-simp expr)))
 
+;;(cnf-infix '(or (and b (not c) (not d)) (and (not b) c) (and a b (not c)) (and a (not b) d) (and a (not c) d)))
+;;'((b or c or d) and (!b or !c) and (a or b or c) and (a or !b or !d) and (a or c or !d))
+(define (cnf-infix expr)
+  (prefix->infix (cnf-n-arity-simp expr)))
+
+(define (cnf-n-arity-simp expr)
+  (simplify-NF-by-unitary-reduction (simplify-logic (n-arity (simplify-AND (simplify-OR (cnf (n-arity-operation->binary-operation expr))))))))
 
 
 
@@ -1441,10 +1485,13 @@
 
 ;; Quine-Mc Cluskey method for minimizing function
 ;;
-;; must be call by minimal-dnf
+;; called by minimal-dnf
 ;;
+;; (Quine-Mc-Cluskey '(or (and c (not d)) (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) b (not c) d) (and (not a) b c d) (and a (not b) (not c) (not d)) (and a (not b) (not c) d)) '(a b c d))
+;;
+;; '((x 0 0 x) (x x 1 0))
 (define (Quine-Mc-Cluskey disj-norm-form var-list)
-
+  (display-nl "Entering Quine-Mc-Cluskey")
   (let* (
 	 (and-terms (args disj-norm-form)) ;; conjunctives minterms
 	 ;; variable list of expanded minterms 
