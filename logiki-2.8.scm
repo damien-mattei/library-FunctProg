@@ -27,6 +27,8 @@
 ;;
 ;;
 ;; version 2.8
+
+;; still i forget to increase the version !!!
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -436,6 +438,8 @@
 ;; todo : sort arguments by size 
 
 ;; simplify DNF of form ((a ^ b) v a) -> a
+;; DEPRECATED,replaced by simplify-NF-by-unitary-reduction but still in use in code
+;;
 ;; simplify a prefixed n-arity expression
 ;;
 ;;
@@ -606,6 +610,7 @@
 
 ;;(cnf-infix '(or (and b (not c) (not d)) (and (not b) c) (and a b (not c)) (and a (not b) d) (and a (not c) d)))
 ;;'((b or c or d) and (!b or !c) and (a or b or c) and (a or !b or !d) and (a or c or !d))
+;; TODO: minimize the CNF above
 (define (cnf-infix expr)
   (prefix->infix (cnf-n-arity-simp expr)))
 
