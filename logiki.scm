@@ -1498,9 +1498,10 @@
 (define (Quine-Mc-Cluskey disj-norm-form var-list)
   (display-nl "Entering Quine-Mc-Cluskey")
   (let* (
-	 (and-terms (args disj-norm-form)) ;; conjunctives minterms
-	 ;; variable list of expanded minterms 
-	 (expanded-var-terms
+	 ;; TODO: put those statements in a function
+	 (and-terms (args disj-norm-form)) ;; conjunctives minterms	 
+
+	 (expanded-var-terms ;; variable list of expanded minterms 
 	  (begin
 	    (set! debug-mode-save debug-mode)
 	    (set! debug-mode #t)
@@ -1511,17 +1512,23 @@
 			 (map (lambda (min-term)
 				(expand-minterm var-list min-term))
 			      and-terms))))
+
 	 (sorted-expanded-var-terms (map sort-arguments expanded-var-terms)) ;; sorted variable list of expanded minterms
+
 	 (binary-minterms (map var->binary sorted-expanded-var-terms)) ;; minterms in binary form
+
 	 (sorted-binary-minterms (sort binary-minterms minterm-binary-weight-number<?)) ;; sorted binary minterms
+
 	 (uniq-sorted-binary-minterms (remove-duplicates-sorted sorted-binary-minterms))  ;; prevoir uniq pourquoi???? sais plus !
 	 (minterms uniq-sorted-binary-minterms)
+
 	 (set-of-sets-of-minterms
 	  ;; (begin
 	  ;;   (de (order-by-weight-basic uniq-sorted-binary-minterms)) ;; set of sets of minterms ordered by weight
 	  ;;   (error "escaping from Quine-Mc-Cluskey")))
 	  ;; (order-by-weight-basic uniq-sorted-binary-minterms))
 	  (order-by-weight-minterms uniq-sorted-binary-minterms)) ;; set of sets of minterms ordered by weight
+
 	 (unified-minterms 
 	  (begin
 	    (set! debug-mode-save debug-mode)
@@ -1531,6 +1538,7 @@
 	    (dv minterms-ht)
 	    (set! debug-mode debug-mode-save)
 	    (recursive-unify-minterms-set-of-sets  set-of-sets-of-minterms)))
+	 
 	 (essential-prime-implicants
 	  (begin
 	    (set! prime-implicants-lst (begin

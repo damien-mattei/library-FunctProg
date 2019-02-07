@@ -41,7 +41,7 @@
 
 
 
-(include "logiki-2.8.scm")
+(include "logiki.scm")
 
 ; DrRacket does not like greek names in filenames
 ;(include "program-λογικι-2.8.scm")
