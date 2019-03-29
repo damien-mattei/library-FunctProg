@@ -322,67 +322,6 @@
 
 
 
-;; the same as my-map but defined with lambdas
-;;
-;; (my-map-with-lambdas + '(1 2 3) '(4 5 6)) -> '(5 7 9)
-(define my-map-with-lambdas
-  (lambda (function list1 . more-lists)
-    (letrec (
-	     (some? (lambda (fct list)
-		      ;; returns #f if (function x) returns #t for 
-		      ;; some x in the list
-		      (and (pair? list)
-			   (or (fct (car list))
-			       (some? fct (cdr list))))))
-
-	     (map1 (lambda (fct list)
-		     ;; non-variadic map.  Returns a list whose elements
-		     ;; the result of calling function with corresponding
-		     ;; elements of list
-		     (if (null? list)
-			 '()
-			 (cons (fct (car list))
-			       (map1 fct (cdr list))))))
-	     )
-      
-      ;; variadic map implementation terminates
-      ;; when any of the argument lists is empty.
-      (let ((lists (cons list1 more-lists)))
-	(if (some? null? lists)
-	    '()
-	    (cons (apply function (map1 car lists))
-		  (apply my-map function (map1 cdr lists))))))))
-
-;; the same as my-map-with-lambdas but defined with map instead of map1
-;;
-;; (map-with-lambdas + '(1 2 3) '(4 5 6)) -> '(5 7 9)
-(define map-with-lambdas
-  (lambda (function list1 . more-lists)
-    (letrec (
-	     (some? (lambda (fct list)
-		      ;; returns #f if (function x) returns #t for 
-		      ;; some x in the list
-		      (and (pair? list)
-			   (or (fct (car list))
-			       (some? fct (cdr list))))))
-
-	     ;; (map1 (lambda (fct list)
-	     ;; 	     ;; non-variadic map.  Returns a list whose elements
-	     ;; 	     ;; the result of calling function with corresponding
-	     ;; 	     ;; elements of list
-	     ;; 	     (if (null? list)
-	     ;; 		 '()
-	     ;; 		 (cons (fct (car list))
-	     ;; 		       (map1 fct (cdr list))))))
-	     )
-      
-      ;; variadic map implementation terminates
-      ;; when any of the argument lists is empty.
-      (let ((lists (cons list1 more-lists)))
-	(if (some? null? lists)
-	    '()
-	    (cons (apply function (map car lists))
-		  (apply map-with-lambdas function (map cdr lists))))))))
 
 
 ;; map-nil : a map version that exclude nil results
@@ -745,7 +684,8 @@
 ;; 		 (apply andmap function (map cdr lists))))))))
 
 ;; (my-map + '(1 2 3) '(4 5 6)) -> '(5 7 9)
-(define (my-map function list1 . more-lists)
+;; (my-map + '(1 2 3) '(4 5 6) '(7 8 9)) -> '(12 15 18)
+(define (my-map function list1 . list-of-lists) ; list of lists of arguments, ex: ((4 5 6) (7 8 9)) in the previous example
 
   (define (some? function list)
     ;; returns true if for at least one element x of list function(x) is true
@@ -767,16 +707,17 @@
   
   ;; variadic map implementation terminates
   ;; when any of the argument lists is empty.
-  (let ((lists (cons list1 more-lists)))
-    (if (some? null? lists)
+  (let ((lists (cons list1 list-of-lists))) ;; ex: (my-map + '(1 2 3) '(4 5 6) '(7 8 9)) 
+    ;; '(1 2 3) '(4 5 6) '(7 8 9) ==> list1 = (1 2 3) , list-of-lists = ((4 5 6) (7 8 9))
+    (if (some? null? lists) ;; lists = ((1 2 3) (4 5 6) (7 8 9))
         '()
-        (cons (apply function (map1 car lists))
-              (apply my-map function (map1 cdr lists))))))
+        (cons (apply function (map1 car lists)) ;; ex: (apply + (1 4 7))
+              (apply my-map function (map1 cdr lists)))))) ;; (apply my-map + ((2 3) (5 6) (8 9))) 
 
 
 
 ;; (my-map2 + '(1 2 3) '(4 5 6)) -> '(5 7 9)
-(define (my-map2 function list1 . more-lists)
+(define (my-map2 function list1 . list-of-lists)
 
   (define (some? function list)
     ;; returns #f if (function x) returns #t for 
@@ -796,18 +737,83 @@
   
   ;; variadic map implementation terminates
   ;; when any of the argument lists is empty.
-  (let ((lists (cons list1 more-lists)))
+  (let ((lists (cons list1 list-of-lists)))
     ;;(display-nl list1)
-    ;;(display-nl more-lists)
+    ;;(display-nl list-of-lists)
     ;;(display-nl lists)
     (if (some? null? lists)
         '()
         (cons (apply function (map1 car lists))
-              (apply my-map2 
+              (apply my-map2 ;; the reason it works is given in the R4RS definition of apply:
+		     ;; procedure:  (apply proc arg1 ... args) 
+		     ;; Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
 		     (cons 
 		      function
 		      (map1 cdr lists)))))))
 
+
+
+;; the same as my-map but defined with lambdas
+;;
+;; (my-map-with-lambdas + '(1 2 3) '(4 5 6)) -> '(5 7 9)
+(define my-map-with-lambdas
+  (lambda (function list1 . list-of-lists)
+    (letrec (
+	     (some? (lambda (fct list)
+		      ;; returns #f if (function x) returns #t for 
+		      ;; some x in the list
+		      (and (pair? list)
+			   (or (fct (car list))
+			       (some? fct (cdr list))))))
+
+	     (map1 (lambda (fct list)
+		     ;; non-variadic map.  Returns a list whose elements
+		     ;; the result of calling function with corresponding
+		     ;; elements of list
+		     (if (null? list)
+			 '()
+			 (cons (fct (car list))
+			       (map1 fct (cdr list))))))
+	     )
+      
+      ;; variadic map implementation terminates
+      ;; when any of the argument lists is empty.
+      (let ((lists (cons list1 list-of-lists)))
+	(if (some? null? lists)
+	    '()
+	    (cons (apply function (map1 car lists))
+		  (apply my-map-with-lambdas function (map1 cdr lists))))))))
+
+;; the same as my-map-with-lambdas but defined with map instead of map1
+;;
+;; (map-with-lambdas + '(1 2 3) '(4 5 6)) -> '(5 7 9)
+(define map-with-lambdas
+  (lambda (function list1 . list-of-lists)
+    (letrec (
+	     (some? (lambda (fct list)
+		      ;; returns #f if (function x) returns #t for 
+		      ;; some x in the list
+		      (and (pair? list)
+			   (or (fct (car list))
+			       (some? fct (cdr list))))))
+
+	     ;; (map1 (lambda (fct list)
+	     ;; 	     ;; non-variadic map.  Returns a list whose elements
+	     ;; 	     ;; the result of calling function with corresponding
+	     ;; 	     ;; elements of list
+	     ;; 	     (if (null? list)
+	     ;; 		 '()
+	     ;; 		 (cons (fct (car list))
+	     ;; 		       (map1 fct (cdr list))))))
+	     )
+      
+      ;; variadic map implementation terminates
+      ;; when any of the argument lists is empty.
+      (let ((lists (cons list1 list-of-lists)))
+	(if (some? null? lists)
+	    '()
+	    (cons (apply function (map car lists))
+		  (apply map-with-lambdas function (map cdr lists))))))))
 
 
 ;; andmap (one argument version)
