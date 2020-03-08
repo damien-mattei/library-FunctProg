@@ -428,3 +428,12 @@
 
 (define (expt->^ expr)
   (replace expr 'expt '^))
+
+
+;; (3*a*b+c/d)
+(define (infix->prefix expr)
+  (if (list? expr)
+      expr ;; TODO continue
+      expr))
+
+;; 

@@ -57,11 +57,11 @@
    ((null? L) '())
    (else
     (cons (car L)
-	  (uniq (remove (car L)
+	  (uniq (remove-firsts-elements (car L)
 			(cdr L)))))))
 
 ;; remove all the c in '(c c c c c c ... L)
-(define (remove c L)
+(define (remove-firsts-elements c L)
   (cond
    ((null? L) '())
    ;; ((null? (cdr L)) (if (equal? c (car L))
@@ -69,7 +69,7 @@
    ;; 			L))
    ((not (equal? c (car L))) L)
    (else
-    (remove c (cdr L)))))
+    (remove-firsts-elements c (cdr L)))))
     
    
 
