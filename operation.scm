@@ -430,6 +430,7 @@
   (replace expr 'expt '^))
 
 
+;; SRFI 105 do the work
 ;; (3*a*b+c/d)
 (define (infix->prefix expr)
   (if (list? expr)
