@@ -1,7 +1,7 @@
 ;; arrays
 
 
-
+;; the value v should be put before in a let to avoid multiple evaluation after macro expand
 (define-syntax make-array-2d
   (syntax-rules ()
     ((_ sx sy) (let* ((array (make-vector sy)))
@@ -54,4 +54,12 @@
 
 (define (funct-array-2d-ref array x y) (vector-ref (vector-ref array y) x))
 
-
+;; scheme@(guile-user)> (array-ref-set! dyna 7 3 4)
+;; $4 = 7
+;; scheme@(guile-user)> (array-ref dyna 3 4)
+;; $5 = 7
+(define-syntax array-ref-set!
+  (syntax-rules ()
+    ((_ array expr x y) (let ((v expr))
+			  (array-set! array v x y)
+			  v))))

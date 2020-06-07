@@ -7,3 +7,11 @@
     (if (even? n) '(1 . 0) '(0 . 1)))
   (apply proc-add-pair (map parity L)))
 
+
+
+(define (one? n)
+  (= n 1))
+
+(define (two? n)
+  (= n 2))
+
