@@ -2,6 +2,9 @@
 
 ;; author: Damien Mattei
 
+
+;; DEPRECATED, for backward compatibility
+
 ;; "if" "then" without "else"
 ;;  (if-t (= 1 1) 'good) -> 'good
 ;;  (if-t (= 1 1) 'good 'bad) -> 'bad
@@ -22,7 +25,7 @@
     ((_ ev)  ev)
     ((_ ev ...) (begin ev ...))))
 
-
+;; commented? conflict with cond ?
 ;; (define-syntax else
 ;;   (syntax-rules ()
 ;;     ((_ ev)  ev)
@@ -31,7 +34,7 @@
 
 
 (define-syntax while
-  (syntax-rules ()
+  (syntax-rules (while)
     ((_ pred b1 ...)
      (let loop () (when pred b1 ... (loop))))))
 
@@ -42,7 +45,7 @@
 ;; toto
 ;; toto
 (define-syntax do
-  (syntax-rules (while)
+  (syntax-rules (do)
     ((do b1 ...
        while pred)
      (let loop () b1 ... (when pred (loop))))))
@@ -51,6 +54,7 @@
 ;; (define-syntax when
 ;;   (syntax-rules ()
 ;;     ((_ pred b1 ...)
+;; when calls when ?????
 ;;      (when pred (begin b1 ...)))))
 
 
@@ -72,7 +76,8 @@
 ;; this is different than add1 in DrRacket
 (define-syntax incf
   (syntax-rules ()
-    ((_ x)   (begin (set! x (+ x 1)) x))))
+    ((_ x)   (begin (set! x (+ x 1))
+		    x))))
 
 (define-syntax add1
   (syntax-rules ()
@@ -243,5 +248,6 @@
 ;;   (syntax-rules ()
 ;;     ((_ x)   (+ x 1))))
 
-(define (atom? x)
-  (not (list? x)))
+;; not-list? already do the same
+;; (define (atom? x)
+;;   (not (list? x)))

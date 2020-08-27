@@ -132,3 +132,9 @@
          (iter (cons (first Lcur) acc) (- ncur 1) (rest Lcur))))
   (reverse (iter '() n L)))
     
+
+;; scheme@(guile-user)> (not-list? 4)
+;; $1 = #t
+
+(define (not-list? L)
+  (not (list? L)))

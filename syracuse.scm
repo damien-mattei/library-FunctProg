@@ -2213,7 +2213,8 @@
 (define (mult3add1 x)
   (+ (shift-left x) x 1)) ;; return 2x+x+1
 
-
+(define (mult3add1div2 x)
+  (shift-right (+ (shift-left x) x 1))) ;; return 2x+x+1 / 2
 
 
 
@@ -3462,6 +3463,22 @@
 
 
 
+;; la suite de collatz serait convergente si la parité du résultat à chaque étape de la suite de collatz compressée
+;; était equiprobable
+
+;; on cherche a verifier une conjecture sur l'ensemble des nombres N
+;; donc statistiquement sur un nombre n de m chiffres
+;; il y a autant de chiffres pair ou impairs sur les m-1 chiffres les moins significatifs (LSB) qui composent
+;; n car le m-eme chiffre ,c'est à dire le plus à gauche (HSB) est un 1 toujours evidemment
+;; cette répartition equitable des 1 et 0 dans le nombre n a des consequences sur les calculs de la fonction
+;; de collatz:
+;;
+;; la division par 2 qui supprime le 0 dans le LSB en notation binaire, la parité du résultat
+;; sera statistiquement toujours de une chance sur deux d'avoir un nombre pair ou impair
+;; sauf si il ne restait plus que le 1 du HSB mais dans ce cas le calcul serai terminé car on serait dans le cycle
+;; 4,2,1
+;; dans le cas de la division par 2 l'equiprobabilité de la parité du résutat est donc vérifiée
+
 ;; given n bits check that all the number between 0 and  2^n - 1
 ;; are randomly sparsed by 3x+1 for their digits,i.e they have same number of 0 and 1
 ;; TODO: replace bit by digit
@@ -3526,8 +3543,260 @@
     ))
 
 
+(define (syracuse-odd-probabilistic-heuristic-n-bits n)
+  
+  (let* ((mb (+ n 2)) ;; maximum number of bits used
+	 (m (- (expt 2 n) 1)) ;; 2^n - 1 is the maximum number to test
+	 (v-zero-sum  (make-vector mb 0)) ;; to count the zeros
+	 (v-one-sum (make-vector mb 0)) ;; to count the ones
+	 (fx 0) ;; result of f(x) with f : x -> 3x+1 
+	 )
+
+    (dv mb)
+    (dv m)
+
+    (for (x 1 m 2) ;; x : input number
+	 
+	 (set! fx (mult3add1 x))
+	 (display (padding-spc x))
+	 (display " -> ")
+	 (display (padding-spc fx)) (newline)
+	 
+	 (for (k 0 (- mb 1)) ;; k : bit number
+
+	      (if (bit-test? fx k)
+		  (vector-set! v-one-sum 
+			       k 
+			       (+ (vector-ref v-one-sum k) 1))
+		  (when (or (< k n) (> fx m))
+			    ;;(and (> fx m)
+				 ;;(< k (- mb 1))))
+			(vector-set! v-zero-sum 
+				     k 
+				     (+ (vector-ref v-zero-sum k) 1)))))
+
+	 ;;(dv v-zero-sum)
+	 ;;(dv v-one-sum)
+	 )
+    (dv v-zero-sum)
+    (dv v-one-sum)
+    ))
+
+
+
+;; 2^3= 8 = 1000
+
+
+;; > (syracuse-compressed-probabilistic-heuristic-n-bits 3)
+;; mb = 5
+;; m = 7
+;;                        1 ->                       10
+;;                       11 ->                      101
+;;                      101 ->                     1000
+;;                      111 ->                     1011
+;; v-zero-sum = #(2 2 3 0 2)
+;; v-one-sum = #(2 2 1 2 0)
+;; > (syracuse-compressed-probabilistic-heuristic-n-bits 5)
+;; mb = 7
+;; m = 31
+;;                        1 ->                       10
+;;                       11 ->                      101
+;;                      101 ->                     1000
+;;                      111 ->                     1011
+;;                     1001 ->                     1110
+;;                     1011 ->                    10001
+;;                     1101 ->                    10100
+;;                     1111 ->                    10111
+;;                    10001 ->                    11010
+;;                    10011 ->                    11101
+;;                    10101 ->                   100000
+;;                    10111 ->                   100011
+;;                    11001 ->                   100110
+;;                    11011 ->                   101001
+;;                    11101 ->                   101100
+;;                    11111 ->                   101111
+;; v-zero-sum = #(8 8 8 8 11 0 6)
+;; v-one-sum = #(8 8 8 8 5 6 0)
+;; > 
+(define (syracuse-compressed-probabilistic-heuristic-n-bits n)
+  
+  (let* ((mb (+ n 2)) ;; maximum number of bits used
+	 (m (- (expt 2 n) 1)) ;; 2^n - 1 is the maximum number to test
+	 (v-zero-sum  (make-vector mb 0)) ;; to count the zeros
+	 (v-one-sum (make-vector mb 0)) ;; to count the ones
+	 (fx 0) ;; result of f(x) with f : x -> 3x+1 / 2
+	 )
+
+    (dv mb)
+    (dv m)
+
+    (for (x 1 m 2) ;; x : input number
+	 
+	 (set! fx (mult3add1div2 x))
+	 (display (padding-spc x))
+	 (display " -> ")
+	 (display (padding-spc fx)) (newline)
+	 
+	 (for (k 0 (- mb 1)) ;; k : bit number
+
+	      (if (bit-test? fx k)
+		  (vector-set! v-one-sum 
+			       k 
+			       (+ (vector-ref v-one-sum k) 1))
+		  (when (or (< k n) (> fx m))
+			    ;;(and (> fx m)
+				 ;;(< k (- mb 1))))
+			(vector-set! v-zero-sum 
+				     k 
+				     (+ (vector-ref v-zero-sum k) 1)))))
+
+	 ;;(dv v-zero-sum)
+	 ;;(dv v-one-sum)
+	 )
+    (dv v-zero-sum)
+    (dv v-one-sum)
+    ))
+
+
+;; > (double-heuristic-n-bits 3)
+;; mb = 5
+;; m = 7
+;;                        0 ->                        0
+;;                        1 ->                       10
+;;                       10 ->                      100
+;;                       11 ->                      110
+;;                      100 ->                     1000
+;;                      101 ->                     1010
+;;                      110 ->                     1100
+;;                      111 ->                     1110
+;; v-zero-sum = #(8 4 4 0 4)
+;; v-one-sum = #(0 4 4 4 0)
+(define (double-heuristic-n-bits n)
+  
+  (let* ((mb (+ n 2)) ;; maximum number of bits used
+	 (m (- (expt 2 n) 1)) ;; 2^n - 1 is the maximum number to test
+	 (v-zero-sum  (make-vector mb 0)) ;; to count the zeros
+	 (v-one-sum (make-vector mb 0)) ;; to count the ones
+	 (f (lambda (x) (shift-left x)))
+	 (fx 0) ;; result of f(x)
+	 )
+
+    (dv mb)
+    (dv m)
+
+    (for (x 0 m) ;; x : input number
+	 
+	 (set! fx (f x))
+	 (display (padding-spc x))
+	 (display " -> ")
+	 (display (padding-spc fx)) (newline)
+	 
+	 (for (k 0 (- mb 1)) ;; k : bit number
+
+	      (if (bit-test? fx k)
+		  (vector-set! v-one-sum 
+			       k 
+			       (+ (vector-ref v-one-sum k) 1))
+		  (when (or (< k n) (> fx m))
+			    ;;(and (> fx m)
+				 ;;(< k (- mb 1))))
+			(vector-set! v-zero-sum 
+				     k 
+				     (+ (vector-ref v-zero-sum k) 1)))))
+
+	 ;;(dv v-zero-sum)
+	 ;;(dv v-one-sum)
+	 )
+    (dv v-zero-sum)
+    (dv v-one-sum)
+    ))
+
+;; > (double-odd-heuristic-n-bits 3)
+;; mb = 5
+;; m = 7
+;;                        1 ->                       10
+;;                       11 ->                      110
+;;                      101 ->                     1010
+;;                      111 ->                     1110
+;; v-zero-sum = #(4 0 2 0 2)
+;; v-one-sum = #(0 4 2 2 0)
+;; > (double-odd-heuristic-n-bits 4)
+;; mb = 6
+;; m = 15
+;;                        1 ->                       10
+;;                       11 ->                      110
+;;                      101 ->                     1010
+;;                      111 ->                     1110
+;;                     1001 ->                    10010
+;;                     1011 ->                    10110
+;;                     1101 ->                    11010
+;;                     1111 ->                    11110
+;; v-zero-sum = #(8 0 4 4 0 4)
+;; v-one-sum = #(0 8 4 4 4 0)
+(define (double-odd-heuristic-n-bits n)
+  
+  (let* ((mb (+ n 2)) ;; maximum number of bits used
+	 (m (- (expt 2 n) 1)) ;; 2^n - 1 is the maximum number to test
+	 (v-zero-sum  (make-vector mb 0)) ;; to count the zeros
+	 (v-one-sum (make-vector mb 0)) ;; to count the ones
+	 (f (lambda (x) (shift-left x)))
+	 (fx 0) ;; result of f(x)
+	 )
+
+    (dv mb)
+    (dv m)
+
+    (for (x 1 m 2) ;; x : input number
+	 
+	 (set! fx (f x))
+	 (display (padding-spc x))
+	 (display " -> ")
+	 (display (padding-spc fx)) (newline)
+	 
+	 (for (k 0 (- mb 1)) ;; k : bit number
+
+	      (if (bit-test? fx k)
+		  (vector-set! v-one-sum 
+			       k 
+			       (+ (vector-ref v-one-sum k) 1))
+		  (when (or (< k n) (> fx m))
+			    ;;(and (> fx m)
+				 ;;(< k (- mb 1))))
+			(vector-set! v-zero-sum 
+				     k 
+				     (+ (vector-ref v-zero-sum k) 1)))))
+
+	 ;;(dv v-zero-sum)
+	 ;;(dv v-one-sum)
+	 )
+    (dv v-zero-sum)
+    (dv v-one-sum)
+    ))
+
+
+
 ;; given n bits check all the number between 0 and  2^n - 1
 ;; TODO: replace bit by digit
+
+;; > (mult3-proba-n-bits 3)
+;; mb = 5
+;; m = 7
+;; v-zero-sum = #(1 1 1 0 0)
+;; v-one-sum = #(0 0 0 0 0)
+;; v-zero-sum = #(1 1 2 0 0)
+;; v-one-sum = #(1 1 0 0 0)
+;; v-zero-sum = #(2 1 2 0 0)
+;; v-one-sum = #(1 2 1 0 0)
+;; v-zero-sum = #(2 2 3 0 1)
+;; v-one-sum = #(2 2 1 1 0)
+;; v-zero-sum = #(3 3 3 0 2)
+;; v-one-sum = #(2 2 2 2 0)
+;; v-zero-sum = #(3 3 3 0 3)
+;; v-one-sum = #(3 3 3 3 0)
+;; v-zero-sum = #(4 3 4 1 3)
+;; v-one-sum = #(3 4 3 3 1)
+;; v-zero-sum = #(4 4 4 2 3)
+;; v-one-sum = #(4 4 4 3 2)
 (define (mult3-proba-n-bits n)
   
   (let* ((mb (+ n 2)) ;; maximum number of bits used

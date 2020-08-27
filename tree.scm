@@ -6,7 +6,7 @@
 ;; > (depth '(+ 2 (* 3 4 (/ 5 6))))
 ;; 4
 (define (depth t)
-  (if (atom? t)
+  (if (not-list? t)
       1
       (+ 1
 	 (apply max
@@ -24,7 +24,7 @@
 ;; depth of P,  d = 2
 (define (depth-select t s)
 
-  (if (atom? t)
+  (if (not-list? t)
 
       0
 
