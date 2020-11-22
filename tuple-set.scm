@@ -345,4 +345,26 @@
 		(product-powers-2 (apply * powers-2)))
 	   (* factor product-powers-2)))))
 
+;; (find-anchor-tuple 1000 '(1 3))
+;; 10 (19 29 11)
+;; '(19 29 11)
 
+;; (find-anchor-tuple 1000 '(3 2))
+;; 23 (45 17 13)
+;; '(45 17 13)
+(define (find-anchor-tuple i-max exp-seq)
+  
+  (let [(n 0)
+	(res '())
+	(lg-res 0)
+	(level (+ (length exp-seq)1))]
+    
+    (for ((i (in-range 1 i-max 2))
+	  #:break (= level lg-res))
+	 (set! n (+ n 1))
+	 (set! res (compute-tuple i exp-seq))
+	 (set! lg-res (length res)))
+
+    (when (= level lg-res)
+	  (display n) (display " ") (display res) (printf "\n")
+	  res)))

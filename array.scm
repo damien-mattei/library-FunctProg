@@ -63,3 +63,57 @@
     ((_ array expr x y) (let ((v expr))
 			  (array-set! array v x y)
 			  v))))
+
+;; for guile
+;; (define T (make-vector 5))
+;; (vector-set! T 3 7)
+;; scheme@(guile-user)> {T[3]}
+;; $3 = 7
+(define-syntax $bracket-apply$
+  (syntax-rules ()
+    ((_ array x) (vector-ref array x)))) 
+
+;; scheme@(guile-user)> (define T (make-vector 5))
+;; scheme@(guile-user)> (<=- (T 3) 7)
+
+;; scheme@(guile-user)> {(T 3) <=- 10}
+;; scheme@(guile-user)> {T[3]}
+;; $4 = 10
+
+;; scheme@(guile-user)> {T(3) <=- 12}
+;; scheme@(guile-user)> {T[3]}
+;; $5 = 12
+
+;; scheme@(guile-user)> {T(4) <=- 7}
+;; scheme@(guile-user)> {T(3) <=- T[4]}
+;; scheme@(guile-user)> {T[3]}
+;; $6 = 7
+;; (define-syntax <=-
+;;   (syntax-rules ()
+;;     ((_ (array x) expr) (vector-set! array x expr))))
+
+
+;; scheme@(guile-user)> '(<- {T[3]} {T[4]})
+;; $14 = (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+;; scheme@(guile-user)> (<- {T[3]} {T[4]})
+;; scheme@(guile-user)> {T[4]}
+;; $15 = 7
+;; scheme@(guile-user)> {T[3]}
+;; $16 = 7
+
+;; scheme@(guile-user)> '{T[3] <- T[4]}
+;; $17 = (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+;; scheme@(guile-user)> {T[3] <- T[4]}
+
+
+(define-syntax <-
+  (syntax-rules ()
+    ;;  (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+    ((_ (funct-or-macro array x) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$ 
+					   (vector-set! array x expr)
+					   (funct-or-macro array x)))
+    ;; (<- x 5)
+    ((_ var expr) (set! var expr))))
+
+
+

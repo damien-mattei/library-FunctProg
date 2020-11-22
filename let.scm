@@ -1,59 +1,32 @@
-(define-macro (let-optionals* arg bindings . body)
-  ;;(display "Entering let-optionals* ... ")
-  ;;(newline)
-  `(let ((rest ,arg))
-     (%let-optionals* rest ,bindings ,body)))
+;; local as in clojure ,no useless brackets
 
-(define-macro (%let-optionals* arg bindings body)
-  (cond ((null? bindings)
-         `(begin ,@body))
-        ((symbol? (car bindings))
-         (let ((rest (car bindings)))
-           `(let ((,rest ,arg))
-              ,@body)))
-        (else
-         (let* ((current (car bindings))
-                (lgt (length current))
-                (opt-clauses (cdr bindings)))
-           (cond ((= lgt 4)
-                  (let ((var (car current))
-                        (default (cadr current))
-                        (test (caddr current))
-                        (supplied? (cadddr current)))
-                    `(call-with-values 
-                         (lambda ()
-                           (if (null? ,arg) (values ,default #f '())
-                               (let ((,var (car ,arg)))
-                                 (if ,test (values ,var #t (cdr ,arg))
-                                     (error "arg failed LET-OPT test" ,var)))))
-                       (lambda (,var ,supplied? ,rest)
-                         (%let-optionals* rest ,opt-clauses ,body)))))
-                 ((= lgt 3)
-                  (let ((var (car current))
-                        (default (cadr current))
-                        (test (caddr current)))
-                    `(call-with-values
-                         (lambda ()
-                           (if (null? ,arg) (values ,default '())
-                               (let ((,var (car ,arg)))
-                                 (if ,test (values ,var (cdr ,arg))
-                                     (error "arg failed LET-OPT test" ,var)))))
-                       (lambda (,var rest)
-                         (%let-optionals* rest ,opt-clauses ,body)))))
-                 ((list? (car current))
-                  (let ((vars (car current))
-                        (xparser (cadr current)))
-                    `(call-with-values 
-                         (lambda () (,xparser ,arg))
-                       (lambda (rest ,@vars)
-                         (%let-optionals* rest ,opt-clauses ,body)))))
-                 (else
-                  (let ((var (car current))
-                        (default (cadr current)))
-                    `(call-with-values
-                         (lambda () 
-                           (if (null? ,arg) 
-                               (values ,default '())
-                               (values (car ,arg) (cdr ,arg))))
-                       (lambda (,var rest)
-                         (%let-optionals* rest ,opt-clauses ,body))))))))))
+;; scheme@(guile-user)> (local (x 1 y 2) x)
+;; $1 = 1
+(define-syntax local
+
+  (syntax-rules ()
+
+    ((_ bindings body) (let ((bracketed-paired-bindings (pair-list-elements (quote bindings))))
+			 ;; (eval (quasiquote
+			 ;; 	(letrec* (unquote bracketed-paired-bindings)
+			 ;; 		 body))
+			 ;;       (interaction-environment))
+			 
+			 (eval (list 'letrec* bracketed-paired-bindings 'body)
+			       (interaction-environment))
+			 ))))
+
+
+;; will never works ! :
+;; (define-syntax local-let
+
+;;   (syntax-rules ()
+
+;;     ((_ (var val ...) body) (letrec* ((var val) ...)
+;; 				     body))))
+
+    ;; ((_ (var val) body) (letrec ((var val))
+    ;; 			  body))))
+			 
+
+    

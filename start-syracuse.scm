@@ -15,7 +15,7 @@
 (include "pair.scm")
 (include "number.scm")
 (include "stat.scm")
-
+(include "cycle.scm")
 
 (require racket/format)
 

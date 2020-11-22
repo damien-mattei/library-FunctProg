@@ -169,3 +169,7 @@
   (cond ((null? E) F)
         ((member (first E) F) (union (rest E) F))
         (else (cons (first E) (union (rest E) F)))))
+
+
+
+	 

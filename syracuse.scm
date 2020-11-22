@@ -538,7 +538,10 @@
       (quotient n 2)
       (+ (* 3 n) 1)))
 
-
+(define (f-3x-1 n)
+  (if (zero? (modulo n 2))
+      (quotient n 2)
+      (- (* 3 n) 1)))
 
 
 
@@ -4320,6 +4323,149 @@
 			  ;;(dv S)
 			  (collatz-rec Sk))))))))
     (collatz-rec n)))
+
+;; (scan-3x-1 100000)
+
+;; ...
+;;
+;; ...
+;; 99988
+;; 99989
+;; Converge
+;; 99990
+;; 99991
+;; 99992
+;; 99993
+;; 99994
+;; 99995
+;; 99996
+;; 99997
+;; 99998
+;; 99999
+;; 100000
+;; L-cycle = ((17 50 25 74 37 110 55 164 82 41 122 61 182 91 272 136 68 34) (5 14 7 20 10))
+
+;; > (scan-3x-1 15)
+;; 1
+;; Converge
+
+;; 2
+;; Converge
+
+;; 3
+;; Converge
+
+;; 4
+;; Converge
+
+;; 5
+;; (5 14 7 20 10)
+;; Cycle found !!!
+
+;; 6
+;; Converge
+
+;; 7
+;; (7 20 10 5 14)
+;; Cycle found !!!
+
+;; 8
+;; Converge
+
+;; 9
+;; (9 26 13 38 19 56 28 14 7 20 10 5)
+;; Cycle found !!!
+
+;; 10
+;; (10 5 14 7 20)
+;; Cycle found !!!
+
+;; 11
+;; Converge
+
+;; 12
+;; Converge
+
+;; 13
+;; (13 38 19 56 28 14 7 20 10 5)
+;; Cycle found !!!
+
+;; 14
+;; (14 7 20 10 5)
+;; Cycle found !!!
+
+;; 15
+;; Converge
+
+(define (scan-3x-1 n-end)
+  (define L-cycle '())
+  (define s 0)
+  (for (n 1 n-end)
+       (set! s (syracuse-3x-1 n))
+       (when (not (number? s))
+	     (when (not (member s L-cycle))
+		   (set! L-cycle (cons s L-cycle))))
+       ;;(newline)
+       )
+  (dv L-cycle))
+
+;; (syracuse-3x-1 5)
+;; 5
+;; 14
+;; 7
+;; 20
+;; 10
+;; S = (10 20 7 14 5)
+;; Cycle found !!!
+(define (syracuse-3x-1 n)
+  (define S (list n))
+  (define Sk n)
+  (define revS '())
+  (define cycle '())
+  (display n)
+  (newline)
+  (letrec ((syracuse-rec 
+	    (lambda (n)
+	      ;;(display (padding-spc n))
+	      ;;(display "       ")
+	      ;;(display n)
+	      ;;(newline)
+	      ;;(printf "~B\n" n)
+	      (cond ((eq? n 1) (begin
+				 (display-nl "Converge")
+				 1))
+		    
+		    ((zero? (modulo n 2))
+		     (set! Sk (quotient n 2))
+		     (if (member Sk S)
+			 (then-block
+			  (set! revS (reverse S))
+			  ;;(display-nl revS)
+			  (set! cycle (get-cycle Sk revS))
+			  ;;(display-nl cycle) 
+			  (display-nl  "Cycle found !!!")
+			  cycle)
+			 (else-block
+			   (set! S (cons Sk S))
+			   ;;(dv S)
+			   (syracuse-rec Sk))))
+		    
+		    (else   
+		     (set! Sk (- (* 3 n) 1))
+		     (if (member Sk S)
+			 (then-block
+			  (set! revS (reverse S))
+			  ;;(display-nl revS)
+			  (set! cycle (get-cycle Sk revS))
+			  ;;(display-nl cycle) 
+			  (display-nl  "Cycle found !!!")
+			  cycle)
+			 (else-block
+			  (set! S (cons Sk S))
+			  ;;(dv S)
+			  (syracuse-rec Sk))))))))
+    (syracuse-rec n)))
+
 
 
 ;; compute Collatz until it reach 1

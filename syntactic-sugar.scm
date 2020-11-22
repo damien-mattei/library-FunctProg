@@ -251,3 +251,16 @@
 ;; not-list? already do the same
 ;; (define (atom? x)
 ;;   (not (list? x)))
+
+;; scheme@(guile-user)> (<- x 7)
+;; scheme@(guile-user)> x
+;; $5 = 7
+;; scheme@(guile-user)> {x <- 8} 
+;; scheme@(guile-user)> x
+;; $6 = 8
+
+;; function in array.scm powerful
+;; (define-syntax <-
+;;   (syntax-rules ()
+;;     ((_ var expr) (set! var expr))))
+    ;;((_ (array x) expr) (vector-set! array x expr))))

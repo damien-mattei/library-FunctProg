@@ -138,3 +138,32 @@
 
 (define (not-list? L)
   (not (list? L)))
+
+
+
+
+;;  (before-element 5 '(20 10 5 14 7)) -> '(20 10)
+;; (before-element 20 '(20 10 5 14 7)) -> '()
+(define (before-element x L)
+  (letrec ((be-rec (lambda (L)
+		     (if (equal? (first L) x)
+			 '()
+			 (cons (first L) (be-rec (rest L)))))))
+    (be-rec L)))
+
+;; (start-with-element 5 '(20 10 5 14 7)) -> '(5 14 7)
+(define (start-with-element x L)
+  (letrec ((aft-rec (lambda (L)
+		      (if (equal? (first L) x)
+			  L
+			  (aft-rec (rest L))))))
+    (aft-rec L)))
+
+;; scheme@(guile-user)> (pair-list-elements '(a b c d e f))
+;; $2 = ((a b) (c d) (e f))
+(define (pair-list-elements L)
+  (if (null? L)
+      L
+      (cons (list (first L)
+		  (first (rest L)))
+	    (pair-list-elements (rest (rest L))))))
