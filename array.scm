@@ -64,14 +64,99 @@
 			  (array-set! array v x y)
 			  v))))
 
+
+;; SRFI 105 : Curly-infix-expressions allows a syntax like {Array[index]} with vectors
+;; and arrays of any dimensions,size and shape
+
 ;; for guile
 ;; (define T (make-vector 5))
 ;; (vector-set! T 3 7)
 ;; scheme@(guile-user)> {T[3]}
 ;; $3 = 7
+
+
+;; scheme@(guile-user)> (define a (make-array 999 '(1 2) '(3 4)))
+;; scheme@(guile-user)> (array-ref a 2 4)
+;; $3 = 999
+
+;; scheme@(guile-user)> {a[2 4]}
+;; $9 = 999
+
+;; scheme@(guile-user)> (define b (make-array 'ho 3))
+;; scheme@(guile-user)> (array-ref b 1)
+;; $13 = ho
+
+;; scheme@(guile-user)> {b[2]}
+;; $15 = ho
+
+;; scheme@(guile-user)> {a[2 4] <- 7}
+;; scheme@(guile-user)> {a[2 4]}
+;; $19 = 7
+;; scheme@(guile-user)> {a[1 3] <- 5}
+;; scheme@(guile-user)> {a[1 3] <- a[2 4]}
+;; scheme@(guile-user)> {a[1 3]}
+;; $20 = 7
+
 (define-syntax $bracket-apply$
   (syntax-rules ()
-    ((_ array x) (vector-ref array x)))) 
+    ((_ array index) (if (vector? array)
+			 (vector-ref array index)
+			 (array-ref array index)))
+    ((_ array index ...) (array-ref array index ...)))) 
+
+
+
+;; scheme@(guile-user)> '(<- {T[3]} {T[4]})
+;; $14 = (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+;; scheme@(guile-user)> (<- {T[3]} {T[4]})
+;; scheme@(guile-user)> {T[4]}
+;; $15 = 7
+;; scheme@(guile-user)> {T[3]}
+;; $16 = 7
+
+;; scheme@(guile-user)> '{T[3] <- T[4]}
+;; $17 = (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+;; scheme@(guile-user)> {T[3] <- T[4]}
+
+;; scheme@(guile-user)> {b[2] <- "toto"}
+;; scheme@(guile-user)> {b[2]}
+;; $17 = "toto"
+
+;; scheme@(guile-user)> {b[2] <- b[1]}
+;; scheme@(guile-user)> {b[1]}
+;; $18 = ho
+
+
+;; scheme@(guile-user)> {a[2 4] <- 7}
+;; $1 = 7
+(define-syntax <-
+  (syntax-rules ()
+    ;;  special form like : (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+    ((_ (funct-or-macro array index) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+					       (let ((tmp expr))
+						 (if (vector? array)
+						     (vector-set! array index tmp)
+						     (array-set! array tmp index))
+						 tmp)
+					       
+					       (funct-or-macro array index)))
+
+    ((_ (funct-or-macro array index ...) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+						   (let ((tmp expr))
+						     (array-set! array tmp index ...)
+						     tmp)
+						   
+						   (funct-or-macro array index ...)))
+    
+    ;; (<- x 5)
+    ((_ var expr) (let ((tmp expr))
+		    (set! var expr)
+		    tmp))))
+
+
+
+;; DEPRECATED
+
 
 ;; scheme@(guile-user)> (define T (make-vector 5))
 ;; scheme@(guile-user)> (<=- (T 3) 7)
@@ -91,29 +176,3 @@
 ;; (define-syntax <=-
 ;;   (syntax-rules ()
 ;;     ((_ (array x) expr) (vector-set! array x expr))))
-
-
-;; scheme@(guile-user)> '(<- {T[3]} {T[4]})
-;; $14 = (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
-;; scheme@(guile-user)> (<- {T[3]} {T[4]})
-;; scheme@(guile-user)> {T[4]}
-;; $15 = 7
-;; scheme@(guile-user)> {T[3]}
-;; $16 = 7
-
-;; scheme@(guile-user)> '{T[3] <- T[4]}
-;; $17 = (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
-;; scheme@(guile-user)> {T[3] <- T[4]}
-
-
-(define-syntax <-
-  (syntax-rules ()
-    ;;  (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
-    ((_ (funct-or-macro array x) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$ 
-					   (vector-set! array x expr)
-					   (funct-or-macro array x)))
-    ;; (<- x 5)
-    ((_ var expr) (set! var expr))))
-
-
-
