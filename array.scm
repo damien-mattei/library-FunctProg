@@ -73,7 +73,8 @@
 ;; (vector-set! T 3 7)
 ;; scheme@(guile-user)> {T[3]}
 ;; $3 = 7
-
+;; {T[3] <- 7}
+;; 7
 
 ;; scheme@(guile-user)> (define a (make-array 999 '(1 2) '(3 4)))
 ;; scheme@(guile-user)> (array-ref a 2 4)
@@ -154,6 +155,99 @@
 		    tmp))))
 
 
+;; scheme@(guile-user)> {7 -> a[2 4]}
+;; $1 = 7
+(define-syntax ->
+  (syntax-rules ()
+    ;;  special form like : (-> ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+    ((_ expr (funct-or-macro array index)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+					       (let ((tmp expr))
+						 (if (vector? array)
+						     (vector-set! array index tmp)
+						     (array-set! array tmp index))
+						 tmp)
+					       
+					       (funct-or-macro array index)))
+
+    ((_ expr (funct-or-macro array index ...)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+						   (let ((tmp expr))
+						     (array-set! array tmp index ...)
+						     tmp)
+						   
+						   (funct-or-macro array index ...)))
+    
+    ;; (-> 5 x)
+    ((_ expr var) (let ((tmp expr))
+		    (set! var expr)
+		    tmp))))
+
+
+;; scheme@(guile-user)> {a[2 4] ← 7}
+;; $1 = 7
+
+;; scheme@(guile-user)> {a[2 4]}
+;; $1 = 999
+;; scheme@(guile-user)> {a[2 4] ← 7}
+;; $2 = 7
+;; scheme@(guile-user)> {a[2 4]}
+;; $3 = 7
+;; scheme@(guile-user)> {1 → a[2 4]}
+;; $4 = 1
+;; scheme@(guile-user)> {a[2 4]}
+;; $5 = 1
+;; {x ← 2}
+
+(define-syntax ←
+  (syntax-rules ()
+    ;;  special form like : (← ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+    ((_ (funct-or-macro array index) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+					       (let ((tmp expr))
+						 (if (vector? array)
+						     (vector-set! array index tmp)
+						     (array-set! array tmp index))
+						 tmp)
+					       
+					       (funct-or-macro array index)))
+
+    ((_ (funct-or-macro array index ...) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+						   (let ((tmp expr))
+						     (array-set! array tmp index ...)
+						     tmp)
+						   
+						   (funct-or-macro array index ...)))
+    
+    ;; (← x 5)
+    ((_ var expr) (let ((tmp expr))
+		    (set! var expr)
+		    tmp))))
+
+
+
+;; scheme@(guile-user)> {7 → a[2 4]}
+;; $1 = 7
+(define-syntax →
+  (syntax-rules ()
+    ;;  special form like : (→ ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+    ((_ expr (funct-or-macro array index)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+					       (let ((tmp expr))
+						 (if (vector? array)
+						     (vector-set! array index tmp)
+						     (array-set! array tmp index))
+						 tmp)
+					       
+					       (funct-or-macro array index)))
+
+    ((_ expr (funct-or-macro array index ...)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+						   (let ((tmp expr))
+						     (array-set! array tmp index ...)
+						     tmp)
+						   
+						   (funct-or-macro array index ...)))
+    
+    ;; (→ 5 x)
+    ((_ expr var) (let ((tmp expr))
+		    (set! var expr)
+		    tmp))))
 
 ;; DEPRECATED
 
