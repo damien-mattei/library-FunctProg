@@ -82,6 +82,12 @@
 
 ;; (let-arrow* [ x 1 y (+ x 1) z (+ 2 y) ] z y)
 ;; = 2
+
+;; scheme@(guile-user)>  (let-arrow* ({x ← 1}
+;;         {y ← {x + 1}})
+;;         x
+;;         y)
+;; $2 = 2
 (define-syntax let-arrow*
 
   (syntax-rules (<- ->  ← →) ;;  ⟵ ⟶
