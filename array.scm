@@ -130,56 +130,79 @@
 
 ;; scheme@(guile-user)> {a[2 4] <- 7}
 ;; $1 = 7
+;; (define-syntax <-
+;;   (syntax-rules ()
+;;     ;;  special form like : (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+;;     ((_ (funct-or-macro array index) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+;; 					       (let ((tmp expr))
+;; 						 (if (vector? array)
+;; 						     (vector-set! array index tmp)
+;; 						     (array-set! array tmp index))
+;; 						 tmp)
+					       
+;; 					       (funct-or-macro array index)))
+
+;;     ((_ (funct-or-macro array index ...) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+;; 						   (let ((tmp expr))
+;; 						     (array-set! array tmp index ...)
+;; 						     tmp)
+						   
+;; 						   (funct-or-macro array index ...)))
+    
+;;     ;; (<- x 5)
+;;     ((_ var expr) (let ((tmp expr))
+;; 		    (set! var expr)
+;; 		    tmp))))
+
+
+
 (define-syntax <-
   (syntax-rules ()
     ;;  special form like : (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
-    ((_ (funct-or-macro array index) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
-					       (let ((tmp expr))
-						 (if (vector? array)
-						     (vector-set! array index tmp)
-						     (array-set! array tmp index))
-						 tmp)
-					       
-					       (funct-or-macro array index)))
+    ((_ (funct-or-macro array index) expr) {array[index] ← expr} )
 
-    ((_ (funct-or-macro array index ...) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
-						   (let ((tmp expr))
-						     (array-set! array tmp index ...)
-						     tmp)
-						   
-						   (funct-or-macro array index ...)))
+    ((_ (funct-or-macro array index ...) expr) {array[index ...] ← expr} )
     
     ;; (<- x 5)
-    ((_ var expr) (let ((tmp expr))
-		    (set! var expr)
-		    tmp))))
+    ((_ var expr) {var ← expr})))
 
 
-;; scheme@(guile-user)> {7 -> a[2 4]}
-;; $1 = 7
+;; ;; scheme@(guile-user)> {7 -> a[2 4]}
+;; ;; $1 = 7
+;; (define-syntax ->
+;;   (syntax-rules ()
+;;     ;;  special form like : (-> ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+;;     ((_ expr (funct-or-macro array index)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+;; 					       (let ((tmp expr))
+;; 						 (if (vector? array)
+;; 						     (vector-set! array index tmp)
+;; 						     (array-set! array tmp index))
+;; 						 tmp)
+					       
+;; 					       (funct-or-macro array index)))
+
+;;     ((_ expr (funct-or-macro array index ...)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+;; 						   (let ((tmp expr))
+;; 						     (array-set! array tmp index ...)
+;; 						     tmp)
+						   
+;; 						   (funct-or-macro array index ...)))
+    
+;;     ;; (-> 5 x)
+;;     ((_ expr var) (let ((tmp expr))
+;; 		    (set! var expr)
+;; 		    tmp))))
+
+
 (define-syntax ->
   (syntax-rules ()
     ;;  special form like : (-> ($bracket-apply$ T 3) ($bracket-apply$ T 4))
-    ((_ expr (funct-or-macro array index)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
-					       (let ((tmp expr))
-						 (if (vector? array)
-						     (vector-set! array index tmp)
-						     (array-set! array tmp index))
-						 tmp)
-					       
-					       (funct-or-macro array index)))
+    ((_ expr (funct-or-macro array index)) {expr → array[index]} )
 
-    ((_ expr (funct-or-macro array index ...)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
-						   (let ((tmp expr))
-						     (array-set! array tmp index ...)
-						     tmp)
-						   
-						   (funct-or-macro array index ...)))
+    ((_ expr (funct-or-macro array index ...)) {expr → array[index ...]} )
     
     ;; (-> 5 x)
-    ((_ expr var) (let ((tmp expr))
-		    (set! var expr)
-		    tmp))))
+    ((_ expr var) {expr → var})))
 
 
 ;; scheme@(guile-user)> {a[2 4] ← 7}
@@ -200,54 +223,90 @@
 (define-syntax ←
   (syntax-rules ()
     ;;  special form like : (← ($bracket-apply$ T 3) ($bracket-apply$ T 4))
-    ((_ (funct-or-macro array index) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
-					       (let ((tmp expr))
-						 (if (vector? array)
-						     (vector-set! array index tmp)
-						     (array-set! array tmp index))
-						 tmp)
-					       
-					       (funct-or-macro array index)))
+    
+    ;; one dimension array, example: {a[4] ← 7}
+    ((_ (funct-or-macro array index) expr) (let ((tmp expr))
+    					     (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+    						 ;; normal case
+    						 (if (vector? array)
+    						     (vector-set! array index tmp)
+    						     (array-set! array tmp index))
+						 
+    						 ;; rare case (to prevent any error)
+    						 (set! (funct-or-macro array index) tmp))
+					     
+    					     tmp))
 
-    ((_ (funct-or-macro array index ...) expr) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
-						   (let ((tmp expr))
+
+    ;; multi dimensions array :  {a[2 4] ← 7}
+    ((_ (funct-or-macro array index ...) expr) (let ((tmp expr)
+						     ;; must be in variable
+						     (var (funct-or-macro array index ...)))
+						 (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+						     ;; normal case
 						     (array-set! array tmp index ...)
-						     tmp)
-						   
-						   (funct-or-macro array index ...)))
+						     
+						     ;; rare case (to prevent any error)
+						     (set! var tmp))
+					     
+						 tmp))
+
+    ;; compact form but will display a warning: possibly wrong number of arguments to `vector-set!'
+    ;; and if i remove ellipsis it is a severe error
+    ;; ((_ (funct-or-macro array index ...) expr) (let ((tmp expr)
+    ;; 						     (var (funct-or-macro array index ...)))
+    ;; 						 (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+    ;; 						     ;; normal case
+    ;; 						     (if (vector? array)
+    ;; 							 (vector-set! array index ... tmp)
+    ;; 							 (array-set! array tmp index ...))
+						     
+    ;; 						     ;; rare case (to prevent any error)
+    ;; 						     (set! var tmp))
+					     
+    ;; 						 tmp))
     
     ;; (← x 5)
     ((_ var expr) (let ((tmp expr))
-		    (set! var expr)
+		    (set! var tmp)
 		    tmp))))
 
+
+(define-syntax →
+  (syntax-rules ()
+    ;;  special form like : (→ ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+    ((_ expr (funct-or-macro array index)) {array[index] ← expr}  )
+    ((_ expr (funct-or-macro array index ...)) {array[index ...] ← expr} )
+    
+    ;; (→ 5 x)
+    ((_ expr var) {var ← expr})))
 
 
 ;; scheme@(guile-user)> {7 → a[2 4]}
 ;; $1 = 7
-(define-syntax →
-  (syntax-rules ()
-    ;;  special form like : (→ ($bracket-apply$ T 3) ($bracket-apply$ T 4))
-    ((_ expr (funct-or-macro array index)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
-					       (let ((tmp expr))
-						 (if (vector? array)
-						     (vector-set! array index tmp)
-						     (array-set! array tmp index))
-						 tmp)
+;; (define-syntax →
+;;   (syntax-rules ()
+;;     ;;  special form like : (→ ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+;;     ((_ expr (funct-or-macro array index)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test if funct-or-macro equal $bracket-apply$
+;; 					       (let ((tmp expr))
+;; 						 (if (vector? array)
+;; 						     (vector-set! array index tmp)
+;; 						     (array-set! array tmp index))
+;; 						 tmp)
 					       
-					       (funct-or-macro array index)))
+;; 					       (funct-or-macro array index)))
 
-    ((_ expr (funct-or-macro array index ...)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
-						   (let ((tmp expr))
-						     (array-set! array tmp index ...)
-						     tmp)
+;;     ((_ expr (funct-or-macro array index ...)) (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test if funct-or-macro equal $bracket-apply$
+;; 						   (let ((tmp expr))
+;; 						     (array-set! array tmp index ...)
+;; 						     tmp)
 						   
-						   (funct-or-macro array index ...)))
+;; 						   (funct-or-macro array index ...)))
     
-    ;; (→ 5 x)
-    ((_ expr var) (let ((tmp expr))
-		    (set! var expr)
-		    tmp))))
+;;     ;; (→ 5 x)
+;;     ((_ expr var) (let ((tmp expr))
+;; 		    (set! var expr)
+;; 		    tmp))))
 
 ;; DEPRECATED
 
