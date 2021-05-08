@@ -155,7 +155,8 @@
 					(some? fct (cdr list))))))
 		      (inner-map
 		       (lambda (clozure list1 . more-lists) ;; clozure is call like this : (clozure continuation arg1 arg2 ...) il peut y avoir autant d'arguments que l'on veux.
-	     		
+			
+	     		(define-method (make-growable-vector dim fill)
 			 ;; variadic map implementation terminates
 			 ;; when any of the argument lists is empty.
 			 (let ((lists (cons list1 more-lists)))

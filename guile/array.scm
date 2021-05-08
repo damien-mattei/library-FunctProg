@@ -105,7 +105,7 @@
     
     ((_ array index)
      (begin (display "$bracket-apply$") (newline)
-	    (if (vector? array)
+	    (if {(vector? array) or (growable-vector? array)}
 		(vector-ref array index)
 		(array-ref array index))))
     
@@ -168,7 +168,7 @@
 						 ;; {T[3] ← T[2]}
 						 (begin
 						   (display "← : vector or array set!") (newline)
-						   (if (vector? array)
+						   (if {(vector? array) or (growable-vector? array)}
 						       (vector-set! array index tmp)
 						       (array-set! array tmp index)))
 						 
@@ -206,7 +206,7 @@
     ;; 						     (var (funct-or-macro array index ...)))
     ;; 						 (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
     ;; 						     ;; normal case
-    ;; 						     (if (vector? array)
+    ;; 						     (if {(vector? array) or (growable-vector? array)}
     ;; 							 (vector-set! array index ... tmp)
     ;; 							 (array-set! array tmp index ...))
 						     
