@@ -1,12 +1,36 @@
 ;; Growable Vectors (1 dimension)
 
 ;; use:
-;; (use-modules (growable-vector))
+;; (use-modules (guile/growable-vector))
 ;; source at : https://github.com/damien-mattei/library-FunctProg
 ;; (include "array.scm")
 ;; (include "let.scm")
 
-(define-module (growable-vector) ;;(oop growable-vector)
+;; example:
+;;
+;; (define gva (growable-vector 1 2 3 4 5))
+;;  (vector-set! gva 10 7)
+;;  (describe gva)
+;; #<<growable-vector> 10bd85c80> is an instance of class <growable-vector>
+;; Slots are: 
+;;      v = #(1 2 3 4 5 #<unspecified> #<unspecified> #<unspecified> #<unspecified> #<unspecified> 7 #<unspecified> #<unspecified> #<unspecified> #<unspecified> #<unspecified> #<unspecified> #<unspecified> #<unspecified> #<unspecified>)
+;;      end = 10
+;;  {gva[7] ← 9}
+;;  = 9
+;;  {gva[7]}
+;; = 9
+;;  (vector-ref gva 7)
+;;  = 9
+;;  {gva[7] ← gva[3]}
+;;  = 4
+;;  {gva[7]}
+;;  = 4
+;;  {gva[37] ← gva[3]}
+;;  = 4
+;;  {gva[37]}
+;;  = 4
+
+(define-module (guile growable-vector) ;;(growable-vector) ;;(oop growable-vector)
   #:use-module (oop goops)
   #:use-module ((guile)
 		#:select (vector-length vector-ref vector-set! vector->list)
