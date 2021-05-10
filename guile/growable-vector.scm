@@ -195,7 +195,7 @@
   (define actual-size (vector-length gv))
   (define old-vector (growable-vector-v gv))
   (define new-vector (vector-copy old-vector 0 new-size fill))
-  (display "growable-vector-resize : new-vector :") (display new-vector) (newline)
+  ;;(display "growable-vector-resize : new-vector :") (display new-vector) (newline)
   (growable-vector-set-v! gv new-vector))
 
 ;; scheme@(guile-user)> (define gva (growable-vector 1 2 3 4 5))
@@ -209,5 +209,5 @@
   (define actual-size (vector-length gv))
   (define old-vector (growable-vector-v gv))
   (define new-vector (vector-copy old-vector 0 new-size))
-  (display "growable-vector-resize : new-vector :") (display new-vector) (newline)
+  ;;(display "growable-vector-resize : new-vector :") (display new-vector) (newline)
   (growable-vector-set-v! gv new-vector))
