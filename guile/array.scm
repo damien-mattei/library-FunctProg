@@ -1,6 +1,6 @@
 ;; arrays
 
-;; i include the general version and overwrite the specialized one after
+;; i include the general version and overwrite the specialized one after ! it's rough but it works
 (include "../array.scm")
 
 ;; SRFI 105 : Curly-infix-expressions allows a syntax like {Array[index]} with vectors
@@ -152,10 +152,12 @@
     ;; 						 tmp))
     
     ;; (← x 5)
-    ((_ var expr) (let ((tmp expr))
-		    (display "← : variable set!") (newline)
-		    (set! var tmp)
-		    tmp))))
+    ((_ var expr)  (begin
+		     (display "← : variable set!") (newline)
+		     (set! var expr)
+		     var))))
+		   
+
 
 
 (define-syntax →
