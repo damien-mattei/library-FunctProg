@@ -152,10 +152,16 @@
     ;; 						 tmp))
     
     ;; (← x 5)
-    ((_ var expr)  (begin
-		     (display "← : variable set!") (newline)
-		     (set! var expr)
-		     var))))
+    ((_ var expr)  ;; (if (defined? var)
+		   ;;     (begin
+		   ;; 	 (display "← : variable set!") (newline)
+			 (set! var expr)
+
+;;			 )
+			
+		       (define var expr)
+;;		       )
+     )))
 		   
 
 
