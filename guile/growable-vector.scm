@@ -205,7 +205,7 @@
 ;; #<<growable-vector> 10394d640> is an instance of class <growable-vector>
 ;; Slots are: 
 ;;      v = #(1 2 3 4 5 #<unspecified> #<unspecified> #<unspecified>)
-(define-method (growable-vector-resize (gv <growable-vector>) (new-size <integer>)) ;; fill unspeciied
+(define-method (growable-vector-resize (gv <growable-vector>) (new-size <integer>)) ;; fill unspecified
   (define actual-size (vector-length gv))
   (define old-vector (growable-vector-v gv))
   (define new-vector (vector-copy old-vector 0 new-size))

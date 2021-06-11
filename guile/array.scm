@@ -155,15 +155,9 @@
     ((_ var expr)  ;; (if (defined? var)
 		   ;;     (begin
 		   ;; 	 (display "← : variable set!") (newline)
-			 (set! var expr)
+			 (set! var expr))))
 
-;;			 )
-			
-		       (define var expr)
-;;		       )
-     )))
-		   
-
+;;  (define var expr)))))
 
 
 (define-syntax →
