@@ -118,7 +118,6 @@
 
 
 ;;(%parse-define (clauses ...) body ...)
-;; we start from an empty (clauses ...) list of clauses and append one more clause (name expr) at end 
 (define-syntax %parse-define
   (syntax-rules (new-define)
     ;; procedure definition
@@ -137,19 +136,13 @@
 ;; A macro that transverses expressions
 ;; (%parse-body (seen-exprssions ...) rest ...)
 (define-syntax %parse-body
-  (syntax-rules (new-define) 
+  (syntax-rules (new-define)
     ;; Found no definitions. Just exit
     ((_ (exprs ...))
      (begin exprs ...))
     ;; A definition, exit to %parse-define
     ((_ (exprs ...) (new-define stuff ...) rest ...)
-     ;; (begin (display "%parse-body case 2 : new-define") (newline) exprs ... (%parse-define () (new-define stuff ...) rest ... )))
-    (begin exprs ... (%parse-define () (new-define stuff ...) rest ... )))
-
-    ;; An assignment, exit to %parse-assignment
-    ;;((_ (exprs ...) (<- var expr) rest ...)
-    ;;(begin (display "%parse-body case 3 : assignment") (newline) exprs ... (<- var expr) rest ... ))
-    
+     (begin exprs ... (%parse-define () (new-define stuff ...) rest ... )))
     ;; Just a new expression.
     ((_ (exprs ...) new-expr rest ...)
      (%parse-body (exprs ... new-expr) rest ...))))

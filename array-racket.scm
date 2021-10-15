@@ -100,20 +100,18 @@
 ;; scheme@(guile-user)> {a[1 3]}
 ;; $20 = 7
 
-(define-syntax $bracket-apply$
-  (syntax-rules ()
-
-    ;; one dimension array
-    ((_ array index)
-     (begin (display "$bracket-apply$ : array=") (display (quote array)) (display " index=") (display (quote index)) (newline)
-	    (if (vector? array)
-		(vector-ref array index)
-		(array-ref array index))))
-
-    ;; multiple dimension array
-    ((_ array index ...)
-     (begin (display "$bracket-apply$ : array=") (display (quote array))  (newline)
-	    (array-ref array index ...))))) 
+;; (define-syntax $bracket-apply$
+;;   (syntax-rules ()
+    
+;;     ((_ array index)
+;;      (begin (display "$bracket-apply$") (newline)
+;; 	    (if (vector? array)
+;; 		(vector-ref array index)
+;; 		(array-ref array index))))
+    
+;;     ((_ array index ...)
+;;      (begin (display "$bracket-apply$") (newline)
+;; 	    (array-ref array index ...))))) 
 
 
 
@@ -155,76 +153,75 @@
 ;; scheme@(guile-user)> {T[3]}
 ;; $bracket-apply$
 ;; $5 = 4
-(define-syntax ←
-  (syntax-rules ()
-    ;;  special form like : (← ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+;; (define-syntax ←
+;;   (syntax-rules ()
+;;     ;;  special form like : (← ($bracket-apply$ T 3) ($bracket-apply$ T 4))
     
-    ;; one dimension array, example: {a[4] ← 7}
-    ;; in fact funct-or-macro is a MACRO and it is $bracket-apply$ of SRFI 105
-    ((_ (funct-or-macro array index) expr) (let ((tmp expr)) ;; to avoid compute it twice
+;;     ;; one dimension array, example: {a[4] ← 7}
+;;     ;; in fact funct-or-macro is a MACRO and it is $bracket-apply$ of SRFI 105
+;;     ((_ (funct-or-macro array index) expr) (let ((tmp expr)) ;; to avoid compute it twice
 						 
-    					     ;; (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+;;     					     ;; (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
 						 
-    						 ;; normal case
-						 ;; {T[2] ← 4}
-						 ;; {T[3] ← T[2]}
-						 (begin
-						   (display "← : vector or array set!") (newline)
-						   (if (vector? array)
-						       (vector-set! array index tmp)
-						       (array-set! array tmp index)))
+;;     						 ;; normal case
+;; 						 ;; {T[2] ← 4}
+;; 						 ;; {T[3] ← T[2]}
+;; 						 (begin
+;; 						   (display "← : vector or array set!") (newline)
+;; 						   (if (vector? array)
+;; 						       (vector-set! array index tmp)
+;; 						       (array-set! array tmp index)))
 						 
-    						 ;; ;; rare case  (to prevent any error)
-;; 						 (let ((var (funct-or-macro array index))) ;; MUST be in a variable , otherwise:
-;; ;; While compiling expression:
-;; ;; Syntax error:
-;; ;; unknown location: quote: bad syntax in form quote
-;; 						   (display "← : variable set! after creation") (newline)
-;; 						   (set! var tmp)))
+;;     						 ;; ;; rare case  (to prevent any error)
+;; ;; 						 (let ((var (funct-or-macro array index))) ;; MUST be in a variable , otherwise:
+;; ;; ;; While compiling expression:
+;; ;; ;; Syntax error:
+;; ;; ;; unknown location: quote: bad syntax in form quote
+;; ;; 						   (display "← : variable set! after creation") (newline)
+;; ;; 						   (set! var tmp)))
 					     
-    					     tmp))
+;;     					     tmp))
 
 
-    ;; multi dimensions array :  {a[2 4] ← 7}
-    ;; in fact funct-or-macro is a MACRO and it is $bracket-apply$ of SRFI 105
-    ((_ (funct-or-macro array index ...) expr) (let ((tmp expr)) ;; to avoid compute it twice
+;;     ;; multi dimensions array :  {a[2 4] ← 7}
+;;     ;; in fact funct-or-macro is a MACRO and it is $bracket-apply$ of SRFI 105
+;;     ((_ (funct-or-macro array index ...) expr) (let ((tmp expr)) ;; to avoid compute it twice
   						 
-						 ;; (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
-						     ;; normal case
-						     (begin
-						       (display "← : multidimensional vector or array set!") (newline)
-						       (array-set! array tmp index ...))
+;; 						 ;; (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+;; 						     ;; normal case
+;; 						     (begin
+;; 						       (display "← : multidimensional vector or array set!") (newline)
+;; 						       (array-set! array tmp index ...))
 						     
-						     ;; rare case (to prevent any error)
-						     ;; (let ((var (funct-or-macro array index ...))) ;; MUST be in a variable
-						     ;;   (display "← : variable set! after creation (multidimensional)") (newline)
-						     ;;   (set! var tmp)))
+;; 						     ;; rare case (to prevent any error)
+;; 						     ;; (let ((var (funct-or-macro array index ...))) ;; MUST be in a variable
+;; 						     ;;   (display "← : variable set! after creation (multidimensional)") (newline)
+;; 						     ;;   (set! var tmp)))
 					     
-						 tmp))
+;; 						 tmp))
 
-    ;; compact form but will display a warning: possibly wrong number of arguments to `vector-set!'
-    ;; and if i remove ellipsis it is a severe error
-    ;; ((_ (funct-or-macro array index ...) expr) (let ((tmp expr)
-    ;; 						     (var (funct-or-macro array index ...)))
-    ;; 						 (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
-    ;; 						     ;; normal case
-    ;; 						     (if (vector? array)
-    ;; 							 (vector-set! array index ... tmp)
-    ;; 							 (array-set! array tmp index ...))
+;;     ;; compact form but will display a warning: possibly wrong number of arguments to `vector-set!'
+;;     ;; and if i remove ellipsis it is a severe error
+;;     ;; ((_ (funct-or-macro array index ...) expr) (let ((tmp expr)
+;;     ;; 						     (var (funct-or-macro array index ...)))
+;;     ;; 						 (if (equal? (quote $bracket-apply$) (quote funct-or-macro)) ;; test funct-or-macro equal $bracket-apply$
+;;     ;; 						     ;; normal case
+;;     ;; 						     (if (vector? array)
+;;     ;; 							 (vector-set! array index ... tmp)
+;;     ;; 							 (array-set! array tmp index ...))
 						     
-    ;; 						     ;; rare case (to prevent any error)
-    ;; 						     (set! var tmp))
+;;     ;; 						     ;; rare case (to prevent any error)
+;;     ;; 						     (set! var tmp))
 					     
-    ;; 						 tmp))
+;;     ;; 						 tmp))
     
-    ;; (← x 5)
-    ((_ var expr) (let ((tmp expr))
-		    (display "← : variable set!") (newline)
-		    (set! var tmp)
-		    tmp))))
+;;     ;; (← x 5)
+;;     ((_ var expr) (let ((tmp expr))
+;; 		    (display "← : variable set!") (newline)
+;; 		    (set! var tmp)
+;; 		    tmp))))
 
-;; WARNING do not use and care of funct-or-macro !!!
-;; TODO:changer en (<- expr (funct-or-macro array index))
+
 ;; (define-syntax →
 ;;   (syntax-rules ()
 ;;     ;;  special form like : (→ ($bracket-apply$ T 3) ($bracket-apply$ T 4))
@@ -235,16 +232,7 @@
 ;;     ((_ expr var) {var ← expr})))
 
 
-(define-syntax →
-  (syntax-rules ()
-    ;;  special form like : (→ ($bracket-apply$ T 3) ($bracket-apply$ T 4))
-    ;;((_ expr (funct-or-macro array index)) {array[index] ← expr}  )
-    ((_ expr (funct-or-macro array index))  (← (funct-or-macro array index) expr) )
-    ;;((_ expr (funct-or-macro array index ...)) {array[index ...] ← expr} )
-    ((_ expr (funct-or-macro array index ...)) (← (funct-or-macro array index ...) expr) )
-     
-    ;; (→ 5 x)
-    ((_ expr var) {var ← expr})))
+
 
 
 
@@ -306,13 +294,14 @@
   (syntax-rules ()
     ;;  special form like : (<- ($bracket-apply$ T 3) ($bracket-apply$ T 4))
     ;;((_ (funct-or-macro array index) expr) {array[index] ← expr} )
-    ((_ (funct-or-macro array index) expr) (←  (funct-or-macro array index) expr))
-     
+    ((_ (funct-or-macro array index) expr) (← array[index] expr) )
+
     ;;((_ (funct-or-macro array index ...) expr) {array[index ...] ← expr} )
-    ((_ (funct-or-macro array index ...) expr) (←  (funct-or-macro array index ...) expr))
+    ((_ (funct-or-macro array index ...) expr) (← array[index ...] expr) )
     
     ;; (<- x 5)
-    ((_ var expr) {var ← expr})))
+    ;;((_ var expr) {var ← expr})))
+    ((_ var expr) (← var expr))))
 
 
 ;; ;; scheme@(guile-user)> {7 -> a[2 4]}
@@ -341,19 +330,38 @@
 ;; 		    (set! var expr)
 ;; 		    tmp))))
 
-;;  use and care of funct-or-macro !!!
+;; DEPRECATED do not use and care of funct-or-macro !!!
 (define-syntax ->
   (syntax-rules ()
     ;;  special form like : (-> ($bracket-apply$ T 3) ($bracket-apply$ T 4))
     ;;((_ expr (funct-or-macro array index)) {expr → array[index]} )
-    ((_ expr (funct-or-macro array index)) (→ expr (funct-or-macro array index)))
+    ((_ expr (funct-or-macro array index)) (→ expr array[index]) )
     
     ;;((_ expr (funct-or-macro array index ...)) {expr → array[index ...]} )
-    ((_ expr (funct-or-macro array index ...)) (→ expr (funct-or-macro array index ...)))
+    ((_ expr (funct-or-macro array index ...)) (→ expr array[index ...]) )
     
     ;; (-> 5 x)
-    ((_ expr var) {expr → var})))
+    ;;((_ expr var) {expr → var})))
+    ((_ expr var) (→ expr var))))
 
 
+;; scheme@(guile-user)> (define T (make-vector 5))
+;; scheme@(guile-user)> (<=- (T 3) 7)
+
+;; scheme@(guile-user)> {(T 3) <=- 10}
+;; scheme@(guile-user)> {T[3]}
+;; $4 = 10
+
+;; scheme@(guile-user)> {T(3) <=- 12}
+;; scheme@(guile-user)> {T[3]}
+;; $5 = 12
+
+;; scheme@(guile-user)> {T(4) <=- 7}
+;; scheme@(guile-user)> {T(3) <=- T[4]}
+;; scheme@(guile-user)> {T[3]}
+;; $6 = 7
+;; (define-syntax <=-
+;;   (syntax-rules ()
+;;     ((_ (array x) expr) (vector-set! array x expr))))
 
 

@@ -1,5 +1,4 @@
-;; arrays versions Guile
-
+;; arrays
 
 ;; i include the general version and overwrite the specialized one after ! it's rough but it works
 (include "../array.scm")
@@ -161,7 +160,14 @@
      ;;  (define var expr)))))
 
 
-
+(define-syntax →
+  (syntax-rules ()
+    ;;  special form like : (→ ($bracket-apply$ T 3) ($bracket-apply$ T 4))
+    ((_ expr (funct-or-macro array index)) {array[index] ← expr}  )
+    ((_ expr (funct-or-macro array index ...)) {array[index ...] ← expr} )
+    
+    ;; (→ 5 x)
+    ((_ expr var) {var ← expr})))
 
 
 

@@ -1,4 +1,4 @@
-; This file is part of Scheme+
+;; This file is part of Scheme+
 
 ;; Copyright 2021 Damien MATTEI
 
@@ -11,22 +11,13 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-(define-syntax $ ;; Warning : used by SRFI 9 : Record too ?
+
+;; (declare ls dyn) ;; declare multiple variables
+
+(define-syntax declare
   (syntax-rules ()
-    ((_ ev)  ev)
-    ((_ ev ...) (begin ev ...))))
+    ((_ var1 ...) (begin
+		      (define var1 '())
+		      ...))))
 
-;; not an international char
-(define-syntax §
-  (syntax-rules ()
-    ((_ ev)  ev)
-    ((_ ev ...) (begin ev ...))))
-
-
-
-;; damned... this one makes syntax enlightning bug in Emacs
-(define-syntax |
-  (syntax-rules ()
-    ((_ ev)  ev)
-    ((_ ev ...) (begin ev ...))))
 

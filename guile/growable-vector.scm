@@ -1,7 +1,19 @@
 ;; Growable Vectors (1 dimension)
 
+;; Copyright 2021 Damien MATTEI
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 ;; use:
 ;; (use-modules (guile/growable-vector))
+;; use this --> (use-modules (guile growable-vector))
 ;; source at : https://github.com/damien-mattei/library-FunctProg
 ;; (include "array.scm")
 ;; (include "let.scm")

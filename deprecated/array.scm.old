@@ -1,5 +1,4 @@
-;; arrays versions Guile
-
+;; arrays
 
 ;; i include the general version and overwrite the specialized one after ! it's rough but it works
 (include "../array.scm")
@@ -42,7 +41,7 @@
     
     ((_ array index)
      (begin ;;(display "$bracket-apply$") (newline)
-	    (if {(vector? array) or (growable-vector? array)}
+	    (if (or (vector? array) (growable-vector? array)) ;;{(vector? array) or (growable-vector? array)}
 		(vector-ref array index)
 		(array-ref array index))))
     
@@ -105,7 +104,7 @@
 						 ;; {T[3] ← T[2]}
 						 (begin
 						   ;;(display "← : vector or array set!") (newline)
-						   (if {(vector? array) or (growable-vector? array)}
+						   (if (or (vector? array) or (growable-vector? array)) ;;{(vector? array) or (growable-vector? array)}
 						       (vector-set! array index tmp)
 						       (array-set! array tmp index)))
 						 
@@ -161,8 +160,19 @@
      ;;  (define var expr)))))
 
 
+(define-syntax →
+  (syntax-rules ()
+    ;;  special form like : (→ ($bracket-apply$ T 3) ($bracket-apply$ T 4))
 
+    ;;((_ expr (funct-or-macro array index)) {array[index] ← expr}  )
+    ((_ expr (funct-or-macro array index)) (← array[index]  expr)  )
 
+    ;;((_ expr (funct-or-macro array index ...)) {array[index ...] ← expr} )
+    ((_ expr (funct-or-macro array index ...)) (← array[index ...] expr) )
+    
+    ;; (→ 5 x)
+    ;; ((_ expr var) {var ← expr})))
+    ((_ expr var) (← var expr))))
 
 
 

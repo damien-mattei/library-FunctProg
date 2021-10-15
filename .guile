@@ -2,12 +2,14 @@
 
 ;; history
 (use-modules (ice-9 readline)
+	     (ice-9 history)
 	     (srfi srfi-43) ;; vector
 	     ;; guile object oriented programming system
 	     (oop goops)
 	     (oop goops describe))
 	     
 (activate-readline)
+;;(disable-value-history!)
 
 ;; curly infix as in srfi-105
 (read-enable 'curly-infix)
