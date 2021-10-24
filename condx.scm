@@ -42,7 +42,7 @@
          (let () e ...)
          (condx tail ...)))))
 
-
+;; warning this ones behaves differently (can not remember the problem)
 (define-syntax condx-begin
   (syntax-rules (exec else)
     ((_)
@@ -56,17 +56,17 @@
          (begin e ...)
          (condx-begin tail ...)))))
 
-(define x 1)
-(condx ((= x 7) 'never)
-        (exec
-          (define y 3)
-          (set! x 7))
-        ((= y 1) 'definitely_not)
-        (exec
-          (set! y 10)
-          (define z 2))
-        ((= x 7) (+ x y z))
-        (else 'you_should_not_be_here))
+;; (define x 1)
+;; (condx ((= x 7) 'never)
+;;         (exec
+;;           (define y 3)
+;;           (set! x 7))
+;;         ((= y 1) 'definitely_not)
+;;         (exec
+;;           (set! y 10)
+;;           (define z 2))
+;;         ((= x 7) (+ x y z))
+;;         (else 'you_should_not_be_here))
 
 ;; (define y 0)
 ;; (define z 0)
