@@ -18,7 +18,7 @@
 
 (define-syntax add-pair
   (syntax-rules ()
-    ;; restricted to two operators:
+    ;; restricted to two operands:
     ;; ((_ p1 p2)
     ;;  (cons (+ (car p1) (car p2))
     ;; 	   (+ (cdr p1) (cdr p2))))

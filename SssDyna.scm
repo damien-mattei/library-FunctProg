@@ -22,7 +22,6 @@
 (include "pair.scm")
 (include "number.scm")
 (include "first-and-rest.scm")
-(include "list.scm")
 
 (use-modules (Scheme+Guile))
 
