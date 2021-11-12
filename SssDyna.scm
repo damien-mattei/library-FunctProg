@@ -19,11 +19,11 @@
 
 ;; files below can be retrieved here: https://github.com/damien-mattei/library-FunctProg
 
-(include "pair.scm")
+;;(include "pair.scm")
 (include "number.scm")
 (include "first-and-rest.scm")
 
-(use-modules (Scheme+Guile))
+(use-modules (Scheme+)) ;;(Scheme+Guile))
 
 
 ;;(define L-init '(1 3 4 16 17 64 256 275 723 889 1040 1041 1093 1111 1284 1344 1520 2027 2734 3000 4285 5027))
