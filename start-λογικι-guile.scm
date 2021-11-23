@@ -29,9 +29,9 @@
 (include "array.scm")
 (include "symbolic.scm")
 (include "simplify.scm")
-(include "guile/binary-arithmetic.scm")
+(include "guile/binary-arithmetic.scm") ;; specialized for 'format'
 
-(include "map.scm")
+(include "guile/map.scm") ;; specialized for 'andmap'
 (include "list.scm")
 (include "operation.scm")
 (include "display-formula.scm")
