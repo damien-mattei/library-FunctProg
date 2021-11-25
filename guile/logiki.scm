@@ -1,13 +1,3 @@
-;;#lang racket
-;; depending if you use LOGIKI as a main program or an include file you will have to comment or uncomment the above line
-;;
-;;#lang r5rs
-;; #!r6rs
-;; (import (rnrs))
-;;#lang racket
-;;
-
-;; uncomment above for DrRacket Scheme, leave commented for other Schemes
 ;;
 ;;
 ;;                    λογικι
@@ -26,7 +16,7 @@
 ;;
 ;;
 ;;
-;; version 3.0
+;; version 3.0 for Guile
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -44,7 +34,6 @@
 ;;
 ;;
 ;; Scheme version (developped with MIT-scheme, Bigloo, Dr Racket, Guile)
-;;
 ;;
 ;; provides :
 ;;
@@ -1247,23 +1236,38 @@
 
 
 
-
-
 ;; the hash table for minterms, better to be a top-level definition,it's nightmare otherwise...
-(define minterms-ht (make-hash)) ;; DrRacket
+(define minterms-ht (make-hash-table)) ;; Guile
+;;(define minterms-ht (make-hash)) ;; DrRacket
 ;;(define minterms-ht (make-hashtable)) ;; Bigloo 
+
 
 
 
 
 ;;> (prime-implicants minterms-ht) -> '((x 1 x 1) (1 x x 0) (1 1 x x))
 (define (prime-implicants mt-ht) ;; argument is a minterms hash table
+
+  ;; return prime-implicant list when the value of hashtable key-value pair is #f
+
+  ;; use srfi 69 hash-table->alist
+  (map car ;; or car , works in Guile because first is a procedure (usable with map)
+       (filter (lambda (p)
+		 (not (cdr p))) ;; when working with pair i prefer be using car and cdr rather than first an rest
+	       (hash-table->alist mt-ht)))) ;; SRFI 69 , Guile
+
   ;;(map first (filter (lambda (p) (not (cdr p))) (hash->list mt-ht)))) ;; DrRacket
-  (map car (filter (lambda (p) (not (cdr p))) (hash->list mt-ht)))) ;; DrRacket
-  ;; (map
+  ;; (map car
+  ;;      (filter (lambda (p)
+  ;; 		 (not (cdr p)))
+  ;; 	       (hash->list mt-ht))))
+;; DrRacket
+
+;; (map
   ;;  first
   ;;  (filter (lambda (p) (not (cdr p)))
   ;; 	   (map cons (hashtable-key-list mt-ht) (hashtable->list mt-ht)))))
+
 
 
 
@@ -1506,7 +1510,9 @@
   
   (if (set-of-empty-sets? sos)
       ;;(equal? sos '(()))
-      (hash-keys minterms-ht) ;; DrRacket
+      ;;(hash-map->list (lambda (k v) k) minterms-ht) ;; guile built-in
+      (hash-table-keys minterms-ht)
+      ;;(hash-keys minterms-ht) ;; DrRacket
       ;;(hashtable-key-list minterms-ht) ;; Bigloo
       (begin
 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets ::" minterms-ht))
@@ -1654,7 +1660,8 @@
 (define (put-elements-of-set-of-sets-in-minterms-ht sos)
   (map ;; deal with sets of the 'set of sets'
    (lambda (s) (map ;; deal with elements of a set
-		(lambda (e) (hash-set! minterms-ht e #f)) ;; DrRacket
+		(lambda (e) (hash-table-set! minterms-ht e #f)) ;; Guile SRFI 69
+		;;(lambda (e) (hash-set! minterms-ht e #f)) ;; DrRacket , Guile
 		;;(lambda (e) (hashtable-put! minterms-ht e #f))
 		s))
 	   sos))
@@ -1675,8 +1682,10 @@
 (define (function-unify-two-minterms-and-tag mt1 mt2)
   (let ((res (unify-two-minterms mt1 mt2)))
     (when res
-	  (hash-set! minterms-ht mt1 #t) ;; DrRacket
-	  (hash-set! minterms-ht mt2 #t)
+      (hash-table-set! minterms-ht mt1 #t) ;; guile SRFI 69
+      (hash-table-set! minterms-ht mt2 #t)
+	  ;; (hash-set! minterms-ht mt1 #t) ;; DrRacket
+	  ;; (hash-set! minterms-ht mt2 #t)
 	  ;;(hashtable-put! minterms-ht mt1 #t)
 	  ;;(hashtable-put! minterms-ht mt2 #t)
 	  )
@@ -1701,8 +1710,12 @@
 
 ;; used by Quine - Mc Cluskey
 (define (init-hash-table-with-set-and-value ht s val)
-  (hash-clear! ht)
-  (map (lambda (e) (hash-set! ht e val)) s)) ;; DrRacket
+  (display "init-hash-table-with-set-and-value") (newline)
+  (set! ht (make-hash-table))
+  ;;(hash-clear! ht) ;; built-in, will not work with SRFI 69 !
+  (map (lambda (e) (hash-table-set! ht e val)) s) ;; Guile , SRFI 69
+  (display "end of init-hash-table-with-set-and-value") (newline))
+  ;;(map (lambda (e) (hash-set! ht e val)) s)) ;; DrRacket
   ;;(map (lambda (e) (hashtable-put! ht e val)) s)) 
 
 
