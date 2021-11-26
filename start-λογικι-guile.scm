@@ -52,7 +52,7 @@
 	     (srfi srfi-60) ;; for arithmetic-shift
 	     ;;(srfi srfi-28) ;; for format and escape ~
 	     (ice-9 format)
-	     (ice-9 hash-table) ;; built-in Hash Table
+	     ;;(ice-9 hash-table) ;; built-in Hash Table
 	     (srfi srfi-69) ;; SRFI 69 Hash Table
 	     )
 
