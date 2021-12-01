@@ -29,6 +29,9 @@ Logical computation:
 
 Goodstein sequences:
 
+
+```scheme
+
 ;; goodstein-init-atomic-rec2 : start-up function
 ;;
 ;;    - set a few variables
@@ -79,3 +82,7 @@ Goodstein sequences:
 ;; G(266)(17)=((18 ^ (18 ^ (18 + 1))) + (5 * (18 ^ 18)) + (5 * (18 ^ 5)) + (5 * (18 ^ 4)) + (5 * (18 ^ 3)) + (5 * (18 ^ 2)) + (4 * 18) + 5)
 ;; P(266)(17)=((ω ^ (ω ^ (ω + 1))) + (5 * (ω ^ ω)) + (5 * (ω ^ 5)) + (5 * (ω ^ 4)) + (5 * (ω ^ 3)) + (5 * (ω ^ 2)) + (4 * ω) + 5)
 ;;
+
+```
+
+
