@@ -15,7 +15,7 @@ start-goodstein-recursive.scm : a symbolic calculus program for goodstein sequen
 some examples:
 
 
-Logical computation:
+Logical computation of the minimal disjonctive normal form of a logical expression:
 
 ```scheme
 
