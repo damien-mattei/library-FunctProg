@@ -120,7 +120,7 @@
 ;;
 ;; with others Schemes:
 ;;
-;;  (dnf-infix-symb '(and (=> (and p q) r) (=> (not (and p q)) r))) -> not yet tested !
+;;  (dnf-infix-symb '(and (=> (and p q) r) (=> (not (and p q)) r))) -> r
 ;;
 ;; the same in CNF:
 ;;
