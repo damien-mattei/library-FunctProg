@@ -1766,8 +1766,9 @@
     (set! iepi (make-array-2d (+ lgt-mt 1) (+ lgt-pi 1) 0)) ;; two dimensions array
     (when debug-mode
 	  (dv-2d iepi))
-    
-    (vector-set! iepi 0 (list->vector (cons '() minterms))) ;; set the title line
+
+    {iepi[0] ← (list->vector (cons '() minterms))}
+    ;;(vector-set! iepi 0 (list->vector (cons '() minterms))) ;; set the title line
 
     (when debug-mode
 	  (dv-2d iepi)
@@ -1819,7 +1820,8 @@
 	    iepi
 	    0
 	    (+ y 1)
-	    (vector-ref vct-prime-implicants y)))
+	    {vct-prime-implicants[y]}))
+	    ;;(vector-ref vct-prime-implicants y)))
 	    ;;(display-symb-nl iepi)))
 	 )
 
