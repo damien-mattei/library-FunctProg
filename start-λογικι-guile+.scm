@@ -82,5 +82,5 @@
 (include "symbol.scm")
 (include "minterms.scm")
 
-(include "guile/logiki.scm")
+(include "guile/logiki+.scm")
 

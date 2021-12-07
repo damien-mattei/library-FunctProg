@@ -1660,7 +1660,7 @@
 (define (put-elements-of-set-of-sets-in-minterms-ht sos)
   (map ;; deal with sets of the 'set of sets'
    (lambda (s) (map ;; deal with elements of a set
-		(lambda (e) (hash-table-set! minterms-ht e #f))
+		(lambda (e) {minterms-ht[e] <- #f})
 		;;(lambda (e) (hash-table-set! minterms-ht e #f)) ;; Guile SRFI 69
 		;;(lambda (e) (hash-set! minterms-ht e #f)) ;; DrRacket , Guile
 		;;(lambda (e) (hashtable-put! minterms-ht e #f))
@@ -1683,8 +1683,10 @@
 (define (function-unify-two-minterms-and-tag mt1 mt2)
   (let ((res (unify-two-minterms mt1 mt2)))
     (when res
-      (hash-table-set! minterms-ht mt1 #t) ;; guile SRFI 69
-      (hash-table-set! minterms-ht mt2 #t)
+      {minterms-ht[mt1] <- #t}
+      {minterms-ht[mt2] <- #t}
+      ;;(hash-table-set! minterms-ht mt1 #t) ;; guile SRFI 69
+      ;;(hash-table-set! minterms-ht mt2 #t)
 	  ;; (hash-set! minterms-ht mt1 #t) ;; DrRacket
 	  ;; (hash-set! minterms-ht mt2 #t)
 	  ;;(hashtable-put! minterms-ht mt1 #t)
@@ -1714,7 +1716,8 @@
   (display "init-hash-table-with-set-and-value") (newline)
   (set! ht (make-hash-table))
   ;;(hash-clear! ht) ;; built-in, will not work with SRFI 69 !
-  (map (lambda (e) (hash-table-set! ht e val)) s) ;; Guile , SRFI 69
+  (map (lambda (e) {ht[e] <- val}) s)
+  ;;(map (lambda (e) (hash-table-set! ht e val)) s) ;; Guile , SRFI 69
   (display "end of init-hash-table-with-set-and-value") (newline))
   ;;(map (lambda (e) (hash-set! ht e val)) s)) ;; DrRacket
   ;;(map (lambda (e) (hashtable-put! ht e val)) s)) 
