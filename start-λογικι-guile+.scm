@@ -4,7 +4,7 @@
 
 ;; 22/11/2021
 
-;; (load "start-λογικι-guile.scm")
+;; (load "start-λογικι-guile+.scm")
 
 ;; examples:
 
