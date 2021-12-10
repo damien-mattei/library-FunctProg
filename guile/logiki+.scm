@@ -1923,160 +1923,138 @@
 ;; (Quine-Mc-Cluskey '(or (and c (not d)) (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) b (not c) d) (and (not a) b c d) (and a (not b) (not c) (not d)) (and a (not b) (not c) d)) '(a b c d))
 ;;
 ;; '((x 0 0 x) (x x 1 0))
-(define (Quine-Mc-Cluskey disj-norm-form var-list)
-  (display-nl "Entering Quine-Mc-Cluskey")
-  (let* (
-	 ;; TODO: put those statements in a function
-	 (and-terms (args disj-norm-form)) ;; conjunctives minterms	 
+(def (Quine-Mc-Cluskey disj-norm-form var-list)
+     
+     (display-nl "Entering Quine-Mc-Cluskey")
+     
+     {and-terms ⥆ (args disj-norm-form)} ;; conjunctives minterms
+     ;; variable list of expanded minterms 
+     {expanded-var-terms  ⥆ ($ {debug-mode-save ← debug-mode}
+			        {debug-mode  ← #t}
+				(when debug-mode
+				  (dv and-terms)) ;; dv:display value
+				{debug-mode  ← debug-mode-save}
+				(apply append
+				       (map (lambda (min-term)
+					      (expand-minterm var-list min-term))
+					    and-terms)))}
 
-	 (expanded-var-terms ;; variable list of expanded minterms 
-	  (begin
-	    (set! debug-mode-save debug-mode)
-	    (set! debug-mode #t)
-	    (when debug-mode
-		  (dv and-terms))
-	    (set! debug-mode debug-mode-save)
-		  (apply append
-			 (map (lambda (min-term)
-				(expand-minterm var-list min-term))
-			      and-terms))))
+     {sorted-expanded-var-terms  ⥆ (map sort-arguments expanded-var-terms)} ;; sorted variable list of expanded minterms
+     {binary-minterms ⥆ (map var->binary sorted-expanded-var-terms)} ;; minterms in binary form
+     {sorted-binary-minterms ⥆ (sort binary-minterms minterm-binary-weight-number<?)} ;; sorted binary minterms
+     {uniq-sorted-binary-minterms ⥆ (remove-duplicates-sorted sorted-binary-minterms)}  ;; prevoir uniq pourquoi???? sais plus !
+     {minterms ⥆ uniq-sorted-binary-minterms}
+     {set-of-sets-of-minterms ⥆ (order-by-weight-minterms uniq-sorted-binary-minterms)} ;; set of sets of minterms ordered by weight
+     ;; (begin
+     ;;   (de (order-by-weight-basic uniq-sorted-binary-minterms)) ;; set of sets of minterms ordered by weight
+     ;;   (error "escaping from Quine-Mc-Cluskey")))
+     ;; (order-by-weight-basic uniq-sorted-binary-minterms))
 
-	 (sorted-expanded-var-terms (map sort-arguments expanded-var-terms)) ;; sorted variable list of expanded minterms
-
-	 (binary-minterms (map var->binary sorted-expanded-var-terms)) ;; minterms in binary form
-
-	 (sorted-binary-minterms (sort binary-minterms minterm-binary-weight-number<?)) ;; sorted binary minterms
-
-	 (uniq-sorted-binary-minterms (remove-duplicates-sorted sorted-binary-minterms))  ;; prevoir uniq pourquoi???? sais plus !
-	 (minterms uniq-sorted-binary-minterms)
-
-	 (set-of-sets-of-minterms
-	  ;; (begin
-	  ;;   (de (order-by-weight-basic uniq-sorted-binary-minterms)) ;; set of sets of minterms ordered by weight
-	  ;;   (error "escaping from Quine-Mc-Cluskey")))
-	  ;; (order-by-weight-basic uniq-sorted-binary-minterms))
-	  (order-by-weight-minterms uniq-sorted-binary-minterms)) ;; set of sets of minterms ordered by weight
-
-	 (unified-minterms 
-	  (begin
-	    (set! debug-mode-save debug-mode)
-	    (set! debug-mode #t)
-	    (when debug-mode (display-nl "Quine-Mc-Cluskey:"))
-	    (init-hash-table-with-set-and-value minterms-ht minterms #f)
-	    (dv minterms-ht)
-	    (set! debug-mode debug-mode-save)
-	    (recursive-unify-minterms-set-of-sets  set-of-sets-of-minterms)))
+     {unified-minterms ⥆ ($ {debug-mode-save ← debug-mode}
+			     {debug-mode ← #t}
+			     (when debug-mode (display-nl "Quine-Mc-Cluskey:"))
+			     (init-hash-table-with-set-and-value minterms-ht minterms #f)
+			     (dv minterms-ht)
+			     {debug-mode ← debug-mode-save}
+			     (recursive-unify-minterms-set-of-sets  set-of-sets-of-minterms))}
 	 
-	 (essential-prime-implicants
-	  (begin
-	    (set! prime-implicants-lst (begin
-					 (set! debug-mode debug-mode-save)
-					 (prime-implicants minterms-ht)))
-	    (identify-essential-prime-implicants prime-implicants-lst minterms)))
-	 )
-
-    (dv disj-norm-form)
-    (dv var-list)
-    (dv and-terms)
-    (dv expanded-var-terms)
-    (dv sorted-expanded-var-terms)
-    (dv binary-minterms)
-    (dv sorted-binary-minterms)
-    (dv uniq-sorted-binary-minterms)
-    (dvsos set-of-sets-of-minterms)
-    (dv unified-minterms)
-    (dv minterms-ht)
-    (dv prime-implicants-lst)
-    (dv essential-prime-implicants)
-    (display-nl "function expressed by essential prime implicants ?")
-    (dv feepi)
-    essential-prime-implicants))
+     {essential-prime-implicants ⥆ ($ {prime-implicants-lst ← ($ {debug-mode ← debug-mode-save}
+								  (prime-implicants minterms-ht))}
+				       (identify-essential-prime-implicants prime-implicants-lst minterms))}
+       
+     ;; dv : display value
+     (dv disj-norm-form)
+     (dv var-list)
+     (dv and-terms)
+     (dv expanded-var-terms)
+     (dv sorted-expanded-var-terms)
+     (dv binary-minterms)
+     (dv sorted-binary-minterms)
+     (dv uniq-sorted-binary-minterms)
+     (dvsos set-of-sets-of-minterms)
+     (dv unified-minterms)
+     (dv minterms-ht)
+     (dv prime-implicants-lst)
+     (dv essential-prime-implicants)
+     (display-nl "function expressed by essential prime implicants ?")
+     (dv feepi)
+     essential-prime-implicants)
 
 
 (define prime-implicants-lst '())
   
 
-(define (Petrick non-essential-prime-implicants var-list)
+(def (Petrick non-essential-prime-implicants var-list)
 
   ;; create the conjunction of disjunction expression
 
-  (let ((mt '())
-	(conj-expr '())
-	(prim-imp '())
-	(col '())
-	(disj-expr '())
-	(disj-expr-sorted '())
-	(mt-var '())
-	(missing-term '()))
+  (declare mt conj-expr prim-imp col disj-expr disj-expr-sorted mt-var missing-term)
 
-    (display-nl "Entering Petrick...")
-    
-    (for (x 1 lgt-mt) ;; loop over minterms
-	       
-	 (set! mt (array-2d-ref iepi x 0))
-	 
-	 (when (member mt non-expressed-minterms) ;; non expressed minterm
-	       
-	       (set! col '())
-	       
-	       (for (y 1 lgt-pi) ;; loop over prime implicants
-		    
-		    (set! prim-imp (array-2d-ref iepi 0 y)) ;; prime implicant
-		    
-		    ;; check wether prime implicant is a non essential one?
-		    (when (member prim-imp non-essential-prime-implicants)
-				
-			  ;; is the non essential prime implicant expressing this minterms?
-			  (when (string=? (array-2d-ref iepi x y) " * ")
-				(insert-set! (minterm->var prim-imp) col))))
-		    
-	       ;; end for y
-	       
-	       (if (singleton-set? col)
-		   (set! col (car col))  ;; ( V ) -> V
-		   (insert-set! 'or col))  ;; (V1 V2 ...) -> (or V1 V2 ...)
-	       
-	       (insert-set! col conj-expr)))
-    
-    ;; end for x
-
-    (if (singleton-set? conj-expr)
-	(set! conj-expr (car conj-expr))  ;; ( conj-expr ) -> conj-expr
-	(insert-set! 'and conj-expr))  ;; (e1 e2 ...) -> (and e1 e2 ...)
-
-    (dv conj-expr)
-
-    ;; find the disjunctive form
-    (set! disj-expr (dnf-n-arity-simp conj-expr))
+  (display-nl "Entering Petrick...")
   
-    (dv disj-expr)
+  (for (x 1 lgt-mt) ;; loop over minterms
+       
+       {mt ← iepi[x 0]}
+       
+       (when (member mt non-expressed-minterms) ;; non expressed minterm
+	 
+	 {col ← '()}
+	 
+	 (for (y 1 lgt-pi) ;; loop over prime implicants
+	      
+	      {prim-imp ← iepi[0 y]} ;; prime implicant
+	      
+	      ;; check wether prime implicant is a non essential one?
+	      (when (member prim-imp non-essential-prime-implicants)
+		
+		;; is the non essential prime implicant expressing this minterms?
+		(when (string=? {iepi[x y]} " * ")
+		  (insert-set! (minterm->var prim-imp) col))))
+	 
+	 ;; end for y
+	 
+	 (if (singleton-set? col)
+	     {col ← (car col)}  ;; ( V ) -> V
+	     (insert-set! 'or col))  ;; (V1 V2 ...) -> (or V1 V2 ...)
+	 
+	 (insert-set! col conj-expr)))
+  
+  ;; end for x
 
-    ;; sorting terms
-    ;; sort by x < 1 < 0
-    (set! disj-expr-sorted (sort-arguments-in-operation-most-little-literal-first disj-expr))
-    (dv disj-expr-sorted)
-    
-    ;; get the shortest minterm
-    (if (isOR-AND? disj-expr-sorted)
-	(set! mt-var (first (args disj-expr-sorted)))
-	(set! mt-var disj-expr-sorted))
+  (if (singleton-set? conj-expr)
+      {conj-expr ← (car conj-expr)}  ;; ( conj-expr ) -> conj-expr
+      (insert-set! 'and conj-expr))  ;; (e1 e2 ...) -> (and e1 e2 ...)
 
-    (dv mt-var)
+  (dv conj-expr)
 
-    (set! mt (var->minterm mt-var))
+  ;; find the disjunctive form
+  {disj-expr ← (dnf-n-arity-simp conj-expr)}
+  
+  (dv disj-expr)
 
-    (dv mt)
+  ;; sorting terms
+  ;; sort by x < 1 < 0
+  {disj-expr-sorted ← (sort-arguments-in-operation-most-little-literal-first disj-expr)}
+  (dv disj-expr-sorted)
+  
+  ;; get the shortest minterm
+  (if (isOR-AND? disj-expr-sorted)
+      {mt-var ← (first (args disj-expr-sorted))}
+      {mt-var ← disj-expr-sorted})
 
-    ;; TODO: possible bug missing term could be an expression ? (multiple terms)
-    (set! missing-term (essential-prime-implicants-list->formula
-			(list mt)
-			var-list))
+  (dv mt-var)
 
-    (dv missing-term)
+  {mt ← (var->minterm mt-var)}
 
-    missing-term
-    
-    ) ;; end let
+  (dv mt)
+
+  ;; TODO: possible bug missing term could be an expression ? (multiple terms)
+  {missing-term ← (essential-prime-implicants-list->formula (list mt)
+							    var-list)}
+
+  (dv missing-term)
+
+  missing-term
       
 )
 
