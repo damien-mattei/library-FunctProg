@@ -16,7 +16,7 @@
 ;;
 ;;
 ;;
-;; version 3.0 for Guile
+;; version 4.0 for Guile
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
