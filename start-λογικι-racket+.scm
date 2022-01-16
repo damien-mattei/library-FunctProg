@@ -1,47 +1,19 @@
-#lang racket
+#lang reader "racket/SRFI-105.rkt"
 
-;; this is the bootstrap file for λογικι (LOGIKI)
+;; this is the bootstrap file for λογικι+ (LOGIKI)
 
 ;; Damien Mattei
 
-;; 8/10/2018
+;; 15/1/2022
+
+
+;; Note: you can start the code directly from racket/logiki+.rkt if you want. (because include can not be used directly in SRFI-105 REPL for Racket)
 
 ;;(require racket/include)
 
+(require "../Scheme-PLUS-for-Racket/Scheme+.rkt")
 
-(include "../library-FunctProg/syntactic-sugar.scm")
-
-(include "../library-FunctProg/set.scm")
-
-(include "../library-FunctProg/debug.scm")
-
-(include "../library-FunctProg/racket/display-racket-scheme.scm")
-
-(include "../library-FunctProg/array.scm") ;; TODO: use SRFI-25 instead, done in Scheme+
-
-(include "../library-FunctProg/symbolic.scm")
-
-(include "../library-FunctProg/simplify.scm")
-
-(include "../library-FunctProg/binary-arithmetic.scm")
-
-(include "../library-FunctProg/for.scm")
-
-(include "../library-FunctProg/map.scm")
-
-(include "../library-FunctProg/list.scm")
-
-(include "../library-FunctProg/operation.scm")
-
-(include "../library-FunctProg/display-formula.scm")
-
-(include "../library-FunctProg/minterms.scm")
-
-
-
-
-
-(include "logiki.scm")
+(require "racket/logiki+.rkt")
 
 ; DrRacket does not like greek names in filenames
 ;(include "program-λογικι-2.8.scm")
