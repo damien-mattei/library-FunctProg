@@ -181,14 +181,14 @@
 ;; (prefix-NOT->infix-symbolic-form '(not (and a b))) -> '|!(a and b)|
 (define (prefix-NOT->infix-symbolic-form expr)
   (let ((expr-arg (prefix->infix (first (rest expr))))) ;; get the literal symbol
-    (string->symbol (string-append "!" (symbol->string expr-arg))))) ;; Warning : this version can not handle expressions (but only symbols)
+    (string->symbol (string-append "¬" (symbol->string expr-arg))))) ;; Warning : this version can not handle expressions (but only symbols)
     ;;(string->symbol (string-append "!" (format "~s" expr-arg))))) ;; construct '!expr-arg
 
 ;; convert from alphabetic operators to symbolic operators
 (define (alpha-op->symb-op op)
   (cond
-   ((equal? op 'and) '^)
-   ((equal? op 'or) 'v)
+   ((equal? op 'and) '∧) ;; on Emacs Ctrl-X 8 RET unicode
+   ((equal? op 'or) '∨)
    (else '?)))
 
 
