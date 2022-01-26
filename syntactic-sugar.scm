@@ -204,15 +204,15 @@
 ;; 3
 ;;
 ;;  (for/break breaky (i 1 3) (if (= i 3)  (breaky i) '()) )
-;; 3
-(define-syntax for/break
-  (syntax-rules ()
-    ((_ <break-id> (i from to) b1 ...)
-     (call/cc (lambda (<break-id>)
-		(let loop ((i from))
-        	  (when (<= i to)
-			(begin b1 ...
-			       (loop (incf i))))))))))
+;; ;; 3
+;; (define-syntax for/break
+;;   (syntax-rules ()
+;;     ((_ <break-id> (i from to) b1 ...)
+;;      (call/cc (lambda (<break-id>)
+;; 		(let loop ((i from))
+;;         	  (when (<= i to)
+;; 			(begin b1 ...
+;; 			       (loop (incf i))))))))))
 
 
 
