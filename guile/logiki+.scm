@@ -399,13 +399,13 @@
    (else 
     (let* ((oper (operator expr))
 	   (sL (args expr)) ; extract the arguments of operation
-	   (encaps (lambda (expression)  ; put any remaining element in a set (list)
+	   (encaps (λ (expression)  ; put any remaining element in a set (list)
 		     (if (symbol? expression)
 			 (list expression)
 			 expression)))
 	   (encaps-args (map encaps sL))
 	   (reducted-args (parse-args-by-unitary-reduction encaps-args encaps-args)) ; do unitary reduction
-	   (decaps (lambda (expression) ; extract any element from a list
+	   (decaps (λ (expression) ; extract any element from a list
 		     (if (singleton? expression)
 			 (first expression)
 			 expression)))
@@ -441,13 +441,13 @@
    ((is-single-form? expr) expr)
    (else 
     (let* ((sL (args expr)) ; extract the arguments of 'or
-	   (encaps (lambda (expression)  ; put any remaining element in a set (list)
+	   (encaps (λ (expression)  ; put any remaining element in a set (list)
 		     (if (symbol? expression)
 			 (list expression)
 			 expression)))
 	   (encaps-args (map encaps sL))
 	   (reducted-args (parse-args-by-unitary-reduction encaps-args encaps-args)) ; do unitary reduction
-	   (decaps (lambda (expression) ; extract any element from a list
+	   (decaps (λ (expression) ; extract any element from a list
 		     (if (singleton? expression)
 			 (first expression)
 			 expression)))
@@ -638,7 +638,7 @@
 ;; > (is-AND-antilogy? '(and (not c) a (not b))) -> #f
 (define (is-AND-antilogy? expr)
   (letrec ((lep (args expr)) ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
-           (detect-antilogy (lambda (listExpr)
+           (detect-antilogy (λ (listExpr)
                               (if (null? listExpr) 
                                   #f
                                   (if (symbol? (first listExpr)) ;; we search for a literal ex: 'x    
@@ -667,7 +667,7 @@
 ;; >  (is-OR-tautology? '(or a (not b) (not c))) -> #f
 (define (is-OR-tautology? expr)
   (letrec ((lep (args expr)) ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
-           (detect-tautology (lambda (listExpr)
+           (detect-tautology (λ (listExpr)
                                (if (null? listExpr) 
                                   #f
                                   (if (symbol? (first listExpr)) ;; we search for a literal ex: 'x    
@@ -799,28 +799,28 @@
 
 
 (define expression<?
-  (lambda (x y)
+  (λ (x y)
     (string<? (lower-literal-symbol x) (lower-literal-symbol y))))
 
 
 (define expression-literal-first<?
-  (lambda (x y)
+  (λ (x y)
     (cond ((isOR-AND? x) #f)
 	  ((isOR-AND? y) #t)
 	  (string<? (lower-literal-symbol x) (lower-literal-symbol y)))))
 
 (define lower-literal-symbol
-  (lambda (s)
+  (λ (s)
     (string-downcase (expression->string (get-first-literal s))))) ;; 'Ci -> "ci", '(not A) -> "a"
 
 (define expression->string
-	  (lambda (expr2)
+	  (λ (expr2)
 	    (cond ((symbol? expr2) (symbol->string expr2)) 
 		  ((boolean? expr2) (if expr2 "T" "F")) ;; #t -> "T", #f -> "F"
 		  (else (error "expression->string: do not know how to handle this expression" expr2)))))
 
 (define expression-most-little-literal-first<?
-  (lambda (x y)
+  (λ (x y)
     (cond ((isOR-AND? x) #f)
 	  ((isOR-AND? y) #t)
 	  (literal<? (get-first-literal x) (get-first-literal y)))))
@@ -963,7 +963,7 @@
    (else ;; we have a OR or AND
     ;; we check that all the arguments are literals or single negations
     (andmap
-     (lambda (q)
+     (λ (q)
        (or (symbol? q) (is-monomial-NOT? q)))
      (args expr)))))
 
@@ -1064,7 +1064,7 @@
 	   (expanded-var-terms
 	    (apply append (map
 			   
-			   (lambda
+			   (λ
 			       (min-term)
 			     (expand-minterm var-list min-term))
 			   
@@ -1075,7 +1075,7 @@
 	   (sorted-expanded-and-term
 	    (map
 	     
-	     (lambda
+	     (λ
 		 (literal-list)
 	       (if (singleton-set? literal-list)
 		   (first literal-list)
@@ -1231,7 +1231,7 @@
   (if (singleton-list? essential-prime-implicants)
       (binary->min-term (first essential-prime-implicants) var-list)
       (insert 'or (map
-		   (lambda (epi) (binary->min-term epi var-list))
+		   (λ (epi) (binary->min-term epi var-list))
 		   essential-prime-implicants))))
 
 
@@ -1252,20 +1252,20 @@
 
   ;; use srfi 69 hash-table->alist
   (map car ;; or car , works in Guile because first is a procedure (usable with map)
-       (filter (lambda (p)
+       (filter (λ (p)
 		 (not (cdr p))) ;; when working with pair i prefer be using car and cdr rather than first an rest
 	       (hash-table->alist mt-ht)))) ;; SRFI 69 , Guile
 
-  ;;(map first (filter (lambda (p) (not (cdr p))) (hash->list mt-ht)))) ;; DrRacket
+  ;;(map first (filter (λ (p) (not (cdr p))) (hash->list mt-ht)))) ;; DrRacket
   ;; (map car
-  ;;      (filter (lambda (p)
+  ;;      (filter (λ (p)
   ;; 		 (not (cdr p)))
   ;; 	       (hash->list mt-ht))))
 ;; DrRacket
 
 ;; (map
   ;;  first
-  ;;  (filter (lambda (p) (not (cdr p)))
+  ;;  (filter (λ (p) (not (cdr p)))
   ;; 	   (map cons (hashtable-key-list mt-ht) (hashtable->list mt-ht)))))
 
 
@@ -1288,11 +1288,11 @@
 	(dvs set2)
 	(debug-mode-reload))
   
-  (letrec ((function-unify-minterms-list (lambda (L) (apply function-unify-two-minterms-and-tag L))))
+  (letrec ((function-unify-minterms-list (λ (L) (apply function-unify-two-minterms-and-tag L))))
     (let* (
 	   (minterms-set (associate-set-with-set set1 set2)) ;; create pair list of minterms
 	   (unified-minterms-set-1 (map function-unify-minterms-list minterms-set))
-	   (unified-minterms-set-2 (filter (lambda (x) x) unified-minterms-set-1)) ;; remove false results
+	   (unified-minterms-set-2 (filter (λ (x) x) unified-minterms-set-1)) ;; remove false results
 	   (unified-minterms-set (remove-duplicates-sorted unified-minterms-set-2)) ;; uniq
 	   )
       
@@ -1316,11 +1316,11 @@
 (define (funct-unify-minterms-set set1 set2)
   (if (or (null? set1) (null? set2))
       '()
-      (letrec ((function-unify-minterms-list (lambda (L) (apply function-unify-two-minterms-and-tag L))))
+      (letrec ((function-unify-minterms-list (λ (L) (apply function-unify-two-minterms-and-tag L))))
 	(let* (
 	       (minterms-set (associate-set-with-set set1 set2)) ;; create pair list of minterms
 	       (unified-minterms-set-1 (map function-unify-minterms-list minterms-set))
-	       (unified-minterms-set-2 (filter (lambda (x) x) unified-minterms-set-1)) ;; remove false results
+	       (unified-minterms-set-2 (filter (λ (x) x) unified-minterms-set-1)) ;; remove false results
 	       (unified-minterms-set (remove-duplicates-sorted unified-minterms-set-2)) ;; uniq
 	       )
 	  unified-minterms-set))))
@@ -1510,7 +1510,7 @@
   
   (if (set-of-empty-sets? sos)
       ;;(equal? sos '(()))
-      ;;(hash-map->list (lambda (k v) k) minterms-ht) ;; guile built-in
+      ;;(hash-map->list (λ (k v) k) minterms-ht) ;; guile built-in
       (hash-table-keys minterms-ht)
       ;;(hash-keys minterms-ht) ;; DrRacket
       ;;(hashtable-key-list minterms-ht) ;; Bigloo
@@ -1660,8 +1660,8 @@
 ;; sos set of sets
 (define (put-elements-of-set-of-sets-in-minterms-ht sos)
   (map ;; deal with sets of the 'set of sets'
-   (lambda (s) (map ;; deal with elements of a set
-		(lambda (e) {minterms-ht[e] <- #f})
+   (λ (s) (map ;; deal with elements of a set
+		(λ (e) {minterms-ht[e] <- #f})
 		s))
    sos))
 
@@ -1704,8 +1704,8 @@
   (display "init-hash-table-with-set-and-value") (newline)
   {ht ← (make-hash-table)}
   ;;(hash-clear! ht) ;; Guile built-in, will not work with SRFI 69 !
-  (map (lambda (e) {ht[e] <- val}) s)
-  ;;(map (lambda (e) (hash-table-set! ht e val)) s) ;; Guile , SRFI 69
+  (map (λ (e) {ht[e] <- val}) s)
+  ;;(map (λ (e) (hash-table-set! ht e val)) s) ;; Guile , SRFI 69
   (display "end of init-hash-table-with-set-and-value") (newline))
 
 
@@ -1749,7 +1749,7 @@
   ;; first line : minterms
   ;; first row : prime-implicants
   ;;(iepi (make-array-2d (+ lgt-mt 1) (+ lgt-pi 1) 0)) ;; two dimensions array
-  ;;(array-iepi (lambda (x y) (vector-ref (vector-ref iepi y) x)))
+  ;;(array-iepi (λ (x y) (vector-ref (vector-ref iepi y) x)))
   
   {vct-prime-implicants ⥆ (list->vector prime-implicants)}
   {essential-prime-implicants-list ⥆ '()}
@@ -1804,12 +1804,12 @@
     
     ;; (display "(funct-array-2d-set! iepi 1 2 2) =")
     ;; (display (funct-array-2d-set! iepi 1 2 2))
-    (display "((lambda (tbl val x y) {tbl[x y] ← val}) iepi 1 1 2) = ")
-    (display ((lambda (tbl val x y) {tbl[x y] ← val}) iepi 1 1 2))
+    (display "((λ (tbl val x y) {tbl[x y] ← val}) iepi 1 1 2) = ")
+    (display ((λ (tbl val x y) {tbl[x y] ← val}) iepi 1 1 2))
     (newline)
 
-    (display "(apply (lambda (tbl val x y) {tbl[x y] ← val}) (list iepi 3 1 2)) = ")
-    (display (apply (lambda (tbl val x y) {tbl[x y] ← val}) (list iepi 3 1 2)))
+    (display "(apply (λ (tbl val x y) {tbl[x y] ← val}) (list iepi 3 1 2)) = ")
+    (display (apply (λ (tbl val x y) {tbl[x y] ← val}) (list iepi 3 1 2)))
     (newline)
 
     (display "{iepi[1 2]} = ")
@@ -1951,7 +1951,7 @@
 				  (dv and-terms)) ;; dv:display value
 				{debug-mode  ← debug-mode-save}
 				(apply append
-				       (map (lambda (min-term)
+				       (map (λ (min-term)
 					      (expand-minterm var-list min-term))
 					    and-terms)))}
 
