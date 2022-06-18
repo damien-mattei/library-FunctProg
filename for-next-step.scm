@@ -1,3 +1,12 @@
+;; > (for ((k 5)) (display k) (newline))
+;; 0
+;; 1
+;; 2
+;; 3
+;; 4
+;; 5
+
+
 ;; > (for (k 0 10) (display k) (newline))
 ;; 0
 ;; 1
@@ -51,14 +60,14 @@
      
     
      (let loop ((i 0))
-       (when (< i to)
+       (when (<= i to)
 	     b1 ...
 	     (loop (incf i)))))
     
     ((_ (i to) b1 ...)
      
      (let loop ((i 0))
-       (when (< i to)
+       (when (<= i to)
 	     b1 ...
 	     (loop (incf i)))))
 

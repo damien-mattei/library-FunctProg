@@ -67,14 +67,16 @@
     ((_ (i from to) b1 ...)
 
      (let loop ((i from))
-       (when (<= i to)
+       ;;(when (<= i to)    ;; warning test is inclusive ,different from case above !!!! must be fixed
+       (when (< i to)
 	     b1 ...
 	     (loop (incf i)))))
     
     ((_ (i from to step) b1 ...)
      
      (let loop ((i from))
-       (when (<= i to)
+       ;;(when (<= i to)
+       (when (< i to)
 	     b1 ...
 	     (loop (+ i step)))))))
 
