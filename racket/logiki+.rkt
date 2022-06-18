@@ -4,9 +4,9 @@
 
 (require srfi/69) ;; Basic hash tables
 
-;;(require "../../Scheme-PLUS-for-Racket/Scheme+.rkt")
+(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
-(require Scheme-PLUS-for-Racket/Scheme+)
+;;(require Scheme-PLUS-for-Racket/Scheme+)
 
 (include "../syntactic-sugar.scm")
 (include "../set.scm")
