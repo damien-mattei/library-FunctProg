@@ -44,11 +44,13 @@
 ;; toto
 ;; toto
 ;; toto
+;; Warning: this 'do' break the one of scheme !
 (define-syntax do
   (syntax-rules (do)
     ((do b1 ...
        while pred)
      (let loop () b1 ... (when pred (loop))))))
+
 
 
 ;; (define-syntax when
