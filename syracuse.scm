@@ -1,15 +1,10 @@
 ;;#lang racket
-;;#lang r6rs
-
-;;#lang r5rs
 
 ;; for DrRacket Scheme uncomment above
 
 ;; syracuse.scm
 
 ;; Damien Mattei
-
-
 
 
 
@@ -26,7 +21,7 @@
 ;; ck-1 is the carry at the top of the column of index k-1 based on Bn indexing
 ;; in the addition described below :
 ;;
-;;  computing 3*B + c = A + B  with Carry set to c at start of computation
++;;  computing 3*B + c = A + B  with Carry set to c at start of computation
 ;;
 ;;      A + B + c = S
 ;;
@@ -1806,8 +1801,10 @@
 ;; odd-sum = 11
 ;; 1
 (define (collatz-comp-stat n)
+  
   (define even-sum 0)
   (define odd-sum 0)
+  
   (define (collatz-rec n)
     (begin ;;(display (padding-spc n))
 	   ;;(newline)
@@ -1822,6 +1819,7 @@
 		 (else
 		  (incf odd-sum)
 		  (collatz-rec (quotient (+ (* 3 n) 1) 2))))))
+  
   (collatz-rec n))
 
 
@@ -1840,8 +1838,8 @@
       (set! r (modulo n 2))
       (cond ((or 
 	      (= n 1)
-	      (= n 2)
-	      (= n 4))
+	      ;;(= n 2)
+	      #;(= n 4))
 	     ;;(dv C)
 	     ;;(dv n)
 	     C)
@@ -1915,8 +1913,9 @@
       (set! r (modulo n 4))
       (cond ((or 
 	      (= n 1)
-	      (= n 2)
-	      (= n 4))
+	      ;;(= n 2)
+	      ;;(= n 4)
+	      )
 	     ;;(dv C)
 	     ;;(dv n)
 	     C)
@@ -1927,8 +1926,10 @@
 	     (collatz-rec (fc (fc n)))))))
   (collatz-rec n))
 
+
+
 ;; compute stat of collatz mod2 for a gap of numbers
-;; (stat-collatz-mod-2 1 10000)
+;;
 ;; ...
 ;; C-stat = #(18157 19569)
 ;; C-stat = #(18174 19584)
@@ -1936,14 +1937,36 @@
 ;; C-stat = #(18208 19614)
 ;; C-stat = #(18239 19653)
 ;; freq= 0,4813 0,5187
+
+;;(stat-collatz-mod-2 5 (expt 2 8))
+;; ...
+;; C-stat = #(3439 3781)
+
+;; (stat-collatz-mod-2 5 (expt 2 8))
+;; C-stat = #(3943 3781)
+;; C-freq = #(0.510486794407043 0.489513205592957)
+
+;; (stat-collatz-mod-2 5 (expt 2 16))
+;; C-stat = #(2279892 2241897)
+;; C-freq = #(0.5042013238565533 0.49579867614344675)
+
+;; (stat-collatz-mod-2 5 (expt 2 20))
+;; C-stat = #(46530867 45884477)
+;; C-freq = #(0.503497200638024 0.49650279936197605)
+
+;; >  (stat-collatz-mod-2 5 (expt 2 24))
+;; C-stat = #(905534300 894725369)
+;; C-freq = #(0.5030020477562562 0.49699795224374377)
 (define (stat-collatz-mod-2 n-start n-end)
   (define C-stat (make-vector 2 0))
   (for (n n-start n-end)
        (set! C-stat
 	     (vector-map +
 			 C-stat
-			 (collatz-comp-stat-mod-2 n)))
-       (dv C-stat)))
+			 (collatz-comp-stat-mod-2 n))))
+  (dv C-stat)
+  (newline)
+  (compute-frequencies-2 C-stat))
 
 ;; compute stat of collatz mod2 for a gap of numbers
 ;; (stat-collatz-mod-2-not-compressed 1 10000)
@@ -1960,6 +1983,10 @@
 ;;C-stat = #(6988951 3564892)
 ;; freq= 0,6622 0,3378
 
+;; >  (stat-collatz-mod-2-not-compressed 1 (expt 2 16))
+;; C-stat = #(4390728 2241899)
+
+;; C-freq = #(0.6619892841855874 0.3380107158144126)
 (define (stat-collatz-mod-2-not-compressed n-start n-end)
   (define C-stat (make-vector 2 0))
   (for (n n-start n-end)
@@ -1967,7 +1994,10 @@
 	     (vector-map +
 			 C-stat
 			 (collatz-comp-stat-mod-2-not-compressed n)))
-       (dv C-stat)))
+       )
+  (dv C-stat)
+  (newline)
+  (compute-frequencies-2 C-stat))
 
 
 ;; compute stat of collatz mod4 for a gap of numbers
@@ -1976,14 +2006,17 @@
 ;; C-stat = #(135286 71373 138452 72161)
 ;; C-stat = #(135301 71382 138456 72178)
 ;; C-stat = #(135309 71385 138459 72178)
+
+;; > (stat-collatz-mod-4 1 (expt 2 16))
+;; C-stat = #(1156337 568240 1137668 568767)
 (define (stat-collatz-mod-4 n-start n-end)
   (define C-stat (make-vector 4 0))
   (for (n n-start n-end)
        (set! C-stat
 	     (vector-map +
 			 C-stat
-			 (collatz-comp-stat-mod-4 n)))
-       (dv C-stat)))
+			 (collatz-comp-stat-mod-4 n))))
+  (dv C-stat))
 
 
 
@@ -2042,31 +2075,6 @@
 
 
 ;; compute freq
-;;  (compute-frequencies #(100362 48273 100004 49108 96904 54618 100544 55040))
-;; C-freq = #(0.16592791967635112 0.07980947436815226 0.16533604032715388 0.08118997508485533 0.16021082808550177 0.09029962652082407 0.16622881923376423 0.09099731670339735)
-;; delta = #(0.04092791967635112 0.017309474368152264 0.04033604032715388 0.01868997508485533 0.03521082808550177 0.027799626520824072 0.04122881923376423 0.02849731670339735)
-;;
-;;  (compute-frequencies #(276283 133545 274222 134639 266215 149305 275142 148970))
-;; C-freq = #(0.16660405313567156 0.08053024715962712 0.16536122982221174 0.08118995055842626 0.16053285220412694 0.09003383542751976 0.1659160078175456 0.08983182387487103)
-;; delta = #(0.04160405313567156 0.018030247159627116 0.04036122982221174 0.01868995055842626 0.03553285220412694 0.027533835427519762 0.04091600781754559 0.027331823874871028)
-;;
-;;  (compute-frequencies  #(592061 286463 588485 288847 570974 318528 589081 316812))
-;; C-freq = #(0.16671899564407022 0.08066537679257253 0.1657120265506437 0.08133668952152354 0.16078108812922545 0.08969458931514557 0.16587985473288144 0.08921137931393754)
-;; delta = #(0.04171899564407022 0.018165376792572532 0.04071202655064371 0.018836689521523536 0.03578108812922545 0.027194589315145568 0.04087985473288144 0.026711379313937536)
-;;
-;;  (compute-frequencies  #(1264210 611303 1255773 617832 1223822 676359 1257351 672827))
-;; C-freq = #(0.16679383023393302 0.08065239857578564 0.16568069274436745 0.08151380365690139 0.16146523038462945 0.08923557654439745 0.1658888865287143 0.08876958133127127)
-;; delta = #(0.041793830233933016 0.01815239857578564 0.04068069274436745 0.01901380365690139 0.036465230384629455 0.026735576544397455 0.04088888652871431 0.026269581331271274)
-;;
-;;  (compute-frequencies  #(7254124 3526845 7209272 3554006 7038403 3847956 7216917 3830245))
-;; C-freq = #(0.1668467433746829 0.08111835455766726 0.16581513568037806 0.08174306463938075 0.1618851041295404 0.08850399128124517 0.16599097267366622 0.08809663366343921)
-;; delta = #(0.04184674337468289 0.018618354557667263 0.04081513568037806 0.019243064639380747 0.03688510412954041 0.02600399128124517 0.04099097267366622 0.025596633663439214)
-;;
-;; > (compute-frequencies  #(85823360 41885509 85350252 42146170 83653742 45121692 85372334 44885200))
-;; C-freq = #(0.16689415557468273 0.08145156115270684 0.16597413845864784 0.08195844875867161 0.16267506459491182 0.0877447199042419 0.16601707964323206 0.08728483191290518)
-;; delta = #(0.041894155574682734 0.01895156115270684 0.040974138458647835 0.019458448758671615 0.03767506459491182 0.025244719904241902 0.04101707964323206 0.024784831912905175)
-
-;; erreur ,apres correction du code les frequences sont plus exactes:
 
 ;; > (compute-frequencies  #(85823360 41885509 85350252 42146170 83653742 45121692 85372334 44885200))
 ;; C-freq = #(0.16689415557468273 0.08145156115270684 0.16597413845864784 0.08195844875867161 0.16267506459491182 0.0877447199042419 0.16601707964323206 0.08728483191290518)
@@ -2086,7 +2094,11 @@
 ;;  (compute-frequencies-4 #(135309 71385 138459 72178))
 ;; C-freq = #(0.3242246562081417 0.17105127584579147 0.33177262173191063 0.17295144621415615)
 ;; delta = #(-0.009108677125191589 0.00438460917912481 -0.0015607116014226818 0.0062847795474894885)
-;; > 
+
+;; > (compute-frequencies-4   #(1156337 568240 1137668 568767))
+;; Theoric frequencies for 4: 1/3 1/6 1/3 1/6
+;; C-freq = #(0.33702505266667676 0.16561877370291914 0.33158380093103723 0.16577237269936684)
+;; delta = #(0.003691719333343446 -0.001047892963747521 -0.0017495324022960834 -0.000894293967299814)
 (define (compute-frequencies-4 C)
   (define s (apply + (vector->list C)))
   (define C-freq (vector-map (lambda (x) (exact->inexact (/ x s)))
@@ -2098,7 +2110,15 @@
   (dv delta))
 
 
-
+(define (compute-frequencies-2 C)
+  (define s (apply + (vector->list C)))
+  (define C-freq (vector-map (lambda (x) (exact->inexact (/ x s)))
+			     C))
+;;  (define C-freq-theoric (vector-map exact->inexact #(1/3 1/6 1/3 1/6)))
+;;  (define delta (vector-map - C-freq C-freq-theoric))
+;;  (display-nl "Theoric frequencies for 4: 1/3 1/6 1/3 1/6")
+  (dv C-freq)
+  #;(dv delta))
 
 ;; count the zero and one in a number
 ;;(define v-zero-sum (make-vector 7 0))
@@ -2226,6 +2246,7 @@
 
 
 ;; compute probability of C knowing S
+;;
 ;; 
 ;; example:
 ;;   S =  #b00010000
@@ -2257,7 +2278,7 @@
 ;; omega-universe = 65536
 ;; S-true = 32768
 ;; Probability of S = S-true / omega-universe = 32768 / 65536 = 1/2
-;; Probability of C knowing S = C-true / S-true = 15296 / 32768 = 239/512
+;; Probability of C knowing S = C-true / S-true = 15296 / 32768 = 239/512 =0,4668
 ;; Probability of C = C-true / omega-universe = 32640 / 65536 = 255/512
 (define (proba-C-knowing-S alea C S)
   (let (
@@ -2879,6 +2900,8 @@
 
 
 
+
+
 ;; compute probability of Ck knowing Si for Collatz function
 ;;
 
@@ -2972,7 +2995,9 @@
 
 ;; 
 
-;; > (collatz-proba-Ck-knowing-Si #b100000000000000  #b1000000000000)
+;;  (collatz-proba-Ck-knowing-Si #b100000000000000  #b1000000000000)
+;; > (collatz-proba-Ck-knowing-Si #b100000000000000
+;;                                  #b1000000000000)
 ;; alea = 16384
 ;; omega-universe = 8192
 ;; Si-true = 4096
@@ -2980,7 +3005,18 @@
 ;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 2048 / 4096 = 1/2 = 0.5
 ;; Probability of Ck = Ck-true / omega-universe = 4097 / 8192 = 4097/8192 = 0.5001220703125
 
+;; (collatz-proba-Ck-knowing-Si #b100000000000000
+;;                               #b10000000000000)
+;; > (collatz-proba-Ck-knowing-Si #b100000000000000  #b10000000000000)
+;; alea = 16384
+;; omega-universe = 8192
+;; Si-true = 4096
+;; Probability of Si = Si-true / omega-universe = 4096 / 8192 = 1/2 = 0.5
+;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 1366 / 4096 = 683/2048 = 0.33349609375
+;; Probability of Ck = Ck-true / omega-universe = 4097 / 8192 = 4097/8192 = 0.5001220703125
 
+
+;;
 (define (collatz-proba-Ck-knowing-Si Ck Si)
 
   (let* ((alea Ck)
@@ -3004,7 +3040,7 @@
 
 	       (1+ omega-universe)
 
-	       (let ((S (+ (bitwise-and (bitwise-ior 1 (shift-left b)) mask) b))) ; shift to left and set lowest significant bit and mask the upper partial result and finlly add b, i.e compute 2b+1+b = 3b+1 but not some high bits
+	       (let ((S (+ (bitwise-and (bitwise-ior 1 (shift-left b)) mask) b))) ; shift to left and set lowest significant bit and mask the upper partial result and finally add b, i.e compute 2b+1+b = 3b+1 but not some high bits
 
 		 (if-t display-enabled
 		       (display (padding (bitwise-ior 1 (shift-left b)))) (newline)
@@ -3056,6 +3092,173 @@
 
 
 
+;; below other ways to compute the same thing (seems more true! but do not change the result)
+
+
+
+;; (collatz-proba-Ck-knowing-Si-stat #b100000000000000  #b1000)
+;; alea = 4194304
+;; omega-universe = 2097152
+;; Si-true = 1048576
+;; Probability of Si = Si-true / omega-universe = 1048576 / 2097152 = 1/2 = 0.5
+;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 524544 / 1048576 = 2049/4096 = 0.500244140625
+;; Probability of Ck = Ck-true / omega-universe = 1048832 / 2097152 = 4097/8192 = 0.5001220703125
+;; > 
+;;
+;; definition of Sk: a bit computed with two operands and a carry, see calculus below:
+;;
+;;  C        
+;;   n+2     Ck
+;;   1.......b......................11    2b+1
+;;            k-1
+;;    1......b.......................1    b
+;;            k
+;;  ----------------------------------
+;;  ..S......S.........S.............0    S
+;;     n      k         i            0    index
+;;
+;;
+
+;; >  (collatz-proba-Ck-knowing-Si-stat #b100000000  #b10000000000)
+;; alea = 65536
+;; omega-universe = 32768
+;; Si-true = 16384
+;; Probability of Si = Si-true / omega-universe = 16384 / 32768 = 1/2 = 0.5
+;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 8320 / 16384 = 65/128 = 0.5078125
+;; Probability of Ck = Ck-true / omega-universe = 16640 / 32768 = 65/128 = 0.5078125
+;; >  (collatz-proba-Ck-knowing-Si-stat #b100000000  #b100000000000)
+;; alea = 65536
+;; omega-universe = 32768
+;; Si-true = 16384
+;; Probability of Si = Si-true / omega-universe = 16384 / 32768 = 1/2 = 0.5
+;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 8320 / 16384 = 65/128 = 0.5078125
+;; Probability of Ck = Ck-true / omega-universe = 16640 / 32768 = 65/128 = 0.5078125
+;; >  (collatz-proba-Ck-knowing-Si-stat #b100000000  #b100000)
+;; alea = 65536
+;; omega-universe = 32768
+;; Si-true = 16384
+;; Probability of Si = Si-true / omega-universe = 16384 / 32768 = 1/2 = 0.5
+;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 8448 / 16384 = 33/64 = 0.515625
+;; Probability of Ck = Ck-true / omega-universe = 16640 / 32768 = 65/128 = 0.5078125
+;; >  (collatz-proba-Ck-knowing-Si-stat #b100000000  #b1000000)
+;; alea = 65536
+;; omega-universe = 32768
+;; Si-true = 16384
+;; Probability of Si = Si-true / omega-universe = 16384 / 32768 = 1/2 = 0.5
+;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 8192 / 16384 = 1/2 = 0.5
+;; Probability of Ck = Ck-true / omega-universe = 16640 / 32768 = 65/128 = 0.5078125
+;; >  (collatz-proba-Ck-knowing-Si-stat #b100000000 #b100000000  )
+;; alea = 65536
+;; omega-universe = 32768
+;; Si-true = 16384
+;; Probability of Si = Si-true / omega-universe = 16384 / 32768 = 1/2 = 0.5
+;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 8320 / 16384 = 65/128 = 0.5078125
+;; Probability of Ck = Ck-true / omega-universe = 16640 / 32768 = 65/128 = 0.5078125
+;; >  (collatz-proba-Ck-knowing-Si-stat #b100000000 #b10000000  )
+;; alea = 65536
+;; omega-universe = 32768
+;; Si-true = 16384
+;; Probability of Si = Si-true / omega-universe = 16384 / 32768 = 1/2 = 0.5
+;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 5632 / 16384 = 11/32 = 0.34375
+;; Probability of Ck = Ck-true / omega-universe = 16640 / 32768 = 65/128 = 0.5078125
+;; >  (collatz-proba-Ck-knowing-Si-stat #b100000000 #b1000000  )
+;; alea = 65536
+;; omega-universe = 32768
+;; Si-true = 16384
+;; Probability of Si = Si-true / omega-universe = 16384 / 32768 = 1/2 = 0.5
+;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 8192 / 16384 = 1/2 = 0.5
+;; Probability of Ck = Ck-true / omega-universe = 16640 / 32768 = 65/128 = 0.5078125
+;; > 
+(define (collatz-proba-Ck-knowing-Si-stat Ck Si)
+
+  (let* ((alea (shift-left Ck 8)) 
+	 (omega-universe 0)
+	 (Si-true 0)
+	 (pSi 0) ; probability of Si
+	 (Ck-true 0)
+	 (pCkkSi 0) ; probability Ck knowing Si
+	 (pCk 0)
+	 (Ck-true-knowing-Si 0)
+	 (display-enabled #f)
+	 (display-enabled2 #f)
+	 (mask (- Ck 1)))
+    
+    (display "alea = ")
+    (display alea)
+    (newline)
+    
+    (for ((b alea))
+	 
+	 (if-t (flag-set? #b1 b) ; only for odd numbers
+
+	       (1+ omega-universe)
+
+	       (let* ((S-masked (+ (bitwise-and (bitwise-ior 1 (shift-left b)) mask)
+				   (bitwise-and b mask))) ; shift to left and set lowest significant bit and mask the upper partial result and finally add b masked too, i.e compute 2b+1+b = 3b+1 but not some high bits that will be the carry
+		      (Ck-set (flag-set? Ck S-masked)) ;; Ck flag
+		      (S (+ (bitwise-ior 1 (shift-left b)) b)) ; shift to left and set lowest significant bit and finally add b, i.e compute 2b+1+b = 3b+1
+		      (Si-set (flag-set? Si S))) ;; Si flag
+		      
+		 (if-t display-enabled
+		       (display (padding (bitwise-ior 1 (shift-left b)))) (newline)
+		       (display (padding b)) (newline)
+		       (display "----------------------------------------------") (newline) 
+		       (display (padding S))
+		       (if-t Ck-set
+			     (display " C"))
+		       (newline)
+		       (newline))
+		 
+		 (if-t Ck-set
+		       (1+ Ck-true))
+
+		 (if-t Si-set
+		       (1+ Si-true)
+		       (if-t Ck-set
+			     (if-t display-enabled2
+				   (display (padding (bitwise-ior 1 (shift-left b)))) (newline)
+				   (display (padding b)) (newline)
+				   (display "----------------------------------------------") (newline) 
+				   (display (padding S))
+				   (if-t Ck-set
+					 (display " C"))
+				   (newline)
+				   (newline))
+			     (1+ Ck-true-knowing-Si)))))) ; end for
+    
+    ;; display results
+    (set! pSi (/ Si-true omega-universe))
+    (set! pCkkSi (/ Ck-true-knowing-Si Si-true))
+    (set! pCk (/ Ck-true omega-universe))
+
+    (display "omega-universe = ")
+    (display omega-universe)
+    (newline)
+    
+    (display "Si-true = ")
+    (display Si-true)
+    (newline)
+    
+    (display "Probability of Si = Si-true / omega-universe = ")
+    (display Si-true) (display " / ") (display omega-universe) (display " = ")
+    (display pSi) (display " = ") (display (exact->inexact pSi))
+    (newline)
+    
+    (display "Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = ")
+    (display Ck-true-knowing-Si) (display " / ") (display Si-true) (display " = ")
+    (display pCkkSi)  (display " = ") (display (exact->inexact pCkkSi))
+    (newline)
+    
+    (display "Probability of Ck = Ck-true / omega-universe = ")
+    (display Ck-true) (display " / ") (display omega-universe) (display " = ")
+    (display pCk)  (display " = ") (display (exact->inexact pCk))
+    (newline)
+
+    ))
+
+
+
+
 ;; compute probability of Ck knowing Bk-1 for Collatz function
 ;;
 ;; definition of Sk: a bit computed with two operands and a carry, see calculus below:
@@ -3100,6 +3303,8 @@
 					; seems to converge to 2/3
 
 ;; Probability of Ck = Ck-true / omega-universe = 2049 / 4096 = 2049/4096 = 0.500244140625
+
+;;
  
 (define (collatz-proba-Ck-knowing-Bk-1 Ck C0)
 
@@ -3112,7 +3317,7 @@
 	 (pCkkBk-1 0) ; probability Ck knowing Bk-1
 	 (pCk 0)
 	 (Ck-true-knowing-Bk-1 0)
-	 (display-enabled #f)
+	 (display-enabled #t)
 	 (mask (- Ck 1)))
    
     (display "alea = ")
@@ -3133,11 +3338,14 @@
 		 
 		 (if-t display-enabled
 		       (display (padding (bitwise-ior 1 (shift-left b)))) (newline)
-		       (display (padding b)) (newline)
+		       (display (padding b))
+		       (if-t (flag-set? Bk-1 b)
+			     (display " Bk-1 set"))
+		       (newline)
 		       (display "------------------------") (newline) 
 		       (display (padding S))
 		       (if-t (flag-set? Ck S) ; test if carry set
-			     (display " C"))
+			     (display " C set"))
 		       (newline)
 		       (newline))
 		 
@@ -3178,6 +3386,126 @@
     (newline)
 
     ))
+
+
+;; compute probability of Ck knowing Bk-1 for Collatz function
+;;
+;; definition of Sk: a bit computed with two operands and a carry, see calculus below:
+;;
+;;  C        C                       C
+;;   n+2      k                       0
+;;   1.......b......................10    2b + C0 = a with a = b
+;;            k-1                                           k   k-1
+;;    1.......b......................1    b
+;;             k-1
+;;  ----------------------------------
+;;  ..S......S.........S.............0    S
+;;     n      k         i            0    index
+;;
+;;
+;;
+;; >  (collatz-proba-Ck-knowing-Bk-1-stat #b1000000000 1)
+;; alea = 131072
+;; omega-universe = 65536
+;; Bk-1-true = 32768
+;; Probability of Bk-1 = Bk-1-true / omega-universe = 32768 / 65536 = 1/2 = 0.5
+;; Probability of Ck knowing Bk-1 = Ck-true-knowing-Bk-1 / Bk-1-true = 22016 / 32768 = 43/64 = 0.671875
+;; Probability of Ck = Ck-true / omega-universe = 33024 / 65536 = 129/256 = 0.50390625
+
+;; > (collatz-proba-Ck-knowing-Bk-1-stat #b1000000000 0)
+;; alea = 131072
+;; omega-universe = 65536
+;; Bk-1-true = 32768
+;; Probability of Bk-1 = Bk-1-true / omega-universe = 32768 / 65536 = 1/2 = 0.5
+;; Probability of Ck knowing Bk-1 = Ck-true-knowing-Bk-1 / Bk-1-true = 21760 / 32768 = 85/128 = 0.6640625
+;; Probability of Ck = Ck-true / omega-universe = 32768 / 65536 = 1/2 = 0.5
+;; > ; seems to converge to 2/3
+(define (collatz-proba-Ck-knowing-Bk-1-stat Ck C0)
+
+  (let* ((Bk-1 (shift-right Ck))
+	 (alea (shift-left Ck 8))
+	 (omega-universe 0)
+	 (Bk-1-true 0)
+	 (pBk-1 0) ; probability of Bk-1
+	 (Ck-true 0)
+	 (pCkkBk-1 0) ; probability Ck knowing Bk-1
+	 (pCk 0)
+	 (Ck-true-knowing-Bk-1 0)
+	 (display-enabled #f)
+	 (mask (- Ck 1)))
+   
+    (display "alea = ")
+    (display alea)
+    (newline)
+
+    (for ((b alea))
+
+	 ;;(1+ omega-universe)
+	 
+	 (if-t (flag-set? #b1 b) ; only for odd numbers
+
+	       (1+ omega-universe)
+
+	       (let* ((S-masked (+ (bitwise-and (bitwise-ior C0 (shift-left b)) mask)
+				   (bitwise-and b mask))) ; shift to left and set lowest significant bit and mask the upper partial result and finally add b masked too, i.e compute 2b+1+b = 3b+1 but not some high bits that will be the carry
+		      (Ck-set (flag-set? Ck S-masked)) ;; Ck flag
+		      (S (+ (bitwise-ior C0 (shift-left b)) b)) ; shift to left and set lowest significant bit and finally add b, i.e compute 2b+1+b = 3b+1
+		      (Bk-1-set (flag-set? Bk-1 b))) ;; Bk-1 flag
+		      
+		 
+		 (if-t display-enabled
+		       (display (padding (bitwise-ior C0 (shift-left b)))) (newline)
+		       (display (padding b))
+		       (if-t Bk-1-set
+			     (display " Bk-1 set"))
+		       (newline)
+		       (display "------------------------") (newline) 
+		       (display (padding S))
+		       (if-t Ck-set ; test if carry set
+			     (display " C set"))
+		       (newline)
+		       (newline))
+		 
+		 (if-t Ck-set ; test if carry set
+		       (1+ Ck-true))
+
+		 (if-t Bk-1-set
+		       (1+ Bk-1-true)
+		       (if-t Ck-set
+			     (1+ Ck-true-knowing-Bk-1)))))) ; end for
+    
+    ;; display results
+    (set! pBk-1 (/ Bk-1-true omega-universe))
+    (set! pCkkBk-1 (/ Ck-true-knowing-Bk-1 Bk-1-true))
+    (set! pCk (/ Ck-true omega-universe))
+
+    (display "omega-universe = ")
+    (display omega-universe)
+    (newline)
+    
+    (display "Bk-1-true = ")
+    (display Bk-1-true)
+    (newline)
+    
+    (display "Probability of Bk-1 = Bk-1-true / omega-universe = ")
+    (display Bk-1-true) (display " / ") (display omega-universe) (display " = ")
+    (display pBk-1) (display " = ") (display (exact->inexact pBk-1))
+    (newline)
+    
+    (display "Probability of Ck knowing Bk-1 = Ck-true-knowing-Bk-1 / Bk-1-true = ")
+    (display Ck-true-knowing-Bk-1) (display " / ") (display Bk-1-true) (display " = ")
+    (display pCkkBk-1)  (display " = ") (display (exact->inexact pCkkBk-1))
+    (newline)
+    
+    (display "Probability of Ck = Ck-true / omega-universe = ")
+    (display Ck-true) (display " / ") (display omega-universe) (display " = ")
+    (display pCk)  (display " = ") (display (exact->inexact pCk))
+    (newline)
+
+    ))
+
+
+
 
 ;; compute probability of Ck knowing Bk-1 for Collatz (3x+1) function and 3x function
 ;;
@@ -3469,30 +3797,7 @@
 ;; la suite de collatz serait convergente si la parité du résultat à chaque étape de la suite de collatz compressée
 ;; était equiprobable
 
-;; on cherche a verifier une conjecture sur l'ensemble des nombres N
-;; donc statistiquement sur un nombre n de m chiffres
-;; il y a autant de chiffres pair ou impairs sur les m-1 chiffres les moins significatifs (LSB) qui composent
-;; n car le m-eme chiffre ,c'est à dire le plus à gauche (HSB) est un 1 toujours evidemment
-;; cette répartition equitable des 1 et 0 dans le nombre n a des consequences sur les calculs de la fonction
-;; de collatz:
-;;
-;; la division par 2 qui supprime le 0 dans le LSB en notation binaire, la parité du résultat
-;; sera statistiquement toujours de une chance sur deux d'avoir un nombre pair ou impair
-;; sauf si il ne restait plus que le 1 du HSB mais dans ce cas le calcul serai terminé car on serait dans le cycle
-;; 4,2,1
-;; dans le cas de la division par 2 l'equiprobabilité de la parité du résutat est donc vérifiée
 
-;; given n bits check that all the number between 0 and  2^n - 1
-;; are randomly sparsed by 3x+1 for their digits,i.e they have same number of 0 and 1
-;; TODO: replace bit by digit
-;; proof that when adding or making arithmetic with one or many random numbers
-;; the result is also a number that have the same property to input about randomness
-;; proof is made by recursion on the n size of number in digit
-;; hypothesis : true for all numbers of size n-1
-;; and proof that it is true for n
-;; hints: at n we have twice the numbers of at n-1
-;; the ratio of 0 and 1 is inverted because (see paper)
-;; the add 1 (from 3 = #11) change the bits
 ;; >  (syracuse-probabilistic-heuristic-n-bits 3)
 ;; mb = 5
 ;; m = 7
@@ -4046,7 +4351,8 @@
 ;;   n+2  n      k         i            0     index
 ;;
 ;;
-;; (collatz-3x-3x+1-proba-Ck-knowing-Bk-1-over-Cn #b10000000000 #b10000000000)
+;; (collatz-3x-3x+1-proba-Ck-knowing-Bk-1-over-Cn #b10000000000
+;;                                                #b10000000000)
 ;;
 ;; omega-universe = 512
 ;; Bk-1-true = 256
@@ -4059,7 +4365,8 @@
 ;; P(Ck) = 1/2 + (1/2^(k-1)) = 0.501953125
 ;;
 ;;
-;; (collatz-3x-3x+1-proba-Ck-knowing-Bk-1-over-Cn #b10000000000 #b1000000000000)
+;; (collatz-3x-3x+1-proba-Ck-knowing-Bk-1-over-Cn #b10000000000
+;;                                                #b1000000000000)
 ;; ERROR : carries cross-checking fails !!!
 
 ;; omega-universe = 2048
