@@ -203,7 +203,7 @@
 			   (display "...... Bk : ") (display Bk) (newline)
 			   (display "...... Bk * (2 ^ expo) : ") (display BkX2Pk) (newline))
 		       BkX2Pk)
-		     (let ((restRBL2n (reverseBinList->number (rest revBinLst) (1+ expo))))
+		     (let ((restRBL2n (reverseBinList->number (rest revBinLst) (incf expo))))
 		       (begin
 			 (when debug-mode
 			       (display "...... restRBL2n : ") (display restRBL2n) (newline))
@@ -277,11 +277,6 @@
        (+ 1
 	  (floor (lb x))))))
 
-;; increment variable
-;; nota: DrRacket Scheme has it own add1 function 
-(define-syntax 1+
-  (syntax-rules ()
-    ((_ x)   (begin (set! x (+ x 1)) x))))
 
 
 ;; shift left a binary number

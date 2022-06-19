@@ -15,6 +15,7 @@
 (include "../array.scm") ;; use SRFI-25 instead, done in Scheme+
 (include "../symbolic.scm")
 (include "../simplify.scm")
+(include "../increment.scm")
 (include "../binary-arithmetic.scm")
 (include "../for-next-step.scm")
 (include "../map.scm")

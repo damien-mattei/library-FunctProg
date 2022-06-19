@@ -2298,17 +2298,17 @@
 	   ;;(display a)
 	   ;;(newline)
 	   (for ((b alea))
-		(1+ omega-universe)
+		(incf omega-universe)
 		(let ((S1 (+ a b)))
 		  (if (flag-set? C S1)
-		      (1+ C-true)
+		      (incf C-true)
 		      '())
 		  (if (flag-set? S S1)
 		      (begin ; 1
-			(1+ S-true)
+			(incf S-true)
 			(if (flag-set? C S1)
 			    (begin ; 2
-			      (1+ C-true-knowing-S)
+			      (incf C-true-knowing-S)
 			      (if display-enabled
 				  (begin
 				    (display (padding a))
@@ -2409,14 +2409,14 @@
     
     (for ((b alea))
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
-	       (1+ omega-universe)
-	       (let ((S1 (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+1+b = 3b+1 
+	       (incf omega-universe)
+	       (let ((S1 (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+incfb = 3b+1 
 		 (if-t (flag-set? C S1)
-		       (1+ C-true))
+		       (incf C-true))
 		 (if-t (flag-set? S S1)
-		       (1+ S-true)
+		       (incf S-true)
 		       (if-t (flag-set? C S1)
-			     (1+ C-true-knowing-S)
+			     (incf C-true-knowing-S)
 			     (if-t display-enabled
 				   (display (padding b))
 				   (newline)
@@ -2498,12 +2498,12 @@
 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
 	       (if-t (flag-set? Bk b)
-		     (1+ Bk-true))
+		     (incf Bk-true))
 	       	       	       
-	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+1+b = 3b+1 
+	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+incfb = 3b+1 
 
 		 (if-t display-enabled
 		       (display (padding b))
@@ -2513,12 +2513,12 @@
 		       (newline))
 		 
 		 (if-t (flag-set? Sk S)
-		       (1+ Sk-true))
+		       (incf Sk-true))
 
 		 (if-t (flag-set? Si S)
-		       (1+ Si-true)
+		       (incf Si-true)
 		       (if-t (flag-set? Sk S)
-			     (1+ Sk-true-knowing-Si)
+			     (incf Sk-true-knowing-Si)
 			     
 			     ))))) ; end for
     
@@ -2610,9 +2610,9 @@
     (for ((b alea)) ; alea is in range of 100...00 to 111...11
 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
-	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+1+b = 3b+1 
+	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+incfb = 3b+1 
 
 		 (if-t display-enabled
 		       (display (padding b))
@@ -2622,12 +2622,12 @@
 		       (newline))
 		 
 		 (if-t (flag-set? Sn S)
-		       (1+ Sn-true))
+		       (incf Sn-true))
 
 		 (if-t (flag-set? Si S)
-		       (1+ Si-true)
+		       (incf Si-true)
 		       (if-t (flag-set? Sn S)
-			     (1+ Sn-true-knowing-Si)
+			     (incf Sn-true-knowing-Si)
 			     
 			     ))))) ; end for
     
@@ -2715,9 +2715,9 @@
     (for ((b alea)) ; alea is in range of 100...00 to 111...11
 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
-	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+1+b = 3b+1 
+	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+incfb = 3b+1 
 
 		 (if-t display-enabled
 		       (display (padding b))
@@ -2727,12 +2727,12 @@
 		       (newline))
 		 
 		 (if-t (flag-set? SnP1 S)
-		       (1+ SnP1-true))
+		       (incf SnP1-true))
 
 		 (if-t (flag-set? Si S)
-		       (1+ Si-true)
+		       (incf Si-true)
 		       (if-t (flag-set? SnP1 S)
-			     (1+ SnP1-true-knowing-Si)
+			     (incf SnP1-true-knowing-Si)
 			     (display (padding b))
 			     (display "-->") 
 			     (display (padding S))
@@ -2853,9 +2853,9 @@
     (for ((b alea)) ; b is in range of 100...00 to 111...11
 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
-	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+1+b = 3b+1 
+	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+incfb = 3b+1 
 
 		 (if-t display-enabled
 		       (display (padding b))
@@ -2865,12 +2865,12 @@
 		       (newline))
 		 
 		 (if-t (flag-set? SnP2 S)
-		       (1+ SnP2-true))
+		       (incf SnP2-true))
 
 		 (if-t (flag-set? Si S)
-		       (1+ Si-true)
+		       (incf Si-true)
 		       (if-t (flag-set? SnP2 S)
-			     (1+ SnP2-true-knowing-Si)
+			     (incf SnP2-true-knowing-Si)
 			     
 			     ))))) ; end for
     
@@ -3038,9 +3038,9 @@
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
-	       (let ((S (+ (bitwise-and (bitwise-ior 1 (shift-left b)) mask) b))) ; shift to left and set lowest significant bit and mask the upper partial result and finally add b, i.e compute 2b+1+b = 3b+1 but not some high bits
+	       (let ((S (+ (bitwise-and (bitwise-ior 1 (shift-left b)) mask) b))) ; shift to left and set lowest significant bit and mask the upper partial result and finally add b, i.e compute 2b+incfb = 3b+1 but not some high bits
 
 		 (if-t display-enabled
 		       (display (padding (bitwise-ior 1 (shift-left b)))) (newline)
@@ -3053,12 +3053,12 @@
 		       (newline))
 		 
 		 (if-t (flag-set? Ck S) ; test if carry set
-		       (1+ Ck-true))
+		       (incf Ck-true))
 
 		 (if-t (flag-set? Si S)
-		       (1+ Si-true)
+		       (incf Si-true)
 		       (if-t (flag-set? Ck S)
-			     (1+ Ck-true-knowing-Si)))))) ; end for
+			     (incf Ck-true-knowing-Si)))))) ; end for
     
     ;; display results
     (set! pSi (/ Si-true omega-universe))
@@ -3191,12 +3191,12 @@
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
 	       (let* ((S-masked (+ (bitwise-and (bitwise-ior 1 (shift-left b)) mask)
-				   (bitwise-and b mask))) ; shift to left and set lowest significant bit and mask the upper partial result and finally add b masked too, i.e compute 2b+1+b = 3b+1 but not some high bits that will be the carry
+				   (bitwise-and b mask))) ; shift to left and set lowest significant bit and mask the upper partial result and finally add b masked too, i.e compute 2b+incfb = 3b+1 but not some high bits that will be the carry
 		      (Ck-set (flag-set? Ck S-masked)) ;; Ck flag
-		      (S (+ (bitwise-ior 1 (shift-left b)) b)) ; shift to left and set lowest significant bit and finally add b, i.e compute 2b+1+b = 3b+1
+		      (S (+ (bitwise-ior 1 (shift-left b)) b)) ; shift to left and set lowest significant bit and finally add b, i.e compute 2b+incfb = 3b+1
 		      (Si-set (flag-set? Si S))) ;; Si flag
 		      
 		 (if-t display-enabled
@@ -3210,10 +3210,10 @@
 		       (newline))
 		 
 		 (if-t Ck-set
-		       (1+ Ck-true))
+		       (incf Ck-true))
 
 		 (if-t Si-set
-		       (1+ Si-true)
+		       (incf Si-true)
 		       (if-t Ck-set
 			     (if-t display-enabled2
 				   (display (padding (bitwise-ior 1 (shift-left b)))) (newline)
@@ -3224,7 +3224,7 @@
 					 (display " C"))
 				   (newline)
 				   (newline))
-			     (1+ Ck-true-knowing-Si)))))) ; end for
+			     (incf Ck-true-knowing-Si)))))) ; end for
     
     ;; display results
     (set! pSi (/ Si-true omega-universe))
@@ -3326,15 +3326,15 @@
 
     (for ((b alea))
 
-	 ;;(1+ omega-universe)
+	 ;;(incf omega-universe)
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
 	       (let* ((2b (shift-left b))    ; 2*b
 		      (a (bitwise-ior C0 2b)) ; a = 2b + C0
-		      (S (+ (bitwise-and a mask) b))) ; compute 3b or compute 2b+1+b = 3b+1 and mask the upper partial result
+		      (S (+ (bitwise-and a mask) b))) ; compute 3b or compute 2b+incfb = 3b+1 and mask the upper partial result
 		 
 		 (if-t display-enabled
 		       (display (padding (bitwise-ior 1 (shift-left b)))) (newline)
@@ -3350,12 +3350,12 @@
 		       (newline))
 		 
 		 (if-t (flag-set? Ck S) ; test if carry set
-		       (1+ Ck-true))
+		       (incf Ck-true))
 
 		 (if-t (flag-set? Bk-1 b)
-		       (1+ Bk-1-true)
+		       (incf Bk-1-true)
 		       (if-t (flag-set? Ck S)
-			     (1+ Ck-true-knowing-Bk-1)))))) ; end for
+			     (incf Ck-true-knowing-Bk-1)))))) ; end for
     
     ;; display results
     (set! pBk-1 (/ Bk-1-true omega-universe))
@@ -3440,16 +3440,16 @@
 
     (for ((b alea))
 
-	 ;;(1+ omega-universe)
+	 ;;(incf omega-universe)
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
 	       (let* ((S-masked (+ (bitwise-and (bitwise-ior C0 (shift-left b)) mask)
-				   (bitwise-and b mask))) ; shift to left and set lowest significant bit and mask the upper partial result and finally add b masked too, i.e compute 2b+1+b = 3b+1 but not some high bits that will be the carry
+				   (bitwise-and b mask))) ; shift to left and set lowest significant bit and mask the upper partial result and finally add b masked too, i.e compute 2b+incfb = 3b+1 but not some high bits that will be the carry
 		      (Ck-set (flag-set? Ck S-masked)) ;; Ck flag
-		      (S (+ (bitwise-ior C0 (shift-left b)) b)) ; shift to left and set lowest significant bit and finally add b, i.e compute 2b+1+b = 3b+1
+		      (S (+ (bitwise-ior C0 (shift-left b)) b)) ; shift to left and set lowest significant bit and finally add b, i.e compute 2b+incfb = 3b+1
 		      (Bk-1-set (flag-set? Bk-1 b))) ;; Bk-1 flag
 		      
 		 
@@ -3467,12 +3467,12 @@
 		       (newline))
 		 
 		 (if-t Ck-set ; test if carry set
-		       (1+ Ck-true))
+		       (incf Ck-true))
 
 		 (if-t Bk-1-set
-		       (1+ Bk-1-true)
+		       (incf Bk-1-true)
 		       (if-t Ck-set
-			     (1+ Ck-true-knowing-Bk-1)))))) ; end for
+			     (incf Ck-true-knowing-Bk-1)))))) ; end for
     
     ;; display results
     (set! pBk-1 (/ Bk-1-true omega-universe))
@@ -3660,7 +3660,7 @@
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
 	       ;; computation
 
@@ -3723,20 +3723,20 @@
 		 ;; statistics
 		 
 		 (if-t (flag-set? Ck S_up_to_k-1_Carry) ; test if carry set for S_up_to_k-1_Carry
-		       (1+ Ck-true))
+		       (incf Ck-true))
 
 		 (if-t (flag-set? Ck S_3b_up_to_k-1_Carry) ; test if carry set for S'_up_to_k-1_Carry
-		       (1+ Ck-true-3x))
+		       (incf Ck-true-3x))
 		 
 		 (if (flag-set? Bk-1 b) ; test if Bk-1 was up
 		     (begin 
-		       (1+ Bk-1-true)
+		       (incf Bk-1-true)
 		       (if-t (flag-set? Ck S_up_to_k-1_Carry) ; test if Ck was set in S_up_to_k-1_Carry
-			     (1+ Ck-true-knowing-Bk-1)))
+			     (incf Ck-true-knowing-Bk-1)))
 		     (begin
-		       (1+ Bk-1-false)
+		       (incf Bk-1-false)
 		       (if-t (flag-set? Ck S_up_to_k-1_Carry) ; test if Ck was set in S_up_to_k-1_Carry
-			     (1+ Ck-true-knowing-NOT-Bk-1))))
+			     (incf Ck-true-knowing-NOT-Bk-1))))
 
 		 ))) ; end let/if/for
 
@@ -4196,7 +4196,7 @@
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
 	       ;; computation
 
@@ -4259,20 +4259,20 @@
 		 ;; statistics
 		 
 		 (if-t (flag-set? Cn+1 S_up_to_n_Carry) ; test if carry set for S_up_to_n_Carry
-		       (1+ Cn+1-true))
+		       (incf Cn+1-true))
 
 		 (if-t (flag-set? Cn+1 S_3b_up_to_n_Carry) ; test if carry set for S'_up_to_n_Carry
-		       (1+ Cn+1-true-3x))
+		       (incf Cn+1-true-3x))
 		 
 		 (if (flag-set? Bn-1 b) ; test if Bn-1 was up
 		     (begin 
-		       (1+ Bn-1-true)
+		       (incf Bn-1-true)
 		       (if-t (flag-set? Cn+1 S_up_to_n_Carry) ; test if Cn+1 was set in S_up_to_n_Carry
-			     (1+ Cn+1-true-knowing-Bn-1)))
+			     (incf Cn+1-true-knowing-Bn-1)))
 		     (begin
-		       (1+ Bn-1-false)
+		       (incf Bn-1-false)
 		       (if-t (flag-set? Cn+1 S_up_to_n_Carry) ; test if Cn+1 was set in S_up_to_n_Carry
-			     (1+ Cn+1-true-knowing-NOT-Bn-1))))
+			     (incf Cn+1-true-knowing-NOT-Bn-1))))
 
 		 ))) ; end let/if/for
 
@@ -4410,7 +4410,7 @@
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       
-	       (1+ omega-universe)
+	       (incf omega-universe)
 
 	       ;; computation
 
@@ -4473,20 +4473,20 @@
 		 ;; statistics
 		 
 		 (if-t (flag-set? Ck S_up_to_k-1_Carry) ; test if carry set for S_up_to_k-1_Carry
-		       (1+ Ck-true))
+		       (incf Ck-true))
 
 		 (if-t (flag-set? Ck S_3b_up_to_k-1_Carry) ; test if carry set for S'_up_to_k-1_Carry
-		       (1+ Ck-true-3x))
+		       (incf Ck-true-3x))
 		 
 		 (if (flag-set? Bk-1 b) ; test if Bk-1 was up
 		     (begin 
-		       (1+ Bk-1-true)
+		       (incf Bk-1-true)
 		       (if-t (flag-set? Ck S_up_to_k-1_Carry) ; test if Ck was set in S_up_to_k-1_Carry
-			     (1+ Ck-true-knowing-Bk-1)))
+			     (incf Ck-true-knowing-Bk-1)))
 		     (begin
-		       (1+ Bk-1-false)
+		       (incf Bk-1-false)
 		       (if-t (flag-set? Ck S_up_to_k-1_Carry) ; test if Ck was set in S_up_to_k-1_Carry
-			     (1+ Ck-true-knowing-NOT-Bk-1))))
+			     (incf Ck-true-knowing-NOT-Bk-1))))
 
 		 ))) ; end let/if/for
 

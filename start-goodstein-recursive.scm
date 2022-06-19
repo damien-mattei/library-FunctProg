@@ -3,7 +3,7 @@
 
 ;; Damien Mattei
 
-;; 5/10/2018
+;; 19/6/2022
 
 (include "operation.scm")
 (include "symbolic.scm")
@@ -12,6 +12,8 @@
 (include "racket/escape-char-racket-scheme.scm")
 (include "display.scm")
 (include "syntactic-sugar.scm")
+(include "increment.scm")
+(include "for.scm")
 (include "binary-arithmetic.scm")
 (include "debug.scm")
 (include "tree.scm")
