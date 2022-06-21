@@ -49,7 +49,7 @@
 ;; Probability of Ck knowing Bk-1 = Ck-true-knowing-Bk-1 / Bk-1-true = 22016 / 32768 = 43/64 = 0.671875
 ;; Probability of Ck = Ck-true / omega-universe = 33024 / 65536 = 129/256 = 0.50390625
 ;;
-;; > (collatz-proba-Ck-knowing-Bk-1-stat #b1000000000 0)
+;; > (collatz-proba-stat #b1000000000 0)
 ;; alea = 131072
 ;; omega-universe = 65536
 ;; Bk-1-true = 32768
@@ -63,10 +63,7 @@
   {alea <+ (shift-left Ck 8)}
   {omega-universe <+ 0}
   {Bk-1-true <+ 0}
-  {pBk-1 <+ 0} ; probability of Bk-1
   {Ck-true <+ 0}
-  {pCkkBk-1 <+ 0} ; probability Ck knowing Bk-1
-  {pCk <+ 0}
   {Ck-true-knowing-Bk-1 <+ 0}
   {display-enabled <+ #f}
   {mask <+ {Ck - 1}}
@@ -81,10 +78,9 @@
        (when (flag-set? #b1 b) ; only for odd numbers
 
 	     (incf omega-universe)
-	     {S-masked <+ (+ (bitwise-and (bitwise-ior C0 (shift-left b)) mask)
-			     (bitwise-and b mask))} ; shift to left and set lowest significant bit and mask the upper partial result and finally add b masked too, i.e compute 2b+incfb = 3b+1 but not some high bits that will be the carry
+	     {S-masked <+ {(bitwise-and (bitwise-ior C0 (shift-left b)) mask) + (bitwise-and b mask)}} ; shift to left and set lowest significant bit and mask the upper partial result and finally add b masked too, i.e compute 2b+incfb = 3b+1 but not some high bits that will be the carry
 	     {Ck-set <+ (flag-set? Ck S-masked)} ;; Ck flag
-	     {S <+ (+ (bitwise-ior C0 (shift-left b)) b)} ; shift to left and set lowest significant bit and finally add b, i.e compute 2b+incfb = 3b+1
+	     {S <+ {(bitwise-ior C0 (shift-left b)) + b}} ; shift to left and set lowest significant bit and finally add b, i.e compute 2b+incfb = 3b+1
 	     {Bk-1-set <+ (flag-set? Bk-1 b)} ;; Bk-1 flag
 	       	       
 	     (when display-enabled
@@ -109,9 +105,9 @@
 			 (incf Ck-true-knowing-Bk-1))))) ; end for
   
   ;; display results
-  {pBk-1 <- {Bk-1-true / omega-universe}}
-  {pCkkBk-1 <- {Ck-true-knowing-Bk-1 / Bk-1-true}}
-  {pCk <- {Ck-true / omega-universe}}
+  {pBk-1 <+ {Bk-1-true / omega-universe}}  ;; pBk-1 probability of Bk-1
+  {pCkkBk-1 <+ {Ck-true-knowing-Bk-1 / Bk-1-true}} ;; pCkkBk-1 probability Ck knowing Bk-1
+  {pCk <+ {Ck-true / omega-universe}}
 
   (display "omega-universe = ")
   (display omega-universe)
