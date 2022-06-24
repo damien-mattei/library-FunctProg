@@ -1470,11 +1470,11 @@
 ;;collatz-odd
 ;; DEPRECATED
 ;; (define (compute-d)
-;;   (for ((i (arithmetic-shift 1 k)))
+;;   (for (i (arithmetic-shift 1 k))
 ;;        (vector-set! d i (fc-comp-x i k))))
   
 (define (compute-collatz-odd)
-  (for ((i (arithmetic-shift 1 k)))
+  (for (i (arithmetic-shift 1 k))
        ;;(dv i)
        (vector-set! collatz-odd i (fc-comp-x-count-odd i k))))
 
@@ -2294,10 +2294,10 @@
       (display "alea = ")
       (display alea)
       (newline)
-      (for ((a alea))
+      (for (a alea)
 	   ;;(display a)
 	   ;;(newline)
-	   (for ((b alea))
+	   (for (b alea)
 		(incf omega-universe)
 		(let ((S1 (+ a b)))
 		  (if (flag-set? C S1)
@@ -2407,7 +2407,7 @@
     (display alea)
     (newline)
     
-    (for ((b alea))
+    (for (b alea)
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       (incf omega-universe)
 	       (let ((S1 (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+incfb = 3b+1 
@@ -2494,7 +2494,7 @@
     (display alea)
     (newline)
 
-    (for ((b alea))
+    (for (b alea)
 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       
@@ -2607,7 +2607,7 @@
     (display alea)
     (newline)
 
-    (for ((b alea)) ; alea is in range of 100...00 to 111...11
+    (for-rack ((b alea)) ; alea is in range of 100...00 to 111...11
 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       (incf omega-universe)
@@ -2712,7 +2712,7 @@
     (display alea)
     (newline)
 
-    (for ((b alea)) ; alea is in range of 100...00 to 111...11
+    (for-rack ((b alea)) ; alea is in range of 100...00 to 111...11
 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       (incf omega-universe)
@@ -2850,7 +2850,7 @@
     (display "Sn+2 = ") (display SnP2) (newline) ; checking Sn+2
     (newline)
 
-    (for ((b alea)) ; b is in range of 100...00 to 111...11
+    (for-rack ((b alea)) ; b is in range of 100...00 to 111...11
 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       (incf omega-universe)
@@ -2957,8 +2957,8 @@
 ;;
 ;; definition of Sk: a bit computed with two operands and a carry, see calculus below:
 ;;
-;;  C        
-;;   n+2     Ck
+;;  C        C
+;;   n+2      k
 ;;   1.......b......................11    2b+1
 ;;            k-1
 ;;    1......b.......................1    b
@@ -2993,7 +2993,14 @@
 ;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 2049 / 4096 = 2049/4096 = 0.500244140625
 ;; Probability of Ck = Ck-true / omega-universe = 4097 / 8192 = 4097/8192 = 0.5001220703125
 
-;; 
+;;
+;;  (collatz-proba-Ck-knowing-Si #b100000000  #b1000000)
+;; alea = 256
+;; omega-universe = 128
+;; Si-true = 64
+;; Probability of Si = Si-true / omega-universe = 64 / 128 = 1/2 = 0.5
+;; Probability of Ck knowing Si = Ck-true-knowing-Si / Si-true = 32 / 64 = 1/2 = 0.5
+;; Probability of Ck = Ck-true / omega-universe = 65 / 128 = 65/128 = 0.5078125
 
 ;;  (collatz-proba-Ck-knowing-Si #b100000000000000  #b1000000000000)
 ;; > (collatz-proba-Ck-knowing-Si #b100000000000000
@@ -3034,7 +3041,7 @@
     (display alea)
     (newline)
     
-    (for ((b alea))
+    (for (b alea)
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 
@@ -3187,7 +3194,7 @@
     (display alea)
     (newline)
     
-    (for ((b alea))
+    (for (b alea)
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 
@@ -3324,7 +3331,7 @@
     (display alea)
     (newline)
 
-    (for ((b alea))
+    (for (b alea)
 
 	 ;;(incf omega-universe)
 	 
@@ -3438,7 +3445,7 @@
     (display alea)
     (newline)
 
-    (for ((b alea))
+    (for (b alea)
 
 	 ;;(incf omega-universe)
 	 
@@ -3656,7 +3663,7 @@
     (display "mask = ") (display (padding-spc mask)) (newline)
 
     ;; loop over numbers
-    (for ((b alea)) ; b is in range of 0 to 111...11 , alea being 1000...00 = 111...11 + 1 , example with Ck = 100000, b is in range of 0 to 11111
+    (for (b alea) ; b is in range of 0 to 111...11 , alea being 1000...00 = 111...11 + 1 , example with Ck = 100000, b is in range of 0 to 11111
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       
@@ -4406,7 +4413,7 @@
     (display "mask = ") (display (padding-spc mask)) (newline)
 
     ;; loop over numbers
-    (for ((b alea)) ; b is in range of 0 to 111...11 , alea being 1000...00 = 111...11 + 1 , example with Ck = 100000, b is in range of 0 to 11111
+    (for (b alea) ; b is in range of 0 to 111...11 , alea being 1000...00 = 111...11 + 1 , example with Ck = 100000, b is in range of 0 to 11111
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       

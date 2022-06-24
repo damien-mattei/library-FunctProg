@@ -1,3 +1,6 @@
+
+;;(require (rename-in racket/base [for for-rack])) ;; backup original Racket 'for'
+
 ;; > (for ((k 5)) (display k) (newline))
 ;; 0
 ;; 1
@@ -56,18 +59,17 @@
 (define-syntax for
   (syntax-rules ()
 
-    ((_ ((i to)) b1 ...) ;; for DrRacket compatibility
+    ;; ((_ ((i to)) b1 ...) ;; for old compatibility
      
-    
-     (let loop ((i 0))
-       (when (<= i to)
-	     b1 ...
-	     (loop (incf i)))))
+    ;;  (let loop ((i 0))
+    ;;    (when (< i to)
+    ;; 	     b1 ...
+    ;; 	     (loop (incf i)))))
     
     ((_ (i to) b1 ...)
      
      (let loop ((i 0))
-       (when (<= i to)
+       (when (< i to)
 	     b1 ...
 	     (loop (incf i)))))
 
