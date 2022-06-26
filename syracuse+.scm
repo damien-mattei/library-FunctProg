@@ -174,26 +174,54 @@
 ;;  (collatz-proba-stat-nmask #b1000000000000 1)
 ;; T-pCk =#(1 1.0 1.0 0.75 0.625 0.5625 0.53125 0.515625 0.5078125 0.50390625 0.501953125 0.5009765625 0.50048828125)
 ;; tends to 1/2
+;; T-pCk =(0.50048828125 0.5009765625 0.501953125 0.50390625 0.5078125 0.515625 0.53125 0.5625 0.625 0.75 1.0 1.0 1)
 ;;
+;; (collatz-proba-stat-nmask #b1000000000000 1)
+;; T-pCk =(0.0 0.33349609375 0.50048828125 0.5009765625 0.501953125 0.50390625 0.5078125 0.515625 0.53125 0.5625 0.625 0.75 1.0 1.0 1)
+;; T-pSk =(not-computed 0.33349609375 0.33349609375 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.0)
+;; todo : calculer proba 0 sachant que on a un 1 à gauche sur le MSB
 (define (collatz-proba-stat-nmask Ckm C0)
 
   {display-enabled <+ #f}
 
   {Ck <+ #b10}
-  {sn <+ (size-bit Ckm)}
-  {T-pCk <+ (make-vector sn)}
+  {Ckmax <+ (shift-left Ckm 2)}
+  {sn <+ (size-bit Ckmax)}
+  {T-pCk <+ (make-vector sn 'not-computed)}
   {T-pCk[0] <- C0}
   {k <+ 1}
+
+  {Sk-1 <+ (shift-right Ck)}
+  {T-pSk-1 <+ (make-vector sn 'not-computed)}
   
-  (while {Ck <= Ckm}
+  (while {Ck <= Ckmax}
 	 
 	 {mask <+ {Ck - 1}} ;; example: Ck = #b100000 , Ck - 1 = #b11111
 	 {Bk-1 <+ (shift-right Ck)}
-	 {alea <+ Ck} ;; (shift-left Ck 8)} ;; 8 is arbitrary
+	 
+	 {alea <+ (min Ck Ckm)} ;; (shift-left Ck 8)} ;; 8 is arbitrary
+	 
+	 ;;
+	 ;; 100000000000000 Ck , p(Ck) -> 1/2
+	 ;;      carries
+	 ;; aaaaaaaaaaaaaa1
+	 ;;  aaaaaaaaaaaaaa alea
+	 ;; 011111111111111 mask
+	 ;;   S masked
+	 ;;
+	 ;;1000000000000000 Ck , p(Ck) -> 1/3
+	 ;;     carries
+	 ;; aaaaaaaaaaaaaa1
+	 ;;  aaaaaaaaaaaaaa alea
+	 ;;0111111111111111 mask
+	 ;;   S masked
+	 ;;
 	 {omega-universe <+ 0}
 	 {Bk-1-true <+ 0}
 	 {Ck-true <+ 0}
 	 {Ck-true-knowing-Bk-1 <+ 0}
+
+	 {Sk-1-true <+ 0}
 
 	 (display "alea = ")
 	 (display alea)
@@ -204,7 +232,14 @@
 	      (when (flag-set? #b1 b) ; only for odd numbers
 	 
 		(incf omega-universe)
+
 		{S <+ {(bitwise-ior C0 (shift-left b)) + b}} ; shift to left and set lowest significant bit and finally add b, i.e compute 2b+1+b = 3b+1
+
+		{Sk-1-set <+ (flag-set? Bk-1 S)}
+
+		(when Sk-1-set
+		      (incf Sk-1-true))
+		
 		{Bk-1-set <+ (flag-set? Bk-1 b)} ;; Bk-1 flag
 
 		{S-masked <+ {(bitwise-and (bitwise-ior C0 (shift-left b)) mask) + (bitwise-and b mask)}} ; shift to left and set lowest significant bit and mask the upper partial result and finally add b masked too, i.e compute 2b+1+b = 3b+1 but not some high bits that will be the carry
@@ -223,18 +258,29 @@
 		  (newline)
 		  (newline))
 	 
-	 (when Ck-set ; test if carry set
-	   (incf Ck-true))
+		(when Ck-set ; test if carry set
+		      (incf Ck-true))
 	 
-	 (when Bk-1-set
-	   (incf Bk-1-true)
-	   (when Ck-set
-	     (incf Ck-true-knowing-Bk-1))))) ; end for
+		(when Bk-1-set
+		      (incf Bk-1-true)
+		      (when Ck-set
+			    (incf Ck-true-knowing-Bk-1))))) ; end for
   
 	 ;; display results
-	 {pBk-1 <+ {Bk-1-true / omega-universe}}  ;; pBk-1 probability of Bk-1
-	 {pCkkBk-1 <+ {Ck-true-knowing-Bk-1 / Bk-1-true}} ;; pCkkBk-1 probability Ck knowing Bk-1
+	 {pBk-1 <+ {Bk-1-true / omega-universe}}  ;; pBk-1 : probability of Bk-1
+	 
+	 (declare pCkkBk-1) ;; pCkkBk-1 : probability Ck knowing Bk-1
+
+	 (if {Bk-1-true <> 0}
+	     {pCkkBk-1 <- {Ck-true-knowing-Bk-1 / Bk-1-true}} ;; pCkkBk-1 : probability Ck knowing Bk-1
+	     ($
+	      (display "Bk-1-true = ") (display Bk-1-true) (newline)
+	      (display "Ck-true-knowing-Bk-1 = ") (display Ck-true-knowing-Bk-1) (newline)
+	      {pCkkBk-1 <- 0}))
+	 
 	 {pCk <+ {Ck-true / omega-universe}}
+
+	 {pSk-1 <+ {Sk-1-true / omega-universe}}
 
 	 (display "omega-universe = ")
 	 (display omega-universe)
@@ -260,13 +306,29 @@
 	 (newline)
 
 	 {T-pCk[k] <- (exact->inexact pCk)}
+
+	 (display "Probability of Sk-1 = Sk-1-true / omega-universe = ")
+	 (display Sk-1-true) (display " / ") (display omega-universe) (display " = ")
+	 (display pSk-1) (display " = ") (display (exact->inexact pSk-1))
+	 (newline)
+	 (newline)
 	 
+	 {T-pSk-1[{k - 1}] <- (exact->inexact pSk-1)}
+
+	 ;; shift to the next bit
 	 {Ck <- (shift-left Ck)}
-	 {k <- {k + 1}}
+	 {Sk-1 <- (shift-left Sk-1)}
+	 
+	 {k <- {k + 1}} ;; increment index for array storing
 	 
 	 ) ;; end while
 
   (display "T-pCk =")
-  (display T-pCk)
-  (newline) 
+  (display (reverse (vector->list T-pCk)))
+  (newline)
+
+  (display "T-pSk =")
+  (display (reverse (vector->list T-pSk-1)))
+  (newline)
+  
   )

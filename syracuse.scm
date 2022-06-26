@@ -2593,7 +2593,8 @@
 
 (define (collatz-proba-Sn-knowing-Si Sn Si)
 
-  (let* ((alea (in-range Sn (shift-left Sn))) ; le MSB de b est connu et egal a 1 donc b de type 1XXX...XXXX1 
+  (let* (;;(alea (in-range Sn (shift-left Sn))) ; le MSB de b est connu et egal a 1 donc b de type 1XXX...XXXX1
+	 (alea (in-range 1 (shift-left Sn))) ;; this solution gives a proba of 1/2 for Sn
 	 (omega-universe 0)
 	 (Si-true 0)
 	 (pSi 0) ; probability of Si
@@ -2695,10 +2696,12 @@
 ;;Probability of Sn+1 = SnP1-true / omega-universe = 21845 / 65536 = 21845/65536 = 0.3333282470703125
 ;;
 ;; conclusion : probability of Sn+1 converging to 1/3 with very little dependancy to Si except if Si = Sn
-;; todo: revoir ces calculs
+;; todo: revoir ces calculs : done
 (define (collatz-proba-SnP1-knowing-Si SnP1 Si)
 
-  (let* ((alea (in-range (shift-right SnP1) SnP1)) ; le MSB de b est connu et egal a 1 donc b de type 1XXX...XXXX1 
+  (let* (;;(alea (in-range (shift-right SnP1) SnP1)) ; le MSB de b est connu et egal a 1 donc b de type 1XXX...XXXX1
+	 ;;(alea (in-range 1 (shift-right SnP1))) ;; same proba but 0.5 for Si
+	 (alea (in-range 1 SnP1))  ;; same results
 	 (omega-universe 0)
 	 (Si-true 0)
 	 (pSi 0) ; probability of Si
@@ -2708,7 +2711,7 @@
 	 (SnP1-true-knowing-Si 0)
 	 (display-enabled #f))
     
-    (display "alea = ")
+    (display "alea    = ")
     (display alea)
     (newline)
 
@@ -2720,10 +2723,11 @@
 	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+incfb = 3b+1 
 
 		 (if-t display-enabled
+		       (display "display-enabled = ") (display display-enabled)(newline)
 		       (display (padding b))
 		       (display "-->") 
 		       (display (padding S))
-		       (newline)
+		       ;;(newline)
 		       (newline))
 		 
 		 (if-t (flag-set? SnP1 S)
@@ -2733,12 +2737,12 @@
 		       (incf Si-true)
 		       (if-t (flag-set? SnP1 S)
 			     (incf SnP1-true-knowing-Si)
-			     (display (padding b))
-			     (display "-->") 
-			     (display (padding S))
-			     (newline)
-			     (newline)
-			     ))))) ; end for
+			     (if-t display-enabled
+				   (display (padding b))
+				   (display "-->") 
+				   (display (padding S))
+				   (newline)
+				   (newline))))))) ; end for
     
     ;; display results
     (set! pSi (/ Si-true omega-universe))
@@ -2833,9 +2837,20 @@
 ;; Probability of Sn+2 knowing Si = SnP2-true-knowing-Si / Si-true = 0 / 10922 = 0 = 0.0
 ;; Probability of Sn+2 = SnP2-true / omega-universe = 21846 / 32768 = 10923/16384 = 0.66668701171875
 ;;
+;; with : (alea (in-range 1 (shift-right SnP2)))
+;; >  (collatz-proba-SnP2-knowing-Si #b1000000000  #b100)
+;; alea = #<stream>
+;; Sn+2 = 512
+
+;; omega-universe = 128
+;; Si-true = 64
+;; Probability of Si = Si-true / omega-universe = 64 / 128 = 1/2 = 0.5
+;; Probability of Sn+2 knowing Si = SnP2-true-knowing-Si / Si-true = 21 / 64 = 21/64 = 0.328125
+;; Probability of Sn+2 = SnP2-true / omega-universe = 43 / 128 = 43/128 = 0.3359375
 (define (collatz-proba-SnP2-knowing-Si SnP2 Si)
 
-  (let* ((alea (in-range (shift-right SnP2 2) (shift-right SnP2))) ; le MSB de b est connu et egal a 1 donc b de type 1XXX...XXXX1 
+  (let* (;;(alea (in-range (shift-right SnP2 2) (shift-right SnP2))) ; le MSB de b est connu et egal a 1 donc b de type 1XXX...XXXX1 ,  b is in range of 100...00 to 111...11,
+	 (alea (in-range 1 (shift-right SnP2)))
 	 (omega-universe 0)
 	 (Si-true 0)
 	 (pSi 0) ; probability of Si
@@ -2843,19 +2858,19 @@
 	 (pSnP2kSi 0) ; probability Sn+2 knowing Si
 	 (pSnP2 0)
 	 (SnP2-true-knowing-Si 0)
-	 (display-enabled #t))
+	 (display-enabled #f))
     
     (display "alea = ")
     (display alea) (newline)
     (display "Sn+2 = ") (display SnP2) (newline) ; checking Sn+2
     (newline)
 
-    (for-rack ((b alea)) ; b is in range of 100...00 to 111...11
+    (for-rack ((b alea))
 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       (incf omega-universe)
 
-	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+incfb = 3b+1 
+	       (let ((S (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+1+b = 3b+1 
 
 		 (if-t display-enabled
 		       (display (padding b))
