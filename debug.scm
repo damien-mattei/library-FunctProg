@@ -3,19 +3,34 @@
        
 
 
-(define debug-mode #t) ;; global debug-mode definition (you must set it in the function to debug to avoid a lot of information on display) 
+(define debug-mode #t)
 
 (define debug-mode-save debug-mode)
 
+(define debug-mode-save-lst '(#f))
+
+
 (define (debug-mode-on)
-  (set! debug-mode-save debug-mode)
-  (set! debug-mode #t))
-    
-(define (debug-mode-reload)
-  (set! debug-mode debug-mode-save))
+  (when (not debug-mode)
+	;;(display "debug-mode-on : ")
+	(set! debug-mode-save debug-mode)
+	(set! debug-mode #t)
+	;;(dv debug-mode)
+	;;(dv debug-mode-save-lst)
+	(insert debug-mode debug-mode-save-lst)
+	;;(display-nl "end debug-mode-on")
+	)
+  )
+
 
 (define (debug-mode-off)
-  (set! debug-mode #f))
+  (when debug-mode
+	(if (not (null? debug-mode-save-lst))
+	    ($
+	     (set! debug-mode (first debug-mode-save-lst))
+	     (set! debug-mode-save-lst (rest debug-mode-save-lst)))
+	    (set! debug-mode #f)))
+  )
 
 
 ;; (debug block) or (nodebug block)
@@ -28,7 +43,8 @@
        (debug-mode-on)
        (when debug-mode
 	     instruction)
-       (debug-mode-reload)))
+       ;;(debug-mode-reload)
+       ))
   
     ((_ instruction ...)
      (begin
@@ -36,7 +52,8 @@
        (when debug-mode
 	     instruction
 	     ...)
-       (debug-mode-reload)))))
+       ;;(debug-mode-reload)
+       ))))
 
 
 (define-syntax nodebug

@@ -31,10 +31,10 @@
 
 ;; 
 ;; use :
-;; (use-modules (Scheme+Guile))
+;; (use-modules (Scheme+))
 
-;; or if in a guile subdirectory use it with (use-modules (guile Scheme+Guile.scm))
-;; note that the above syntax means Scheme+Guile.scm must be in a directory named guile
+;; or if in a subdirectory use with with (use-modules (guile Scheme+.scm))
+;; note that the above syntax means Scheme+.scm must be in a directory named guile
 ;; and that you have launched Guile in the directory containing the guile subdirectory
 
 
@@ -42,9 +42,9 @@
 
 
 
-(define-module (Scheme+Guile)
+(define-module (Scheme+)
 
-  #:export (def $bracket-apply$ <- -> <+ declare $ § condx <> )
+  #:export ( def $bracket-apply$ <- -> <+  declare $ condx <> )
   
   ;; #:replace ((new-lambda . lambda)
   ;; (new-cond . cond)
@@ -52,11 +52,10 @@
 
   )
 
-;;(use-modules (system syntax))
 
 (include "def.scm")
-(include "Scheme+Guile/array-square-brackets.scm")
-(include "Scheme+Guile/assignment.scm")
+(include "array-square-brackets.scm")
+(include "assignment.scm")
 (include "declare.scm")
 
 (include "condx.scm")

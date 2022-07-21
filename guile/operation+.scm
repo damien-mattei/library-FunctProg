@@ -127,11 +127,10 @@
 ;; (insert-op '^ '(a b c d)) -> '(a ^ b ^ c ^ d)
 ;; TODO: see if we can use foldr (reduce en Lisp)
 (define (insert-op op lst)
-  ;; (insert-op 'and '(a b)) -> '(a and b)
   ;; (insert-op 'and '(a b c d)) -> '(a and b and c and d)
   (if (null? (rest (rest lst)))
-     (list (first lst) op (first (rest lst)))
-     (cons (first lst) (cons op (insert-op op (rest lst)))))) ;; (insert-op 'and '(a b c)) -> '(a and b and c)
+      (list (first lst) op (first (rest lst))) ;; (insert-op 'and '(a b)) -> '(a and b)
+      (cons (first lst) (cons op (insert-op op (rest lst)))))) ;; (insert-op 'and '(a b c)) -> '(a and b and c)
 
 
 
@@ -255,7 +254,7 @@
 ;; (bar-string #\Z)
 ;;  "Z̅"
 (define (bar-string c)
-  (string-append  (string c (integer->char #x305)))) ;; Macron
+  (string c (integer->char #x305))) ;; Macron
 
 ;; scheme@(guile-user)> (string->bar-string "AlPha")
 ;; $2 = "A̅l̅P̅h̅a̅"
@@ -263,14 +262,14 @@
 ;; $3 = "a̅l̅p̅h̅a̅"
 ;; scheme@(guile-user)> (string->bar-string "12345")
 ;; $4 = "1̅2̅3̅4̅5̅"
-;; (define (string->bar-string s)
-;;   {lg <+ (string-length s)}
-;;   {sr <+ ""}
-;;   (for (i 0 {lg - 1})
-;;        {c <+ (string-ref s i)}
-;;        {scbar <+ (bar-string c)}
-;;        {sr <- (string-append sr scbar)})
-;;   sr)
+(define (string->bar-string s)
+  {lg <+ (string-length s)}
+  {sr <+ ""}
+  (for (i 0 {lg - 1})
+       {c <+ (string-ref s i)}
+       {scbar <+ (bar-string c)}
+       {sr <- (string-append sr scbar)})
+  sr)
 
 ;; convert from alphabetic operators to symbolic operators
 (define (alpha-op->symb-op op)
@@ -305,7 +304,7 @@
 ;;
 (define (n-arity-operation->binary-operation expr)
 
-  (debug-mode-on)
+  (debug-mode-off)
   (when debug-mode
     (display "n-arity-operation->binary-operation : ")
     (dv expr))
@@ -413,7 +412,7 @@
   ;;     ;;(list expr)))
   ;;     expr))
 
-  (debug-mode-on)
+  (debug-mode-off)
   (when debug-mode
     (display "n-arity : ")
     (dv expr))

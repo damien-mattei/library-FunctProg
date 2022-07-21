@@ -1094,7 +1094,7 @@
 	    (dv sorted-expanded-var-terms)
 	    (dv uniq-sorted-expanded-var-terms)
 	    (dv sorted-expanded-and-term)
-	    (debug-mode-reload))
+	    )
       maximal-disj-norm-form))))
 
 
@@ -1170,7 +1170,7 @@
     (when debug-mode
 	  (dv disj-norm-form)
 	  (dv var-list))
-    (debug-mode-reload)
+    
     
     (if (not (pre-check-Quine-Mc-Cluskey disj-norm-form))
 
@@ -1188,7 +1188,7 @@
 		(dv essential-prime-implicants)
 		(dv infix-disj-norm-form)
 		(dv formula-find-with-Quine-Mc-Cluskey)
-		(debug-mode-reload))
+		)
 
 	  (set! min-expr formula-find-with-Quine-Mc-Cluskey)
 	  
@@ -1286,7 +1286,7 @@
 	(display-nl "funct-unify-minterms-set-1-unit : ")
 	(dvs set1)
 	(dvs set2)
-	(debug-mode-reload))
+	)
   
   (letrec ((function-unify-minterms-list (lambda (L) (apply function-unify-two-minterms-and-tag L))))
     (let* (
@@ -1299,7 +1299,7 @@
       ;;(debug-mode-on)
       (when debug-mode
 	(dvs unified-minterms-set)
-	(debug-mode-reload))
+	)
       
       unified-minterms-set)))
 
@@ -1433,7 +1433,7 @@
 	(newline)
 	(display "funct-unify-minterms-set-of-sets-rec-wrap : ")
 	(dvsos sos)
-	(debug-mode-reload))
+	)
 
   (let ((rv (funct-unify-minterms-set-of-sets-rec sos)))
     #;(debug-mode-on)
@@ -1442,7 +1442,7 @@
 	(newline)
 	(display "funct-unify-minterms-set-of-sets-rec-wrap : ")
 	(dvsos rv)
-	(debug-mode-reload))
+	)
     (if (set-of-empty-set? rv)
 	'()
 	rv)))
@@ -1506,7 +1506,7 @@
 	(newline)
 	(display "recursive-unify-minterms-set-of-sets : ")
 	(dvsos sos)
-	(debug-mode-reload))
+	)
   
   (if (set-of-empty-sets? sos)
       ;;(equal? sos '(()))
@@ -1768,7 +1768,7 @@
 
     (when debug-mode
 	  (dv-2d iepi)
-	  (debug-mode-reload))
+	  )
 	  
 
     (when debug-mode
@@ -1851,7 +1851,7 @@
 	  (newline)
 	  (dv-2d iepi))
 
-    (debug-mode-reload)
+    
     
     (set! essential-prime-implicants-list (remove-duplicates essential-prime-implicants-list))
 

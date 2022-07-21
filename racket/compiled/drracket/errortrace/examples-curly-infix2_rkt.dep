@@ -1,0 +1,1 @@
+("8.2" tarm64osx ("9fb23491c6a01f4d59e09d2bcc515fb7f5ba524e" . "76f365e253d77ad895404f353c7ae1b5a6acdb55") #"/Users/mattei/Dropbox/git/library-FunctProg/racket/SRFI-105.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"reader" #"lang" #"reader.rkt"))

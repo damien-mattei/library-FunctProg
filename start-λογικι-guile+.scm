@@ -2,7 +2,7 @@
 
 ;; Damien Mattei
 
-;; 22/11/2021
+;; 12/07/2022
 
 ;; (load "start-λογικι-guile+.scm")
 
@@ -10,7 +10,6 @@
 
 ;;scheme@(guile-user)> (infix-symb-min-dnf '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
 
-;; ((!b ^ !c) v (c ^ !d) v (!a ^ b ^ d))
 ;; ((¬b ∧ ¬c) ∨ (c ∧ ¬d) ∨ (¬a ∧ b ∧ d))
 
 
@@ -49,6 +48,12 @@
 ;; ((!a and !b and !c and !d) or (!a and !b and !c and d) or (!a and !b and c and !d) or (!a and b and !c and d) or (!a and b and c and !d) or (!a and b and c and d) or (a and !b and !c and !d) or (a and !b and !c and d) or (a and !b and c and !d) or (c and !d))
 
 
+;; scheme@(guile-user)> (cnf-infix-symb '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
+
+;; ((¬b ∨ c ∨ d) ∧ (b ∨ ¬c ∨ ¬d) ∧ (¬a ∨ ¬b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬d) ∧ (¬a ∨ ¬c ∨ ¬d))
+
+
+
 (use-modules (Scheme+)
 	     (srfi srfi-1) ;; for 'first' procedure
 	     (srfi srfi-60) ;; for arithmetic-shift
@@ -56,6 +61,7 @@
 	     (ice-9 format)
 	     ;;(ice-9 hash-table) ;; built-in Hash Table
 	     (srfi srfi-69) ;; SRFI 69 Hash Table
+	     ;;((rnrs) :version (6)) ;; contains hash tables too
 	     )
 
 (include "rest.scm")
@@ -68,6 +74,7 @@
 (include "for-next-step.scm")
 
 (include "set.scm")
+(include "list.scm")
 (include "debug.scm")
 
 (include "array.scm")
@@ -76,8 +83,8 @@
 (include "guile/binary-arithmetic.scm") ;; specialized for 'format'
 
 (include "guile/map.scm") ;; specialized for 'andmap'
-(include "list.scm")
-(include "operation.scm")
+
+(include "guile/operation+.scm")
 (include "display-formula.scm")
 (include "symbol.scm")
 (include "minterms.scm")

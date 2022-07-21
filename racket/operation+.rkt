@@ -1,3 +1,16 @@
+#lang reader "SRFI-105.rkt"
+
+(provide (all-defined-out)) ;; export all bindings
+
+(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
+
+
+(include "../for-next-step.scm")
+(include "../increment.scm")
+(include "../debug.scm")
+(include "display-racket-scheme.scm")
+(include "../list.scm")
+
 ;; return the operator of an operation
 ;; TODO: use macro
 (define (operator expr)
@@ -109,7 +122,8 @@
    ((symbol? expr) expr)
    ((boolean? expr) (if expr 'T 'F)) ;; True and False
    ((isNOT? expr) (prefix-NOT->infix-symbolic-form-greek expr))
-   (else (insert-op (alpha-op->symb-op (first expr)) (rest (map prefix->infix-symb expr))))))
+   (else (insert-op (alpha-op->symb-op (first expr))
+		    (rest (map prefix->infix-symb expr))))))
 
 
 (define (prefix->infix-symb-bool expr)
@@ -127,11 +141,10 @@
 ;; (insert-op '^ '(a b c d)) -> '(a ^ b ^ c ^ d)
 ;; TODO: see if we can use foldr (reduce en Lisp)
 (define (insert-op op lst)
-  ;; (insert-op 'and '(a b)) -> '(a and b)
   ;; (insert-op 'and '(a b c d)) -> '(a and b and c and d)
   (if (null? (rest (rest lst)))
-     (list (first lst) op (first (rest lst)))
-     (cons (first lst) (cons op (insert-op op (rest lst)))))) ;; (insert-op 'and '(a b c)) -> '(a and b and c)
+      (list (first lst) op (first (rest lst))) ;; (insert-op 'and '(a b)) -> '(a and b)
+      (cons (first lst) (cons op (insert-op op (rest lst)))))) ;; (insert-op 'and '(a b c)) -> '(a and b and c)
 
 
 
@@ -255,7 +268,7 @@
 ;; (bar-string #\Z)
 ;;  "Z̅"
 (define (bar-string c)
-  (string-append  (string c (integer->char #x305)))) ;; Macron
+  (string c (integer->char #x305))) ;; Macron
 
 ;; scheme@(guile-user)> (string->bar-string "AlPha")
 ;; $2 = "A̅l̅P̅h̅a̅"
@@ -263,14 +276,14 @@
 ;; $3 = "a̅l̅p̅h̅a̅"
 ;; scheme@(guile-user)> (string->bar-string "12345")
 ;; $4 = "1̅2̅3̅4̅5̅"
-;; (define (string->bar-string s)
-;;   {lg <+ (string-length s)}
-;;   {sr <+ ""}
-;;   (for (i 0 {lg - 1})
-;;        {c <+ (string-ref s i)}
-;;        {scbar <+ (bar-string c)}
-;;        {sr <- (string-append sr scbar)})
-;;   sr)
+(define (string->bar-string s)
+  {lg <+ (string-length s)}
+  {sr <+ ""}
+  (for (i 0 {lg - 1})
+       {c <+ (string-ref s i)}
+       {scbar <+ (bar-string c)}
+       {sr <- (string-append sr scbar)})
+  sr)
 
 ;; convert from alphabetic operators to symbolic operators
 (define (alpha-op->symb-op op)
@@ -310,8 +323,6 @@
     (display "n-arity-operation->binary-operation : ")
     (dv expr))
 
-  
-  
   (cond
    ((boolean? expr) expr)
    ((number? expr) expr)
@@ -413,12 +424,10 @@
   ;;     ;;(list expr)))
   ;;     expr))
 
-  (debug-mode-on)
+  (debug-mode-off)
   (when debug-mode
     (display "n-arity : ")
     (dv expr))
-
-  
   
   (cond
    ((null? expr) expr)
@@ -429,7 +438,7 @@
     (cons
      (operator expr)
      (list (n-arity (arg expr)))))
-   ;;(else #;(binary-operation? expr) #;(or (isOR? expr) (isAND? expr))
+   ;;(else ;;(binary-operation? expr) ;;(or (isOR? expr) (isAND? expr))
     ((or (isOR? expr)
 	 (isAND? expr)
 	 (isADD? expr)
@@ -446,7 +455,8 @@
 	     (map n-arity (args expr)))))
 
 	;;(list expr)))
-   #;(else expr)))
+    ;;(else expr)
+    ))
 
 
 
@@ -495,7 +505,7 @@
 		   (cons
 		    (operator expr)
 		    (list (n-arity (arg expr))))))
-		 ((ourOperation? expr) #;(eqv? oper (operator expr))
+		 ((ourOperation? expr) ;;(eqv? oper (operator expr))
 		  (apply append (map collect-leaves-operator (args expr))))
 		 (else (list (n-arity expr)))))))
 

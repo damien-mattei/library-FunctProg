@@ -181,6 +181,7 @@
 ;; binlist2number : convert a binary list to a number
 ;;>  (binlist2number '(1 1 0 0 1 1 1 1)) -> 207
 (define (binlist2number L)
+  (debug-mode-off)
   (letrec ((revL (reverse L)) ; reversed list
 	   (reverseBinList->number
 
@@ -207,9 +208,14 @@
 		       (begin
 			 (when debug-mode
 			       (display "...... restRBL2n : ") (display restRBL2n) (newline))
-			 restRBL2n ))))))))
+			 restRBL2n )))))))
+	   (result (reverseBinList->number revL 0))) ; expo set to 0 at beginning
+    
+    
+    
+    result))
 
-    (reverseBinList->number revL 0))) ; expo set to 0 at beginning
+
 
 
     

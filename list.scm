@@ -5,9 +5,11 @@
      (set! var (insert expr var)))))
 
 
-(define-syntax insert 
-  (syntax-rules ()
-    ((_ el lst) (cons el lst))))
+;; (define-syntax insert 
+;;   (syntax-rules ()
+;;     ((_ el lst) (cons el lst))))
+
+(define insert cons)
 
 
 (define (only-one? expr)

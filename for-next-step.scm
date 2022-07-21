@@ -1,3 +1,4 @@
+;; TODO: create 'for' that works with 'down to' step
 
 ;;(require (rename-in racket/base [for for-rack])) ;; backup original Racket 'for'
 
@@ -79,7 +80,8 @@
 
      (let loop ((i from))
        (when (<= i to)
-	     b1 ...
+	     (let ()
+	       b1 ...)
 	     (loop (incf i)))))
     
     ((_ (i from to step) b1 ...)
