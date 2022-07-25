@@ -103,13 +103,27 @@
 ;; 
 ;; (prefix->infix-symb (simplify (n-arity (phase3 (simplify-negation (move-in-negations (elim-implications '(or (and Cin (not (or (and A (not #t)) (and (not A) #t)))) (and (not Cin) (or (and A (not #t)) (and (not A) #t))))))))))) -> '((!A ^ Cin ^ F) v (A ^ Cin ^ T) v (A ^ !Cin ^ F) v (!A ^ !Cin ^ T) v (Cin ^ F ^ T))
 (define (prefix->infix-symb expr)
+
+  (nodebug
+   (display "prefix->infix-symb : ")
+   (dv expr))
+
+  (declare result)
+  
   (cond
-   ((null? expr) expr)
-   ((number? expr) expr)
-   ((symbol? expr) expr)
-   ((boolean? expr) (if expr 'T 'F)) ;; True and False
-   ((isNOT? expr) (prefix-NOT->infix-symbolic-form-greek expr))
-   (else (insert-op (alpha-op->symb-op (first expr)) (rest (map prefix->infix-symb expr))))))
+   ((null? expr) {result <- expr})
+   ((number? expr) {result <- expr})
+   ((symbol? expr) {result <- expr})
+   ((boolean? expr) {result <- (if expr 'T 'F)}) ;; True and False
+   ((isNOT? expr) {result <- (prefix-NOT->infix-symbolic-form-greek expr)})
+   (else {result <- (insert-op (alpha-op->symb-op (first expr))
+			       (rest (map prefix->infix-symb expr)))}))
+
+  (nodebug
+   (dv result))
+
+  result)
+
 
 
 (define (prefix->infix-symb-bool expr)
@@ -445,7 +459,8 @@
 	     (map n-arity (args expr)))))
 
 	;;(list expr)))
-   #;(else expr)))
+    ;;#;(else expr)
+    ))
 
 
 
@@ -494,7 +509,7 @@
 		   (cons
 		    (operator expr)
 		    (list (n-arity (arg expr))))))
-		 ((ourOperation? expr) #;(eqv? oper (operator expr))
+		 ((ourOperation? expr) ;; #;(eqv? oper (operator expr))
 		  (apply append (map collect-leaves-operator (args expr))))
 		 (else (list (n-arity expr)))))))
 

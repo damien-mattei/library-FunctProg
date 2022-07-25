@@ -52,11 +52,12 @@
 ;; (infix-symb-min-dnf '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
 
 ;; ((¬b ∧ ¬c) ∨ (c ∧ ¬d) ∨ (¬a ∧ b ∧ d))
+;; ((¬a ∧ b ∧ d) ∨ (¬b ∧ ¬c) ∨ (c ∧ ¬d))
 
 ;;
 ;; (infix-symb-min-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d)  (and (not a) b c (not d))  (and (not a) b c d)  (and a (not b) (not c) (not d)) (and a (not b) (not c) d)  (and a (not b) c (not d))   (and c (not d))))
 ;;
-;; '((!b ^ !c) v (c ^ !d) v (!a ^ b ^ d))
+;; ((¬a ∧ b ∧ d) ∨ (¬b ∧ ¬c) ∨ (c ∧ ¬d))
 ;;
 ;; verification with Mathematica:
 ;; In[1]:= BooleanMinimize[(!a && !b && !c && !d)
@@ -84,17 +85,24 @@
 ;;
 ;;
 ;;
-;; (dnf-infix-symb (minimal-dnf '(or (and (and A B) (not (and C (or (and A (not B)) (and (not A) B))))) (and (not (and A B)) (and C (or (and A (not B)) (and (not A) B))))))) -> '((B ^ C) v (A ^ C) v (A ^ B))
+;; (dnf-infix-symb (minimal-dnf '(or (and (and A B) (not (and C (or (and A (not B)) (and (not A) B))))) (and (not (and A B)) (and C (or (and A (not B)) (and (not A) B))))))) 
+;; ((B ∧ C) ∨ (A ∧ C) ∨ (A ∧ B))
 ;;
 ;; (dnf-infix-symb (minimal-dnf '(or (and (not a) b (not c) d) (and (not a) b c d) (and a b (not c) (not d)) (and a b (not c) d) (and a b c (not d)) (and a b c d) (and a (not b) (not c) (not d)) (and a (not b) c (not d)))))
 ;;
 ;; '((b ^ d) v (a ^ !d))
+
+;; (infix-symb-min-dnf '(or (and (not a) b (not c) d) (and (not a) b c d) (and a b (not c) (not d)) (and a b (not c) d) (and a b c (not d)) (and a b c d) (and a (not b) (not c) (not d)) (and a (not b) c (not d))))
+;; ((a ∧ ¬d) ∨ (b ∧ d))
+
 ;;
 ;;
 ;;
 ;; (dnf-infix-symb (minimal-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) b (not c) d) (and (not a) b c d) (and a (not b) c (not d)) (and a b (not c) d) (and a b c (not d)) (and a b c d))))
 ;;
 ;; '((b ^ d) v (!a ^ !b ^ !c ^ !d) v (a ^ c ^ !d))
+;; ((b ∧ d) ∨ (¬a ∧ ¬b ∧ ¬c ∧ ¬d) ∨ (a ∧ c ∧ ¬d))
+
 ;;
 ;;
 ;; (dnf-infix-symb (minimal-dnf '(and (or x0 x1) (or x1 x2) x3 x5))) -> '((x1 ^ x3 ^ x5) v (x0 ^ x2 ^ x3 ^ x5))
@@ -114,6 +122,7 @@
 ;; (infix-symb-min-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) b (not c) d) (and (not a) b c d) (and a (not b) c (not d)) (and c d) (and a c (not d)) (and a b c d) (and a  (not c))))
 ;;
 ;; '((!b ^ !c ^ !d) v (c ^ d) v (b ^ d) v a)
+;; (a ∨ (b ∧ d) ∨ (¬b ∧ ¬c ∧ ¬d) ∨ (c ∧ d))
 ;;
 ;; (dnf-infix-symb (minimal-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) b (not c) d) (and (not a) b c d) (and a (not b) c (not d)) (and c d) (and a c (not d)) (and a b c d) (and a  (not c)))))
 ;;
@@ -124,6 +133,7 @@
 ;; (infix-symb-min-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d)  (and (not a) b c (not d))  (and (not a) b c d)  (and a (not b) (not c) (not d)) (and a (not b) (not c) d)  (and a (not b) c (not d))   (and a b c (not d))))
 ;;
 ;; '((!b ^ !c) v (c ^ !d) v (!a ^ b ^ d))
+;; ((¬a ∧ b ∧ d) ∨ (¬b ∧ ¬c) ∨ (c ∧ ¬d))
 ;;
 ;;
 ;; with others Schemes:
@@ -214,18 +224,31 @@
 ;; BooleanConvert[Xor[A,B,C]] in WolframMath
 ;; (infix-symb-min-dnf  '{A ⊕ B ⊕ Ci})
 ;; ((¬A ∧ ¬B ∧ Ci) ∨ (¬A ∧ B ∧ ¬Ci) ∨ (A ∧ ¬B ∧ ¬Ci) ∨ (A ∧ B ∧ Ci))
+;; ((A ∧ B ∧ Ci) ∨ (A ∧ ¬B ∧ ¬Ci) ∨ (¬A ∧ B ∧ ¬Ci) ∨ (¬A ∧ ¬B ∧ Ci))
 
 ;; (cnf-infix-symb '{A ⊕ B ⊕ Ci})
 ;; '((¬A ∨ B ∨ ¬Ci) ∧ (¬A ∨ ¬B ∨ Ci) ∧ (A ∨ ¬B ∨ ¬Ci) ∧ (A ∨ B ∨ Ci))
 
 ;; (infix-symb-bool-min-dnf '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
 ;; ((b̅ · c̅) ➕ (c · d̅) ➕ (a̅ · b · d))
+;; ((a̅ · b · d) ➕ (b̅ · c̅) ➕ (c · d̅))
 
 ;; (infix-symb-bool-min-dnf  '{A ⊕ B ⊕ Ci})
 ;; ((A̅ · B̅ · Ci) ➕ (A̅ · B · C̅i̅) ➕ (A · B̅ · C̅i̅) ➕ (A · B · Ci))
+;; ((A · B · Ci) ➕ (A · B̅ · C̅i̅) ➕ (A̅ · B · C̅i̅) ➕ (A̅ · B̅ · Ci))
 
 ;;  (infix-symb-bool-min-dnf  '(and (<=> (and p q) r) (<=> (not (and p q)) r)))
 ;; □
+
+;; (infix-symb-min-dnf '{{A · B} ⊕ {Ci · {A ⊕ B}}})
+;; ((A ∧ Ci) ∨ (A ∧ B) ∨ (B ∧ Ci))
+;; ((A ∧ B) ∨ (A ∧ Ci) ∨ (B ∧ Ci))
+
+;; (infix-symb-min-dnf '{{{(not a) and (not b)} and {b or (not c)}} or {c and (not a) and d}})
+;; ((¬a ∧ ¬b ∧ ¬c) ∨ (¬a ∧ c ∧ d))
+
+;; (infix-symb-min-dnf '{{(not a) and (not b)} and {b or (not c)}})
+;; (¬a ∧ ¬b ∧ ¬c)
 
 ;; TODO: verifier rapidité en remplaçant les chaines de caracteres " * " et "(*)" par des nombres entiers
 
@@ -388,7 +411,7 @@
 
 (define (phase3-dnf expr)
 
-  (debug-mode-on)
+  (debug-mode-off)
   (when debug-mode
     (display "phase3-dnf : ")
     (dv expr))
@@ -486,9 +509,16 @@
 ;; (a v b) ^ a -> a
 
 (define (simplify-NF-by-unitary-reduction expr)
+
+  (nodebug
+   (display "simplify-NF-by-unitary-reduction : ")
+   (dv expr))
+
+  (declare result result-sorted)
+  
   (cond
-   ((null? expr) expr)
-   ((is-simple-form? expr) expr)
+   ((null? expr) {result <- expr})
+   ((is-simple-form? expr) {result <- expr})
    (else 
     (let* ((oper (operator expr))
 	   (sL (args expr)) ; extract the arguments of operation
@@ -496,16 +526,27 @@
 		     (if (symbol? expression)
 			 (list expression)
 			 expression)))
-	   (encaps-args (map encaps sL))
+	   (encaps-args (map encaps sL)) ;; encapsulate any remaining isolated elements in the list in another list
 	   (reducted-args (parse-args-by-unitary-reduction encaps-args encaps-args)) ; do unitary reduction
 	   (decaps (λ (expression) ; extract any element from a list
 		     (if (singleton? expression)
 			 (first expression)
 			 expression)))
 	   (decaps-args (map decaps reducted-args)))
+
       (if (only-one? decaps-args)
-	  (first decaps-args)
-	  (cons oper decaps-args)))))) ;; reconstruct operation expression with simplified arguments list
+	  {result <- (first decaps-args)}
+	  {result <- (cons oper decaps-args)})))) ;; reconstruct operation expression with simplified arguments list
+
+  (nodebug
+   (dv result))
+
+  {result-sorted <- (sort-expressions-in-operation result)}
+  
+  (nodebug
+   (dv result-sorted))
+  
+  result-sorted) 
 
 
 ;; todo : sort arguments by size 
@@ -565,6 +606,11 @@
 ;; s !C- W -> G(L,W)
 ;; G(0,W)  -> W
 ;;
+;; meaning: for an OR expression it is useless to keep AND expressions that are already satisfied:
+;; example : (and a (not b)) , (and a e (not b)) if (and a (not b)) is satisfied then (and a e (not b)) is useless in expression
+;; whatever the value of e is
+;; the same apply with ANDed of ORed expressions too !!!
+;; 
 ;; (parse-args-by-unitary-reduction '((and a (not b)) (and a b) (and b d) (and a e (not b)) (and a (not b) c)) '((and a (not b)) (and a b) (and b d) (and a e (not b)) (and a (not b) c)))
 ;;   -> '((and b d) (and a b) (and a (not b)))
 ;;
@@ -582,7 +628,7 @@
 	(if element ;; s C-? W 
 	    (let ((F (unitary-reduction s W)))
 	      (parse-args-by-unitary-reduction L (cons s F))) ;; s C- W  : G(sL,W) -> G(L,s.F(s,W))
-	    (parse-args-by-unitary-reduction L W)))))           ;; s !C- W : G(sL,W) -> G(L,W)
+	    (parse-args-by-unitary-reduction L W)))))         ;; s !C- W : G(sL,W) -> G(L,W)
 
 ;; (define (parse-args-by-unitary-reduction sL W)
 ;;   (if (null? sL)
@@ -629,6 +675,8 @@
 	(if (include? k s) ;;       C means "include in", !C means "not include in"
 	    F  ;; k C s -> F(k,L)      
 	    (cons s F))))) ;; k !C s -> s.F(k,L)
+
+
 
 
 ;; (enlight-dnf '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b))))) -> (a^b^c)v(!a^!b^c)v(!a^b^!c)v(a^!b^!c)
@@ -910,14 +958,22 @@
 ;; simplify Single Form
 ;; (simplify-SF  '(and b a b (not b))) -> #f
 (def (simplify-SF expr)
-     (if {(boolean? expr) or (symbol? expr)}
-	 (return expr))
+     (when {(boolean? expr) or (symbol? expr)}
+	   (return expr))
      (let* ((oper (operator expr)) ;; define operator
 	    (expr-no-dup (remove-duplicates-in-operation expr)) ;; remove duplicate symbols
 	    (expr-no-dup-sorted (sort-arguments-in-operation expr-no-dup))) ;; sort variables
        (if (equal? oper 'and) ;; AND => search for antilogies
 	   (if (is-AND-antilogy? expr-no-dup-sorted) #f expr-no-dup-sorted)
 	   (if (is-OR-tautology? expr-no-dup-sorted) #t expr-no-dup-sorted)))) ;;  OR => search for tautologies
+
+
+
+
+
+(define lower-literal-symbol
+  (λ (s)
+    (string-downcase (expression->string (get-first-literal s))))) ;; 'Ci -> "ci", '(not A) -> "a"
 
 
 (define expression<?
@@ -929,11 +985,8 @@
   (λ (x y)
     (cond ((isOR-AND? x) #f)
 	  ((isOR-AND? y) #t)
-	  (string<? (lower-literal-symbol x) (lower-literal-symbol y)))))
+	  (else (string<? (lower-literal-symbol x) (lower-literal-symbol y))))))
 
-(define lower-literal-symbol
-  (λ (s)
-    (string-downcase (expression->string (get-first-literal s))))) ;; 'Ci -> "ci", '(not A) -> "a"
 
 (define expression->string
 	  (λ (expr2)
@@ -941,11 +994,67 @@
 		  ((boolean? expr2) (if expr2 "T" "F")) ;; #t -> "T", #f -> "F"
 		  (else (error "expression->string: do not know how to handle this expression" expr2)))))
 
+
+;; compare logical expressions args
+(define (compare-list-args<? L1 L2)
+  (cond ((null? L1) #t)
+	((null? L2) #f)
+	(else (if (equal? (first L1) (first L2))
+		  (compare-list-args<? (rest L1) (rest L2))
+		  (& ;; something is not equal (not ...) ?
+		   {fl1 <+ (first L1)}
+		   {fl2 <+ (first L2)}
+		   {lit1 <+ (expression->string (get-first-literal fl1))}
+		   {lit2 <+ (expression->string (get-first-literal fl2))}
+		   (if (equal? lit1 lit2)
+		       (isNOT? fl2) ;; 'a '(not a)
+		       (string<? lit1 lit2)))))))
+		       
+
 (define expression-most-little-literal-first<?
   (λ (x y)
     (cond ((isOR-AND? x) #f)
 	  ((isOR-AND? y) #t)
-	  (literal<? (get-first-literal x) (get-first-literal y)))))
+	  (else (literal<? (get-first-literal x) (get-first-literal y))))))
+
+;; compare expressions
+(define expression-literal-first-negation-tested<?
+  (λ (x y)
+    (nodebug
+     (display "expression-literal-first-negation-tested<? : ")
+     (dv x)
+     (dv y))
+    (cond ({(isOR-AND? x) and (isOR-AND? y)} (compare-list-args<? (rest x) (rest y)))
+	  ((isOR-AND? x) #f)
+	  ((isOR-AND? y) #t)
+	  (else (expression-negation-tested<? x y)))))
+
+
+(define (expression-negation-tested<? a b)
+  
+  (debug
+   (display  "expression-negation-tested<? : ")
+   (dv a)
+   (dv b))
+
+  (if {(not (isNOT? a)) and (isNOT? b) and (equal? a (get-first-literal b))} ;; 'a '(not a)
+      #t ;; we choose the litteral, not the negation
+      (string<? (expression->string (get-first-literal a))
+		(expression->string (get-first-literal b))))) ;; 'a '(not a)
+
+
+
+(define (literal-negation-tested<? a b)
+  
+  (debug
+   (display  "literal-negation-tested<? : ")
+   (dv a)
+   (dv b))
+
+  (if {(not (isNOT? a)) and (isNOT? b) and (equal? a (get-first-literal b))} ;; 'a '(not a)
+      #t
+      (literal<? (get-first-literal a) (get-first-literal b)))) ;; '(not a) 'a ....
+
 
 ;; (literal<? 'V0x10x11 'V1x11x10) -> #f
 (define (literal<? a b)
@@ -955,8 +1064,8 @@
 	 (b1 0) 
 	 ;;(a0 0)
 	 ;;(b0 0)
-	 (as (symbol->string a))
-	 (bs (symbol->string b)))
+	 (as (expression->string a)) ;;(symbol->string a))
+	 (bs (expression->string b))) ;;(symbol->string b)))
 
     (for (i 1 (- (string-length as) 1))
 	 
@@ -964,12 +1073,14 @@
 
 	   ((#\x) (incf ax))
 	   ((#\1) (incf a1))
-	   #;((#\0) (incf a0)))
+	   ;;((#\0) (incf a0))
+	   )
 
 	 (case (string-ref bs i)
 	   ((#\x) (incf bx))
 	   ((#\1) (incf b1))
-	   #;((#\0) (incf b0))))
+	   ;;((#\0) (incf b0))
+	   ))
     
     (cond ((> ax bx) #t)
 	  ((< ax bx) #f)
@@ -979,9 +1090,6 @@
 
 			     
     
-;; (define (error2)
-;;   (car '()))
-
 ;; sort operands in a logic expression
 ;; (sort-arguments-in-operation '(or c a b)) -> '(or a b c)
 ;; (sort-arguments-in-operation '(or c (not a) b)) -> '(or (not a) b c)
@@ -992,7 +1100,6 @@
 
       (let* ((args-list (args expr)) ;;'(or c a b) -> '(c a b)
 	    
-	     ;;(sorted-args (sort args-list #:key lower-literal-symbol string<?)) ;; symbol<?)) ;; '(Ci a b) -> '(a b Ci)
 	     (sorted-args (sort-arguments args-list))
 	     (oper (operator expr))) ;; define operator : (or Ci a b) -> or
 	
@@ -1000,15 +1107,37 @@
       
       expr)) ;; we have not a binary operator but a literal or negation of literal
 
+;; sort this:
+;; (or (and A Ci) (and A B) (and B Ci))
+(define (sort-expressions-in-operation expr)
+
+  (if (isOR-AND? expr)
+
+      (& {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
+	 (nodebug (display "sort-expressions-in-operation : ")
+		  (dv exprs-list))
+	 {sorted-exprs <+ (sort-expressions exprs-list)}
+	 {oper <+ (operator expr)} ;; define operator : (or Ci a b) -> or
+	 (cons oper sorted-exprs))
+      
+      (sort-arguments-in-operation expr))) ;; we have not an expression composed of expressions but a single expression
+
+
+(define (sort-expressions args-list)
+
+  (nodebug
+   (display "sort-expressions : ")
+   (dv args-list))
+  
+  (sort args-list expression-literal-first-negation-tested<?)) ;; expression-negation-tested<?)) ;; expression<?))
+
+
 
 ;; (sort-arguments '(Ci c d (not a) b )) -> '((not a) b c Ci d)
 ;; (sort-arguments '( Ci (and c d) (not a) b )) -> '((not a) b (and c d) Ci)
 (define (sort-arguments args-list)
 
-	 ;;(sort args-list #:key lower-literal-symbol string<?) ;; symbol<?)) ;; '(Ci a b) -> '(a b Ci)
-	 (sort args-list expression<?)
-
-  )
+	 (sort args-list expression<?)) ;; expression-negation-tested<?)) ;; expression<?))
 
 
 ;; (sort-arguments-in-operation-literal-first '(or (and V011x V0x01) V01x1 ))
@@ -1253,6 +1382,8 @@
 ;;
 (define (minimal-dnf expr)
 
+  (declare min-expr-sorted)
+  
   (let* (
 	 (var-list (collect-variables expr)) ;; variable list
 	 (disj-norm-form (dnf-n-arity-simp expr)) ;; disjunctive form
@@ -1310,11 +1441,14 @@
 			  (if (is-simple-form? petrick-expr)
 			      `(,(operator min-expr) ,@(args min-expr) ,petrick-expr) ;; operator must be an OR
 			      `(,(operator min-expr) ,@(args min-expr) ,@(args petrick-expr)))))) ;; operator must be an OR
-	
-
+	  
+	  ;;{min-expr-sorted <- (sort-arguments-in-operation min-expr)}
+	  {min-expr-sorted <- (sort-expressions-in-operation min-expr)}
+	  
 	  (dv min-expr)
+	  (dv min-expr-sorted)
 
-	  min-expr))))
+	  min-expr-sorted))))
 		
   
 
@@ -1535,7 +1669,7 @@
 	)
 
   (let ((rv (funct-unify-minterms-set-of-sets-rec sos)))
-    #;(debug-mode-on)
+    ;;(debug-mode-on)
     (when debug-mode
 	(newline)
 	(newline)
@@ -1617,7 +1751,8 @@
 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets ::" minterms-ht))
 	(put-elements-of-set-of-sets-in-minterms-ht sos)
 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets :: after (put-elements-of-set-of-sets-in-minterms-ht sos)" minterms-ht))
-	(recursive-unify-minterms-set-of-sets (funct-unify-minterms-set-of-sets-rec-wrap #;funct-unify-minterms-set-of-sets sos)))))
+	(recursive-unify-minterms-set-of-sets (funct-unify-minterms-set-of-sets-rec-wrap ;;funct-unify-minterms-set-of-sets
+					       sos)))))
 
 
 
@@ -1981,9 +2116,9 @@
 			;; check wether prime implicant is an essential one?
 			(when (member {iepi[0 y]} essential-prime-implicants-list)
 			  
-			      (when debug-mode
-				    (de {iepi[0 y]})
-				    (de {iepi[x y]}))
+			      (nodebug
+			       (de {iepi[0 y]})
+			       (de {iepi[x y]}))
 			  
 			      ;; is the essential prime implicant expressing this minterms?
 			      (when (or (string=?  {iepi[x y]} "(*)")
@@ -2068,7 +2203,7 @@
      {unified-minterms ⥆ ($ {debug-mode-save ← debug-mode}
 			     {debug-mode ← #t}
 			     (when debug-mode (display-nl "Quine-Mc-Cluskey:"))
-			     {minterms-ht <- (make-hash-table)}  ;; need to be claeared at each run
+			     {minterms-ht <- (make-hash-table)}  ;; need to be cleared at each run
 			     (init-hash-table-with-set-and-value minterms-ht minterms #f)
 			     (dv minterms-ht)
 			     {debug-mode ← debug-mode-save}

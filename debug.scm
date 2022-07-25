@@ -39,34 +39,22 @@
   (syntax-rules ()
     
     ((_ instruction)
-     (begin
-       (debug-mode-on)
-       (when debug-mode
-	     instruction)
-       ;;(debug-mode-reload)
-       ))
-  
+     instruction)
+    
     ((_ instruction ...)
-     (begin
-       (debug-mode-on)
-       (when debug-mode
-	     instruction
-	     ...)
-       ;;(debug-mode-reload)
-       ))))
+     (let ()
+       instruction
+       ...))))
 
 
 (define-syntax nodebug
   (syntax-rules ()
 
     ((_ instruction ...)
-     (when debug-mode
-	   instruction
-	   ...))
+     '())
     
     ((_ instruction)
-     (when debug-mode
-	   instruction))))
+     '())))
 
 
 
