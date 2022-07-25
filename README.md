@@ -24,8 +24,28 @@ Logical computation of the minimal disjonctive normal form of a logical expressi
 
 (infix-symb-min-dnf '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
 
+((¬a ∧ b ∧ d) ∨ (¬b ∧ ¬c) ∨ (c ∧ ¬d))
 
-((¬b ∧ ¬c) ∨ (c ∧ ¬d) ∨ (¬a ∧ b ∧ d))
+
+(infix-symb-bool-min-dnf  '{A ⊕ B ⊕ Ci})
+
+((A̅ · B̅ · Ci) ➕ (A̅ · B · C̅i̅) ➕ (A · B̅ · C̅i̅) ➕ (A · B · Ci))
+
+
+(infix-symb-min-dnf '{{A · B} ⊕ {Ci · {A ⊕ B}}})
+
+((A ∧ B) ∨ (A ∧ Ci) ∨ (B ∧ Ci))
+
+
+(cnf-infix-symb '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}})
+
+((¬a ∨ ¬b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬d) ∧ (¬a ∨ ¬c ∨ ¬d) ∧ (b ∨ ¬c ∨ ¬d) ∧ (¬b
+∨ c ∨ d))
+
+
+(infix-symb-bool-min-dnf  '(and (<=> (and p q) r) (<=> (not (and p q)) r)))
+
+□
 
 
 ```
