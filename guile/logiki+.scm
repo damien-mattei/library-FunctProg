@@ -1069,14 +1069,14 @@
 
     (for (i 1 (- (string-length as) 1))
 	 
-	 (case (string-ref as i)
+	 (case {as[i]} ;;(string-ref as i)
 
 	   ((#\x) (incf ax))
 	   ((#\1) (incf a1))
 	   ;;((#\0) (incf a0))
 	   )
 
-	 (case (string-ref bs i)
+	 (case {bs[i]} ;;(string-ref bs i)
 	   ((#\x) (incf bx))
 	   ((#\1) (incf b1))
 	   ;;((#\0) (incf b0))
@@ -2062,7 +2062,8 @@
        ;;($
 	 ;;(display-expr-nl  (vector-ref vct-prime-implicants y))
 	 ;;(display-symb-nl y)
-       {iepi[0 (+ y 1)] ← {vct-prime-implicants[y]}})
+       ;;{iepi[0 (+ y 1)] ← {vct-prime-implicants[y]}})
+       {iepi[0 (+ y 1)] ← vct-prime-implicants[y]})
        ;;(vector-ref vct-prime-implicants y)))
        ;;(display-symb-nl iepi)))
        ;;)

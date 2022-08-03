@@ -280,7 +280,7 @@
   {lg <+ (string-length s)}
   {sr <+ ""}
   (for (i 0 {lg - 1})
-       {c <+ (string-ref s i)}
+       {c <+ {s[i]}} ;;(string-ref s i)}
        {scbar <+ (bar-string c)}
        {sr <- (string-append sr scbar)})
   sr)
