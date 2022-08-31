@@ -279,7 +279,7 @@
 (define (string->bar-string s)
   {lg <+ (string-length s)}
   {sr <+ ""}
-  (for (i 0 {lg - 1})
+  (for-basic (i 0 {lg - 1})
        {c <+ {s[i]}} ;;(string-ref s i)}
        {scbar <+ (bar-string c)}
        {sr <- (string-append sr scbar)})
@@ -554,11 +554,3 @@
   (replace expr 'expt '^))
 
 
-;; SRFI 105 do the work
-;; (3*a*b+c/d)
-(define (infix->prefix expr)
-  (if (list? expr)
-      expr ;; TODO continue
-      expr))
-
-;; 

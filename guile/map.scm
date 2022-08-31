@@ -633,12 +633,12 @@
 		    (eval `(,map-nil-iter-splice
 			    ,function
 			    ,result
-			    ,(car mcdr-lists) ,@(cdr mcdr-lists)))
+			    ,(car mcdr-lists) ,@(cdr mcdr-lists)) (interaction-environment))
 
 		    (eval `(,map-nil-iter-splice
 			    ,function
 			    ,(append result (list funct-result))
-			    ,(car mcdr-lists) ,@(cdr mcdr-lists))))))))))
+			    ,(car mcdr-lists) ,@(cdr mcdr-lists)) (interaction-environment)))))))))
 
 
 

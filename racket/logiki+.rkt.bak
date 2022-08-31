@@ -266,14 +266,7 @@
 ;; $3 = (not (and (=> a (and (=> b (not c)) (=> (not c) b))) (=> (and (=> b (not c)) (=> (not c) b)) a)))
 
 (define (elim-equivalence expr)
-
-  (debug-mode-off)
-  (when debug-mode
-    (display "elim-equivalence : ")
-    (dv expr))
-  
-
- (cond 
+  (cond 
    ((symbol? expr) expr)
    ((boolean? expr) expr)
    ((isNOT? expr) `(not ,(elim-equivalence (arg expr))))
@@ -285,6 +278,7 @@
 		     {be <+ (elim-equivalence b)}
 		     `(and (=> ,ae ,be) (=> ,be ,ae))))
     (else `(,(operator expr) ,(elim-equivalence (arg1 expr)) ,(elim-equivalence (arg2 expr))))))
+
 
 
 ;; Eliminate the logical implications
@@ -300,13 +294,6 @@
 ;; (elim-implications '(or (=> a b) (not (=> b c)))) -> '(or (or (not a) b) (not (or (not b) c)))
 
 (define (elim-implications expr)
-
-  (debug-mode-off)
-  (when debug-mode
-    (display "elim-implications : ")
-    (dv expr))
-  
-  
   (cond 
    ((symbol? expr) expr)
    ((boolean? expr) expr)
@@ -421,6 +408,13 @@
 ;; on ne s'occupe plus des négations !
 
 (define (phase3-dnf expr)
+
+  (debug-mode-off)
+  (when debug-mode
+    (display "phase3-dnf : ")
+    (dv expr))
+  
+  
   (cond
    ((isOR? expr)
     (let ((p (arg1 expr))
@@ -456,12 +450,6 @@
 
 ;; (prefix->infix-symb (simplify-logic (n-arity (simplify-OR (simplify-AND (phase3-dnf (simplify-negation (move-in-negations (elim-implications  '(or (and Cin (not (or (and A (not #t)) (and (not A) #t)))) (and (not Cin) (or (and A (not #t)) (and (not A) #t))))))))))))) -> '((A ^ Cin) v (!A ^ !Cin))
 (define (simplify-OR expr)
-  (debug-mode-off)
-  (when debug-mode
-	(display "simplify-OR : ")
-	(dv expr)
-	
-	)
   (cond
    ((symbol? expr) expr) ; symbol , ex: 'a
    ((boolean? expr) expr) ; boolean , ex: #f
@@ -482,12 +470,6 @@
 
 ;; (prefix->infix-symb (simplify-logic (n-arity (simplify-OR (simplify-AND (phase3-dnf (simplify-negation (move-in-negations (elim-implications  '(or (and Cin (not (or (and A (not #t)) (and (not A) #t)))) (and (not Cin) (or (and A (not #t)) (and (not A) #t))))))))))))) -> '((A ^ Cin) v (!A ^ !Cin))
 (define (simplify-AND expr)
-  (debug-mode-off)
-  (when debug-mode
-	(display "simplify-OR : ")
-	(dv expr)
-	
-	)
   (cond
    ((symbol? expr) expr) ; symbol , ex: 'a
    ((boolean? expr) expr) ; boolean , ex: #f
@@ -516,13 +498,8 @@
   ;; (dnf '(or (and Cin (not (or (and A (not #t)) (and (not A) #t)))) (and (not Cin) (or (and A (not #t)) (and (not A) #t)))))
   ;; -> '(or (or (or (and Cin (and (not A) A)) (and Cin (and (not A) (not #t)))) (or (and Cin (and #t A)) (and Cin (and #t (not #t)))))
   ;;         (or (and (not Cin) (and A (not #t))) (and (not Cin) (and (not A) #t))))
-  ;;(debug-mode-on)
-  (when debug-mode
-    (display "dnf : ")
-    (dv expr))
-  ;;
-
-  (phase3-dnf (move-in-negations (elim-exclusive-or (elim-implications (elim-equivalence expr))))))
+  
+  (phase3-dnf (move-in-negations (elim-exclusive-or (elim-implications  (elim-equivalence expr))))))
 
 
 ;; simplify NF of forms :
@@ -678,7 +655,7 @@
 ;; (enlight-dnf '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b))))) -> (a^b^c)v(!a^!b^c)v(!a^b^!c)v(a^!b^!c)
 (define (enlight-dnf expr)
   ;;(compact-display-bracket (prefix->infix-symb  (simplify-DNF-by-unitary-reduction (simplify-logic (n-arity (simplify-OR (simplify-AND (dnf expr)))))))))
-(compact-display-bracket (prefix->infix-symb  (simplify-NF-by-unitary-reduction (simplify-logic (n-arity (simplify-OR (simplify-AND (dnf expr)))))))))
+  (compact-display-bracket (prefix->infix-symb  (simplify-NF-by-unitary-reduction (simplify-logic (n-arity (simplify-OR (simplify-AND (dnf expr)))))))))
 
 
 
@@ -711,16 +688,10 @@
 ;; (infix-symb-min-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d)  (and (not a) b c (not d))  (and (not a) b c d)  (and a (not b) (not c) (not d)) (and a (not b) (not c) d)  (and a (not b) c (not d))   (and a b c (not d))))
 ;; '((!b ^ !c) v (c ^ !d) v (!a ^ b ^ d))
 (define (infix-symb-min-dnf expr)
-  (debug-mode-on)
-  (when debug-mode
-    (display "infix-symb-min-dnf  : ")
-    (dv expr))
-  
   (prefix->infix-symb  (minimal-dnf expr)))
-
-
-;; (infix-symb-bool-min-dnf  '{A ⊕ B ⊕ Ci})
-;; '((A̅ · B̅ · Ci) ➕ (A̅ · B · C̅i̅) ➕ (A · B̅ · C̅i̅) ➕ (A · B · Ci))
+ 
+;; (infix-symb-bool-min-dnf '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
+;; ((b̅ · c̅) ➕ (c · d̅) ➕ (a̅ · b · d))
 (define (infix-symb-bool-min-dnf expr)
   (prefix->infix-symb-bool  (minimal-dnf expr)))
 
@@ -869,7 +840,6 @@
 ;;
 ;;;;  (simplify-DNF '(or c (and a b (not b)))) -> c
 ;;
-
 (define (simplify-DNF dnfExpr)
   (when debug-mode
     (display "simplify-DNF : ")
@@ -914,6 +884,10 @@
 ;;;; (simplify-*NF '(or (and c c)  (and a b (not b)))) -> 'c
 ;;
 (define (simplify-*NF norm-form)
+  (debug-mode-off)
+  (when debug-mode
+    (display "simplify-*NF : ")
+    (dv norm-form))
   ;; first we will remove duplicates and sort arguments
   (let* ((arg-lst (args norm-form)) ;; define arguments list
 	 (oper (operator norm-form)) ;; define operator
@@ -921,6 +895,9 @@
 	 (arg-list-no-dup-sorted (map sort-arguments-in-operation arg-list-no-dup));; argument list sorted
 	 ;;(expr-no-dup (cons oper arg-list-no-dup)) ;; reconstruct expression with removed duplicate in operands
 	 (expr-no-dup-sorted (cons oper arg-list-no-dup-sorted)))
+    (when debug-mode
+      (dv expr-no-dup-sorted)
+      )
     (if (equal? (first expr-no-dup-sorted) 'and)
 	(simplify-CNF expr-no-dup-sorted)
 	(simplify-DNF expr-no-dup-sorted))))
@@ -939,23 +916,34 @@
 ;;
 ;; (simplify-logic '(and (or (not ci) b) (or d  d)  d (or (not d) (not d)) (or a a))) -> #f
 (define (simplify-logic expr)
+  ;;(debug-mode-on)
+  (when debug-mode
+    (display "simplify-logic : ")
+    (dv expr)
+    )
   (cond 
    ((null? expr) expr)
    ((symbol? expr) expr) 
    ((is-simple-form? expr) (simplify-SF expr)) 
    (else (sort-arguments-in-operation (remove-duplicates-in-operation (simplify-*NF expr))))))
 
+
 ;; simplify Single Form
 ;; (simplify-SF  '(and b a b (not b))) -> #f
 (def (simplify-SF expr)
      (when {(boolean? expr) or (symbol? expr)}
-       (return expr))
+	   (return expr))
      (let* ((oper (operator expr)) ;; define operator
 	    (expr-no-dup (remove-duplicates-in-operation expr)) ;; remove duplicate symbols
 	    (expr-no-dup-sorted (sort-arguments-in-operation expr-no-dup))) ;; sort variables
        (if (equal? oper 'and) ;; AND => search for antilogies
 	   (if (is-AND-antilogy? expr-no-dup-sorted) #f expr-no-dup-sorted)
 	   (if (is-OR-tautology? expr-no-dup-sorted) #t expr-no-dup-sorted)))) ;;  OR => search for tautologies
+
+
+(define lower-literal-symbol
+  (λ (s)
+    (string-downcase (expression->string (get-first-literal s))))) ;; 'Ci -> "ci", '(not A) -> "a"
 
 
 (define expression<?
@@ -967,11 +955,8 @@
   (λ (x y)
     (cond ((isOR-AND? x) #f)
 	  ((isOR-AND? y) #t)
-	  (string<? (lower-literal-symbol x) (lower-literal-symbol y)))))
+	  (else (string<? (lower-literal-symbol x) (lower-literal-symbol y))))))
 
-(define lower-literal-symbol
-  (λ (s)
-    (string-downcase (expression->string (get-first-literal s))))) ;; 'Ci -> "ci", '(not A) -> "a"
 
 (define expression->string
 	  (λ (expr2)
@@ -979,11 +964,64 @@
 		  ((boolean? expr2) (if expr2 "T" "F")) ;; #t -> "T", #f -> "F"
 		  (else (error "expression->string: do not know how to handle this expression" expr2)))))
 
+
+;; compare logical expressions args
+(define (compare-list-args<? L1 L2)
+  (cond ((null? L1) #t)
+	((null? L2) #f)
+	(else (if (equal? (first L1) (first L2))
+		  (compare-list-args<? (rest L1) (rest L2))
+		  (& ;; something is not equal (not ...) ?
+		   {fl1 <+ (first L1)}
+		   {fl2 <+ (first L2)}
+		   {lit1 <+ (expression->string (get-first-literal fl1))}
+		   {lit2 <+ (expression->string (get-first-literal fl2))}
+		   (if (equal? lit1 lit2)
+		       (isNOT? fl2) ;; 'a '(not a)
+		       (string<? lit1 lit2)))))))
+		       
+
 (define expression-most-little-literal-first<?
   (λ (x y)
     (cond ((isOR-AND? x) #f)
 	  ((isOR-AND? y) #t)
-	  (literal<? (get-first-literal x) (get-first-literal y)))))
+	  (else (literal<? (get-first-literal x) (get-first-literal y))))))
+
+;; compare expressions
+(define expression-literal-first-negation-tested<?
+  (λ (x y)
+    (cond ({(isOR-AND? x) and (isOR-AND? y)} (compare-list-args<? (rest x) (rest y)))
+	  ((isOR-AND? x) #f)
+	  ((isOR-AND? y) #t)
+	  (else (expression-negation-tested<? x y)))))
+
+
+(define (expression-negation-tested<? a b)
+  
+  (debug
+   (display  "expression-negation-tested<? : ")
+   (dv a)
+   (dv b))
+
+  (if {(not (isNOT? a)) and (isNOT? b) and (equal? a (get-first-literal b))} ;; 'a '(not a)
+      #t ;; we choose the litteral, not the negation
+      (string<? (expression->string (get-first-literal a))
+		(expression->string (get-first-literal b))))) ;; 'a '(not a)
+
+
+
+(define (literal-negation-tested<? a b)
+  
+  (nodebug
+   (display  "literal-negation-tested<? : ")
+   (dv a)
+   (dv b))
+
+  (if {(not (isNOT? a)) and (isNOT? b) and (equal? a (get-first-literal b))} ;; 'a '(not a)
+      #t
+      (literal<? (get-first-literal a) (get-first-literal b)))) ;; '(not a) 'a ....
+
+
 
 ;; (literal<? 'V0x10x11 'V1x11x10) -> #f
 (define (literal<? a b)
@@ -993,8 +1031,8 @@
 	 (b1 0) 
 	 ;;(a0 0)
 	 ;;(b0 0)
-	 (as (symbol->string a))
-	 (bs (symbol->string b)))
+	 (as (expression->string a)) ;;(symbol->string a))
+	 (bs (expression->string b))) ;;(symbol->string b)))
 
     (for (i 1 (- (string-length as) 1))
 	 
@@ -1002,13 +1040,13 @@
 
 	   ((#\x) (incf ax))
 	   ((#\1) (incf a1))
-	   ;;#;((#\0) (incf a0))
+	   ;;((#\0) (incf a0))
 	   )
 
 	 (case (string-ref bs i)
 	   ((#\x) (incf bx))
 	   ((#\1) (incf b1))
-	   ;;#;((#\0) (incf b0))
+	   ;;((#\0) (incf b0))
 	   ))
     
     (cond ((> ax bx) #t)
@@ -1016,12 +1054,9 @@
 	  (else ;; ax = bx
 	   (> a1 b1)))))
 		   
+
 			     
-
-
-;; (define (error2)
-;;   (car '()))
-
+    
 ;; sort operands in a logic expression
 ;; (sort-arguments-in-operation '(or c a b)) -> '(or a b c)
 ;; (sort-arguments-in-operation '(or c (not a) b)) -> '(or (not a) b c)
@@ -1032,7 +1067,6 @@
 
       (let* ((args-list (args expr)) ;;'(or c a b) -> '(c a b)
 	    
-	     ;;(sorted-args (sort args-list #:key lower-literal-symbol string<?)) ;; symbol<?)) ;; '(Ci a b) -> '(a b Ci)
 	     (sorted-args (sort-arguments args-list))
 	     (oper (operator expr))) ;; define operator : (or Ci a b) -> or
 	
@@ -1040,15 +1074,33 @@
       
       expr)) ;; we have not a binary operator but a literal or negation of literal
 
+;; sort this:
+;; (or (and A Ci) (and A B) (and B Ci))
+(define (sort-expressions-in-operation expr)
+
+  (if (isOR-AND? expr)
+
+      (& {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
+	 (debug (display "sort-expressions-in-operation : ")
+		(dv exprs-list))
+	 {sorted-exprs <+ (sort-expressions exprs-list)}
+	 {oper <+ (operator expr)} ;; define operator : (or Ci a b) -> or
+	 (cons oper sorted-exprs))
+      
+      (sort-arguments-in-operation expr))) ;; we have not an expression composed of expressions but a single expression
+
+
+(define (sort-expressions args-list)
+
+	 (sort args-list expression-literal-first-negation-tested<?)) ;; expression-negation-tested<?)) ;; expression<?))
+
+
 
 ;; (sort-arguments '(Ci c d (not a) b )) -> '((not a) b c Ci d)
 ;; (sort-arguments '( Ci (and c d) (not a) b )) -> '((not a) b (and c d) Ci)
 (define (sort-arguments args-list)
 
-	 ;;(sort args-list #:key lower-literal-symbol string<?) ;; symbol<?)) ;; '(Ci a b) -> '(a b Ci)
-	 (sort args-list expression<?)
-
-  )
+	 (sort args-list expression<?)) ;; expression-negation-tested<?)) ;; expression<?))
 
 
 ;; (sort-arguments-in-operation-literal-first '(or (and V011x V0x01) V01x1 ))
@@ -1103,18 +1155,19 @@
 
 
 
+
 (define (distribute-or-over-and  expr1 expr2)  ;; expr1 et expr2 sont les arguments d'un 'or : ('or expr1 expr2)  
   ;; remember we have (expr1 or expr2) to distribute over the "and"
   (cond
    ((isAND? expr1)            ;; (expr1 expr2) <--> ( ('and p q) r )
     (let ((p (arg1 expr1))
 	  (q (arg2 expr1))
-	  (r expr2)) ;; if r is an AND expression it will be used in one of the distribute-or-over-and below
+	  (r expr2))
       `(and ,(distribute-or-over-and p r) ,(distribute-or-over-and q r)))) ;; (p and q) or r = (p or r) and (q or r)
    ((isAND? expr2)            ;; (expr1 expr2) <--> ( p ('and q r) )
     (let ((p expr1)
 	  (q (arg1 expr2))
-	  (r (arg2 expr2))) 
+	  (r (arg2 expr2)))
       `(and ,(distribute-or-over-and p q) ,(distribute-or-over-and p r)))) ;; p or (q and r) = (p or q) and (p or r)
    (else `(or ,expr1 ,expr2)))) ;; else we create the expression ('or expr1 expr2) 
 
@@ -1125,13 +1178,10 @@
 ;; PHASE 3 CNF: on fait au contraire sortir les 'and en distribuant les 'or
 ;; on ne s'occupe plus des négations !
 (define (phase3-cnf expr)
-
   (debug-mode-off)
   (when debug-mode
-	(display "phase3-cnf : ")
-	(dv expr)
-	
-	)
+    (display "phase3-cnf : ")
+    (dv expr))
   
   (cond
    ((isAND? expr)
@@ -1142,7 +1192,6 @@
     (let ((p (arg1 expr))
 	  (q (arg2 expr)))
       (distribute-or-over-and (phase3-cnf p) (phase3-cnf q)))) ;; apply distributivity to 'or
-   
    (else expr))) ;; else we leave it unchanged (could be atom, not(x),... )
 
 
@@ -1150,20 +1199,7 @@
 ;; (cnf '(and (and a b) c)) -> '(and (and a b) c)
 ;; (cnf '(or (and a b) (and c d))) -> '(and (and (or a c) (or a d)) (and (or b c) (or b d)))
 (define (cnf expr)    ;; conjunctive normal form
-  (debug-mode-on)
-  (when debug-mode
-    (display "cnf : ")
-    (dv expr)
-    
-    )
-  {result <+ (phase3-cnf (move-in-negations (elim-exclusive-or (elim-implications (elim-equivalence expr)))))}
-  (debug-mode-off)
-  (when debug-mode
-    (display "cnf : ")
-    (dv result))
-  result
-  )
-  
+  (phase3-cnf (move-in-negations (elim-exclusive-or (elim-implications  (elim-equivalence expr))))))
 
 ;; a simplification package for DNF in n-arity form
 ;;
@@ -1257,6 +1293,9 @@
 (define (pre-check-Quine-Mc-Cluskey expr)
   (not (is-simple-form? expr)))
 
+
+
+
 ;; (minimal-dnf '(or (and (not a) b (not c) d) (and (not a) b c d) (and a b (not c) (not d)) (and a b (not c) d) (and a b c (not d)) (and a b c d) (and a (not b) (not c) (not d)) (and a (not b) c (not d))))
 ;; ...
 ;; essential-prime-implicants = ((1 x x 0) (x 1 x 1))
@@ -1306,11 +1345,7 @@
 ;;
 (define (minimal-dnf expr)
 
-  (debug-mode-on)
-    (when debug-mode
-	  (display "minimal-dnf :")
-	  (dv expr))
-    
+  (declare min-expr-sorted)
   
   (let* (
 	 (var-list (collect-variables expr)) ;; variable list
@@ -1369,11 +1404,14 @@
 			  (if (is-simple-form? petrick-expr)
 			      `(,(operator min-expr) ,@(args min-expr) ,petrick-expr) ;; operator must be an OR
 			      `(,(operator min-expr) ,@(args min-expr) ,@(args petrick-expr)))))) ;; operator must be an OR
-	
-
+	  
+	  ;;{min-expr-sorted <- (sort-arguments-in-operation min-expr)}
+	  {min-expr-sorted <- (sort-expressions-in-operation min-expr)}
+	  
 	  (dv min-expr)
+	  (dv min-expr-sorted)
 
-	  min-expr))))
+	  min-expr-sorted))))
 		
   
 
@@ -1395,7 +1433,7 @@
 
 ;; the hash table for minterms, better to be a top-level definition,it's nightmare otherwise...
 (declare minterms-ht)
-;;(define minterms-ht (make-hash-table)) ;; Guile,Racket (SRFI 69)
+;;(define minterms-ht (make-hash-table)) ;; Guile
 ;;(define minterms-ht (make-hash)) ;; DrRacket
 ;;(define minterms-ht (make-hashtable)) ;; Bigloo 
 
@@ -1585,7 +1623,7 @@
 ;; > 
 (define (funct-unify-minterms-set-of-sets-rec-wrap sos)
 
-  (debug-mode-off)
+  (debug-mode-on)
   (when debug-mode
 	(newline)
 	(newline)
@@ -1659,7 +1697,7 @@
 ;;   (1 1 0 x))
 (define (recursive-unify-minterms-set-of-sets sos)
 
-  ;;(debug-mode-on)
+  (debug-mode-on)
   (when debug-mode
 	(newline)
 	(display "recursive-unify-minterms-set-of-sets : ")
@@ -1676,8 +1714,8 @@
 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets ::" minterms-ht))
 	(put-elements-of-set-of-sets-in-minterms-ht sos)
 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets :: after (put-elements-of-set-of-sets-in-minterms-ht sos)" minterms-ht))
-	;;(recursive-unify-minterms-set-of-sets (funct-unify-minterms-set-of-sets-rec-wrap funct-unify-minterms-set-of-sets sos))
-	(recursive-unify-minterms-set-of-sets (funct-unify-minterms-set-of-sets-rec-wrap sos)))))
+	(recursive-unify-minterms-set-of-sets (funct-unify-minterms-set-of-sets-rec-wrap ;;funct-unify-minterms-set-of-sets
+					       sos)))))
 
 
 
@@ -1861,7 +1899,7 @@
 ;; used by Quine - Mc Cluskey
 (define (init-hash-table-with-set-and-value ht s val)
   (display "init-hash-table-with-set-and-value") (newline)
-  {ht ← (make-hash-table)}
+  ;;{ht ← (make-hash-table)} ;; attention semble ne pas marcher
   ;;(hash-clear! ht) ;; Guile built-in, will not work with SRFI 69 !
   (map (λ (e) {ht[e] <- val}) s)
   ;;(map (λ (e) (hash-table-set! ht e val)) s) ;; Guile , SRFI 69
@@ -2041,9 +2079,9 @@
 			;; check wether prime implicant is an essential one?
 			(when (member {iepi[0 y]} essential-prime-implicants-list)
 			  
-			      (when debug-mode
-				    (de {iepi[0 y]})
-				    (de {iepi[x y]}))
+			      (nodebug
+			       (de {iepi[0 y]})
+			       (de {iepi[x y]}))
 			  
 			      ;; is the essential prime implicant expressing this minterms?
 			      (when (or (string=?  {iepi[x y]} "(*)")
@@ -2059,7 +2097,7 @@
 	     ;; end for/break break-y
 	     
 	     (unless star-in-column
-		     {feepi ← #f} ;; function non expressed by prime implicants
+		     {feepi ← #f} ;; function not expressed by prime implicants
 		     ;; add minterm to non expressed minterms list
 		     {non-expressed-minterms ← (insert {iepi[x 0]} non-expressed-minterms)}
 		     ;;(break-x) ;; removed break-x as we have to check all the minterms now
@@ -2128,7 +2166,7 @@
      {unified-minterms ⥆ ($ {debug-mode-save ← debug-mode}
 			     {debug-mode ← #t}
 			     (when debug-mode (display-nl "Quine-Mc-Cluskey:"))
-			     {minterms-ht <- (make-hash-table)} ;; need to be claeared at each run
+			     {minterms-ht <- (make-hash-table)}  ;; need to be claeared at each run
 			     (init-hash-table-with-set-and-value minterms-ht minterms #f)
 			     (dv minterms-ht)
 			     {debug-mode ← debug-mode-save}
@@ -2136,7 +2174,7 @@
 	 
      {essential-prime-implicants ⥆ ($ {prime-implicants-lst ← ($ {debug-mode ← debug-mode-save}
 								  (prime-implicants minterms-ht))}
-				       (identify-essential-prime-implicants prime-implicants-lst minterms))}
+				      (identify-essential-prime-implicants prime-implicants-lst minterms))}
        
      ;; dv : display value
      (dv disj-norm-form)

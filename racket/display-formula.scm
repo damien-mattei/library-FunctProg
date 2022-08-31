@@ -53,5 +53,5 @@
 ;; and nothing else....
 (define (cleaner task)
   (begin
-    (eval task (interaction-environment))
+    (eval task ( make-base-namespace ))
     (display "")))

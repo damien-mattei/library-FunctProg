@@ -452,7 +452,7 @@
 ;;(count-ones #b11001010) -> 4
 (define (count-ones n)
   (define c 0)
-  (for (i 0 (size-bit n))
+  (for-basic (i 0 (size-bit n))
        (when (bit-test? n i)
 	     (incf c)))
   c)

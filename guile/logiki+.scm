@@ -132,7 +132,6 @@
 ;;
 ;; (infix-symb-min-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d)  (and (not a) b c (not d))  (and (not a) b c d)  (and a (not b) (not c) (not d)) (and a (not b) (not c) d)  (and a (not b) c (not d))   (and a b c (not d))))
 ;;
-;; '((!b ^ !c) v (c ^ !d) v (!a ^ b ^ d))
 ;; ((¬a ∧ b ∧ d) ∨ (¬b ∧ ¬c) ∨ (c ∧ ¬d))
 ;;
 ;;
@@ -142,9 +141,10 @@
 ;;
 ;; the same in CNF:
 ;;
-;; with DrRacket Scheme:
+;; with DrRacket Scheme+:
 ;;
-;;   (cnf-infix-symb '(((p . and . q) . => . r) . and . ((not (p . and . q)) . => . r))) -> '((!p v !q v r) ^ (p v r) ^ (q v r))
+;; (cnf-infix-symb '{{{p and q} => r} and {(not {p and q}) => r}})
+;; '((p ∨ r) ∧ (¬p ∨ ¬q ∨ r) ∧ (q ∨ r))
 ;;
 
 ;; (infix-symb-min-dnf '(or (and (not a) b (not c) d) (and (not a) b c d) (and a b (not c) (not d)) (and a b (not c) d) (and a b c (not d)) (and a b c d) (and a (not b) (not c) (not d)) (and a (not b) c (not d))))
@@ -195,22 +195,24 @@
 ;;   (b v !d))
 ;;
 
-;; ((b ∨ ¬d) ∧ (a ∨ b) ∧ (a ∨ d)) ;; juste !!! meme si plus variable c
-;; https://www.erpelstolz.at/cgi-bin/cgi-logik
+;; ((a ∨ b) ∧ (a ∨ d) ∧ (b ∨ ¬d))                 ;; juste !!! meme si plus variable c
+;; https://www.erpelstolz.at/gateway/TruthTable.html
 
 
 ;; (cnf-infix-symb '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d)  (and (not a) b c (not d))  (and (not a) b c d)  (and a (not b) (not c) (not d)) (and a (not b) (not c) d)  (and a (not b) c (not d))   (and c (not d))))
 
+;;  ((¬a ∨ ¬b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬d) ∧ (¬a ∨ ¬c ∨ ¬d) ∧ (b ∨ ¬c ∨ ¬d) ∧ (¬b ∨ c ∨ d))
 
-;; $1 = ((¬b ∨ c ∨ d) ∧ (b ∨ ¬c ∨ ¬d) ∧ (¬a ∨ ¬b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬d) ∧ (¬a ∨ ¬c ∨ ¬d)) 
 
+;; ((¬a ∧ ¬b ∧ ¬c ∧ ¬d) ∨ (¬a ∧ ¬b ∧ ¬c ∧ d) ∨ (¬a ∧ ¬b ∧ c ∧ ¬d) ∨ (¬a ∧ b ∧ ¬c ∧ d) ∨ (¬a ∧ b ∧ c ∧ ¬d) ∨ (¬a ∧ b ∧ c ∧ d) ∨ (a ∧ ¬b ∧ ¬c ∧ ¬d) ∨ (a ∧ ¬b ∧ ¬c ∧ d) ∨ (a ∧ ¬b ∧ c ∧ ¬d) ∨ (c ∧ ¬d))
+;; (not(a) and not(b) and not(c) and not(d)) or (not(a) and not(b) and not(c) and d) or (not(a) and not(b) and c and not(d)) or (not(a) and b and not(c) and d) or (not(a) and b and c and not(d)) or (not(a) and b and c and d) or (a and not(b) and not(c) and not(d)) or (a and not(b) and not(c) and d) or (a and not(b) and c and not(d)) or (c and not(d))
 ;; scheme@(guile-user)> (cnf-infix-symb '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}})
-;; $3 = ((¬b ∨ c ∨ d) ∧ (b ∨ ¬c ∨ ¬d) ∧ (¬a ∨ ¬b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬d) ∧ (¬a ∨ ¬c ∨ ¬d))
+;; $3 = ((¬a ∨ ¬b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬d) ∧ (¬a ∨ ¬c ∨ ¬d) ∧ (b ∨ ¬c ∨ ¬d) ∧ (¬b ∨ c ∨ d))
 
 ;;
 ;;  with others Schemes:
 ;;
-;;  (cnf-infix-symb '(and (=> (and p q) r) (=> (not (and p q)) r))) ->  ((p v r) ^ (!p v !q v r) ^ (q v r))
+;;  (cnf-infix-symb '(and (=> (and p q) r) (=> (not (and p q)) r))) -> '((p ∨ r) ∧ (¬p ∨ ¬q ∨ r) ∧ (q ∨ r))
 ;;
 ;;  (enlight-dnf '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b))))) -> (a^b^c)v(!a^!b^c)v(!a^b^!c)v(a^!b^!c)
 ;;
@@ -240,8 +242,8 @@
 ;;  (infix-symb-bool-min-dnf  '(and (<=> (and p q) r) (<=> (not (and p q)) r)))
 ;; □
 
+;; wolfram alpha : Xor[And[A,B],And[C,Xor[A,B]]]
 ;; (infix-symb-min-dnf '{{A · B} ⊕ {Ci · {A ⊕ B}}})
-;; ((A ∧ Ci) ∨ (A ∧ B) ∨ (B ∧ Ci))
 ;; ((A ∧ B) ∨ (A ∧ Ci) ∨ (B ∧ Ci))
 
 ;; (infix-symb-min-dnf '{{{(not a) and (not b)} and {b or (not c)}} or {c and (not a) and d}})
@@ -1067,7 +1069,7 @@
 	 (as (expression->string a)) ;;(symbol->string a))
 	 (bs (expression->string b))) ;;(symbol->string b)))
 
-    (for (i 1 (- (string-length as) 1))
+    (for-basic (i 1 (- (string-length as) 1))
 	 
 	 (case {as[i]} ;;(string-ref as i)
 
@@ -1311,7 +1313,7 @@
 	   
 	   (maximal-disj-norm-form (cons 'or sorted-expanded-and-term)))
 
-      (debug-mode-on)
+      (debug-mode-off)
       (when debug-mode
 	    (dv disj-norm-form)
 	    (dv var-list)
@@ -1395,7 +1397,7 @@
 	 (petrick-expr '())
 	 )
     
-    (debug-mode-on)
+    (debug-mode-off)
     (when debug-mode
 	  (dv disj-norm-form)
 	  (dv var-list))
@@ -1410,7 +1412,7 @@
 	  (set! essential-prime-implicants (Quine-Mc-Cluskey disj-norm-form var-list))
 
 	  (set! formula-find-with-Quine-Mc-Cluskey (essential-prime-implicants-list->formula essential-prime-implicants var-list))
-	  (debug-mode-on)
+	  (debug-mode-off)
 	  (when debug-mode
 		(dv disj-norm-form)
 		(dv var-list)
@@ -1444,9 +1446,10 @@
 	  
 	  ;;{min-expr-sorted <- (sort-arguments-in-operation min-expr)}
 	  {min-expr-sorted <- (sort-expressions-in-operation min-expr)}
-	  
-	  (dv min-expr)
-	  (dv min-expr-sorted)
+
+	  (when debug-mode
+		(dv min-expr)
+		(dv min-expr-sorted))
 
 	  min-expr-sorted))))
 		
@@ -1617,6 +1620,7 @@
   
   ;;(set! debug-mode-save debug-mode)
   ;;(set! debug-mode #t)
+  (debug-mode-off)
   (when debug-mode
 	(newline)
 	(display "funct-unify-minterms-set-of-sets-rec :: ")
@@ -1626,7 +1630,7 @@
   (cond
    
    ((singleton-set? sos) ;;(null? (cdr sos)) ;; (equal? sos '(())) marcherais pas
-    (debug
+    (nodebug ;; debug
      (display-nl "funct-unify-minterms-set-of-sets-rec :: singleton-set? ")
      (dvsos sos))
     '())
@@ -1660,7 +1664,7 @@
 ;; > 
 (define (funct-unify-minterms-set-of-sets-rec-wrap sos)
 
-  (debug-mode-on)
+  ;;(debug-mode-on)
   (when debug-mode
 	(newline)
 	(newline)
@@ -1734,7 +1738,7 @@
 ;;   (1 1 0 x))
 (define (recursive-unify-minterms-set-of-sets sos)
 
-  (debug-mode-on)
+  (debug-mode-off)
   (when debug-mode
 	(newline)
 	(display "recursive-unify-minterms-set-of-sets : ")
@@ -1935,12 +1939,17 @@
 
 ;; used by Quine - Mc Cluskey
 (define (init-hash-table-with-set-and-value ht s val)
-  (display "init-hash-table-with-set-and-value") (newline)
+
+  (debug-mode-off)
+  (when debug-mode
+	(display "init-hash-table-with-set-and-value") (newline))
+  
   ;;{ht ← (make-hash-table)} ;; attention semble ne pas marcher
   ;;(hash-clear! ht) ;; Guile built-in, will not work with SRFI 69 !
   (map (λ (e) {ht[e] <- val}) s)
   ;;(map (λ (e) (hash-table-set! ht e val)) s) ;; Guile , SRFI 69
-  (display "end of init-hash-table-with-set-and-value") (newline))
+  (when debug-mode
+	(display "end of init-hash-table-with-set-and-value") (newline)))
 
 
 ;; list of non expressed minterms
@@ -1991,7 +2000,7 @@
   {y-pos-epi ⥆ 0} ;; position of essential prime implicant in colomn if there exists one
   {star-in-column ⥆ #f} ;; at the beginning
     
-  (debug-mode-on)
+  (debug-mode-off)
   (when debug-mode
     (display-nl "identify-essential-prime-implicants ::")
     (dv prime-implicants)
@@ -2050,7 +2059,7 @@
     (display {iepi[1 2]})
     (newline))
 
-  (debug-mode-on)
+  ;;(debug-mode-on)
   (when debug-mode
     (display vct-prime-implicants)
     (newline)
@@ -2058,7 +2067,7 @@
 
   ;; construction of the array
   ;; set the left column containing prime implicants 
-  (for (y 0 (- lgt-pi 1))
+  (for-basic (y 0 (- lgt-pi 1))
        ;;($
 	 ;;(display-expr-nl  (vector-ref vct-prime-implicants y))
 	 ;;(display-symb-nl y)
@@ -2073,11 +2082,11 @@
     (dv-2d iepi))
 
   ;; identify prime implicants
-  (for (x 1 lgt-mt)
+  (for-basic (x 1 lgt-mt)
        
        {cpt-mt ← 0}
        
-       (for (y 1 lgt-pi)
+       (for-basic (y 1 lgt-pi)
 
 	    (if (compare-minterm-and-implicant {iepi[0 y]}
 					       {iepi[x 0]})
@@ -2110,9 +2119,9 @@
   {feepi ← #t}
   
   ;; check if function is expressed by essential implicants
-  (for/break break-x (x 1 lgt-mt) ;; loop over minterms
+  (for-basic/break break-x (x 1 lgt-mt) ;; loop over minterms
 	     
-	     (for/break break-y (y 1 lgt-pi) ;; loop over prime implicants
+	     (for-basic/break break-y (y 1 lgt-pi) ;; loop over prime implicants
 
 			;; check wether prime implicant is an essential one?
 			(when (member {iepi[0 y]} essential-prime-implicants-list)
@@ -2175,16 +2184,16 @@
 ;;
 ;; '((x 0 0 x) (x x 1 0))
 (def (Quine-Mc-Cluskey disj-norm-form var-list)
-     
-     (display-nl "Entering Quine-Mc-Cluskey")
+
+     (debug-mode-off)
+     (when debug-mode
+	   (display-nl "Entering Quine-Mc-Cluskey"))
      
      {and-terms ⥆ (args disj-norm-form)} ;; conjunctives minterms
      ;; variable list of expanded minterms 
-     {expanded-var-terms  ⥆ ($ {debug-mode-save ← debug-mode}
-			        {debug-mode  ← #t}
+     {expanded-var-terms  ⥆ ($ 
 				(when debug-mode
 				  (dv and-terms)) ;; dv:display value
-				{debug-mode  ← debug-mode-save}
 				(apply append
 				       (map (λ (min-term)
 					      (expand-minterm var-list min-term))
@@ -2201,35 +2210,35 @@
      ;;   (error "escaping from Quine-Mc-Cluskey")))
      ;; (order-by-weight-basic uniq-sorted-binary-minterms))
 
-     {unified-minterms ⥆ ($ {debug-mode-save ← debug-mode}
-			     {debug-mode ← #t}
+     {unified-minterms ⥆ ($
 			     (when debug-mode (display-nl "Quine-Mc-Cluskey:"))
 			     {minterms-ht <- (make-hash-table)}  ;; need to be cleared at each run
 			     (init-hash-table-with-set-and-value minterms-ht minterms #f)
-			     (dv minterms-ht)
-			     {debug-mode ← debug-mode-save}
+			     (when debug-mode (dv minterms-ht))
 			     (recursive-unify-minterms-set-of-sets  set-of-sets-of-minterms))}
 	 
      {essential-prime-implicants ⥆ ($ {prime-implicants-lst ← ($ {debug-mode ← debug-mode-save}
 								  (prime-implicants minterms-ht))}
 				      (identify-essential-prime-implicants prime-implicants-lst minterms))}
-       
-     ;; dv : display value
-     (dv disj-norm-form)
-     (dv var-list)
-     (dv and-terms)
-     (dv expanded-var-terms)
-     (dv sorted-expanded-var-terms)
-     (dv binary-minterms)
-     (dv sorted-binary-minterms)
-     (dv uniq-sorted-binary-minterms)
-     (dvsos set-of-sets-of-minterms)
-     (dv unified-minterms)
-     (dv minterms-ht)
-     (dv prime-implicants-lst)
-     (dv essential-prime-implicants)
-     (display-nl "function expressed by essential prime implicants ?")
-     (dv feepi)
+
+     (when debug-mode
+	   ;; dv : display value
+	   (dv disj-norm-form)
+	   (dv var-list)
+	   (dv and-terms)
+	   (dv expanded-var-terms)
+	   (dv sorted-expanded-var-terms)
+	   (dv binary-minterms)
+	   (dv sorted-binary-minterms)
+	   (dv uniq-sorted-binary-minterms)
+	   (dvsos set-of-sets-of-minterms)
+	   (dv unified-minterms)
+	   (dv minterms-ht)
+	   (dv prime-implicants-lst)
+	   (dv essential-prime-implicants)
+	   (display-nl "function expressed by essential prime implicants ?")
+	   (dv feepi))
+     
      essential-prime-implicants)
 
 
@@ -2244,7 +2253,7 @@
 
   (display-nl "Entering Petrick...")
   
-  (for (x 1 lgt-mt) ;; loop over minterms
+  (for-basic (x 1 lgt-mt) ;; loop over minterms
        
        {mt ← iepi[x 0]}
        
@@ -2252,7 +2261,7 @@
 	 
 	 {col ← '()}
 	 
-	 (for (y 1 lgt-pi) ;; loop over prime implicants
+	 (for-basic (y 1 lgt-pi) ;; loop over prime implicants
 	      
 	      {prim-imp ← iepi[0 y]} ;; prime implicant
 	      

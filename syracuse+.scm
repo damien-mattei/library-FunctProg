@@ -71,7 +71,7 @@
 
   (dv alea)
   
-  (for (b alea)
+  (for-basic (b alea)
        ;;(incf omega-universe)
        
        (when (flag-set? #b1 b) ; only for odd numbers
@@ -235,7 +235,7 @@
 	 
 	 (display "Ck=") (display (padding Ck)) (newline)
 	 	 
-	 (for (b alea)
+	 (for-basic (b alea)
 	      
 	      (when (flag-set? #b1 b) ; only for odd numbers
 	 

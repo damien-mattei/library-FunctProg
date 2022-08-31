@@ -1,8 +1,24 @@
+;; Copyright 2022 Damien MATTEI
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 ;; TODO: create 'for' that works with 'down to' step
 
 ;;(require (rename-in racket/base [for for-rack])) ;; backup original Racket 'for'
 
-;; > (for ((k 5)) (display k) (newline))
+;; > (for-basic ((k 5)) (display k) (newline))
 ;; 0
 ;; 1
 ;; 2
@@ -11,7 +27,7 @@
 ;; 5
 
 
-;; > (for (k 0 10) (display k) (newline))
+;; > (for-basic (k 0 10) (display k) (newline))
 ;; 0
 ;; 1
 ;; 2
@@ -25,7 +41,7 @@
 ;; 10
 ;; '()
 
-;; > (for (k 0 10 3) (display k) (newline) (newline) (for (j 0 3) (display j) (newline)) (newline))
+;; > (for-basic (k 0 10 3) (display k) (newline) (newline) (for-basic (j 0 3) (display j) (newline)) (newline))
 ;; 0
 
 ;; 0
@@ -57,7 +73,8 @@
 ;; '()
 ;;
 
-(define-syntax for
+(define-syntax for-basic
+  
   (syntax-rules ()
 
     ;; ((_ ((i to)) b1 ...) ;; for old compatibility
@@ -122,6 +139,7 @@
 ;; > 
 
 (define-syntax for-next
+  
   (syntax-rules (= to step)
 
 
@@ -169,7 +187,7 @@
 ;; 	     (loop (+ i inc)))))))
 
 
-;; > (for/break breaky (i 1 4) (for/break breakable (j 1 2) (display-nl i)))
+;; > (for-basic/break breaky (i 1 4) (for-basic/break breakable (j 1 2) (display-nl i)))
 ;; 1
 ;; 1
 ;; 2
@@ -178,7 +196,7 @@
 ;; 3
 ;; 4
 ;; 4
-;; > (for/break breaky (i 1 4) (for/break breakable (j 1 2) (display-nl i) (when (= i 2) (breakable))))
+;; > (for-basic/break breaky (i 1 4) (for-basic/break breakable (j 1 2) (display-nl i) (when (= i 2) (breakable))))
 ;; 1
 ;; 1
 ;; 2
@@ -186,19 +204,19 @@
 ;; 3
 ;; 4
 ;; 4
-;; > (for/break breaky (i 1 4) (for/break breakable (j 1 2) (display-nl i) (when (= i 2) (breaky))))
+;; > (for-basic/break breaky (i 1 4) (for-basic/break breakable (j 1 2) (display-nl i) (when (= i 2) (breaky))))
 ;; 1
 ;; 1
 ;; 2
 ;; >
 ;; > (define x 0)
-;; > (for/break breaky (i 1 3) (set! x i) )
+;; > (for-basic/break breaky (i 1 3) (set! x i) )
 ;; > x
 ;; 3
 ;;
-;;  (for/break breaky (i 1 3) (if (= i 3)  (breaky i) '()) )
+;;  (for-basic/break breaky (i 1 3) (if (= i 3)  (breaky i) '()) )
 ;; 3
-(define-syntax for/break
+(define-syntax for-basic/break
   (syntax-rules ()
     ((_ <break-id> (i from to) b1 ...)
      (call/cc (lambda (<break-id>)
@@ -206,4 +224,37 @@
         	  (when (<= i to)
 			(begin b1 ...
 			       (loop (incf i))))))))))
+
+
+
+;; scheme@(guile-user)> (for ({i <+ 0} {i < 5} (incf i)) (display i) (newline))
+;; 0
+;; 1
+;; 2
+;; 3
+;; 4
+
+;; scheme@(guile-user)> (for ({i <+ 0} {i < 5} {i <- {i + 1}}) (display i) (newline))
+;; 0
+;; 1
+;; 2
+;; 3
+;; 4
+
+
+(define-syntax for
+  
+  (syntax-rules ()
+    
+    ((_ (init test incrmt) b1 ...)
+
+       (let ()
+	 init
+	 (let loop ()
+	   (when test
+		 (let ()
+		   b1 ...
+		   incrmt
+		   (loop))))))))
+
 

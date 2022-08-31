@@ -2,7 +2,7 @@
 
 ;; This file is part of Scheme+
 
-;; Copyright 2021 Damien MATTEI
+;; Copyright 2021-2022 Damien MATTEI
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -18,28 +18,24 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-
-;; TODO : make a version vector with resizable arrays using classes
-;; cf: https://www.gnu.org/software/guile/manual/html_node/GOOPS.html
-
 ;; the value v should be put before in a let to avoid multiple evaluation after macro expand
 (define-syntax make-array-2d
   (syntax-rules ()
     ((_ sx sy) (let* ((array (make-vector sy)))
-		 (for (i 0 (- sy 1))
+		 (for-basic (i 0 (- sy 1))
 		      (vector-set! array i (make-vector sx)))
 		 array))
     ((_ sx sy v) (let* ((array (make-vector sy)))
-		   (for (i 0 (- sy 1))
+		   (for-basic (i 0 (- sy 1))
 			(vector-set! array i (make-vector sx v)))
 		   array))
     ((_ array sx sy) (begin
 		       (set! (quote array) (make-vector sy))
-		       (for (i 0 (- sy 1))
+		       (for-basic (i 0 (- sy 1))
 			    (vector-set! (quote array) i (make-vector sx)))))
     ((_ array sx sy v) (begin
 			 (set! (quote array) (make-vector sy))
-			 (for (i 0 (- sy 1))
+			 (for-basic (i 0 (- sy 1))
 			      (vector-set! (quote array) i (make-vector sx v)))))))
 
 
@@ -75,7 +71,7 @@
 (define-syntax display-array-2d
   (syntax-rules ()
     ((_ array)
-     (for (y 0 (- (vector-length array) 1))
+     (for-basic (y 0 (- (vector-length array) 1))
 	  (display-nl (vector-ref array y))))))
 
 

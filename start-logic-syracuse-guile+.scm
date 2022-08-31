@@ -1,10 +1,10 @@
-;; this is the bootstrap file for λογικι (LOGIKI)
+;; this is the bootstrap file for logic for syracuse conjecture
 
 ;; Damien Mattei
 
-;; 12/07/2022
+;; 25/08/2022
 
-;; (load "start-λογικι-guile+.scm")
+;; (load "start-logic-syracuse-guile+.scm")
 
 ;; examples:
 
@@ -48,10 +48,8 @@
 ;; ((!a and !b and !c and !d) or (!a and !b and !c and d) or (!a and !b and c and !d) or (!a and b and !c and d) or (!a and b and c and !d) or (!a and b and c and d) or (a and !b and !c and !d) or (a and !b and !c and d) or (a and !b and c and !d) or (c and !d))
 
 
-;; scheme@(guile-user)> (cnf-infix-symb '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
-
-;; ((¬a ∨ ¬b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬d) ∧ (¬a ∨ ¬c ∨ ¬d) ∧ (b ∨ ¬c ∨ ¬d) ∧ (¬b ∨ c ∨ d))
-
+;; scheme@(guile-user)>  (cnf-infix-symb '{{A · B} ⊕ {Ci · {A ⊕ B}}})
+;; $1 = ((A ∨ B) ∧ (A ∨ Ci) ∧ (B ∨ Ci))
 
 
 (use-modules (Scheme+)
@@ -90,4 +88,7 @@
 (include "minterms.scm")
 
 (include "guile/logiki+.scm")
+(include "logic-syracuse+.scm")
+
+
 

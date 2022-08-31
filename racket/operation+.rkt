@@ -116,14 +116,27 @@
 ;; 
 ;; (prefix->infix-symb (simplify (n-arity (phase3 (simplify-negation (move-in-negations (elim-implications '(or (and Cin (not (or (and A (not #t)) (and (not A) #t)))) (and (not Cin) (or (and A (not #t)) (and (not A) #t))))))))))) -> '((!A ^ Cin ^ F) v (A ^ Cin ^ T) v (A ^ !Cin ^ F) v (!A ^ !Cin ^ T) v (Cin ^ F ^ T))
 (define (prefix->infix-symb expr)
+
+  (nodebug
+   (display "prefix->infix-symb : ")
+   (dv expr))
+
+  (declare result)
+  
   (cond
-   ((null? expr) expr)
-   ((number? expr) expr)
-   ((symbol? expr) expr)
-   ((boolean? expr) (if expr 'T 'F)) ;; True and False
-   ((isNOT? expr) (prefix-NOT->infix-symbolic-form-greek expr))
-   (else (insert-op (alpha-op->symb-op (first expr))
-		    (rest (map prefix->infix-symb expr))))))
+   ((null? expr) {result <- expr})
+   ((number? expr) {result <- expr})
+   ((symbol? expr) {result <- expr})
+   ((boolean? expr) {result <- (if expr 'T 'F)}) ;; True and False
+   ((isNOT? expr) {result <- (prefix-NOT->infix-symbolic-form-greek expr)})
+   (else {result <- (insert-op (alpha-op->symb-op (first expr))
+			       (rest (map prefix->infix-symb expr)))}))
+
+  (nodebug
+   (dv result))
+
+  result)
+
 
 
 (define (prefix->infix-symb-bool expr)
@@ -279,8 +292,8 @@
 (define (string->bar-string s)
   {lg <+ (string-length s)}
   {sr <+ ""}
-  (for (i 0 {lg - 1})
-       {c <+ (string-ref s i)}
+  (for-basic (i 0 {lg - 1})
+       {c <+ {s[i]}} ;;(string-ref s i)}
        {scbar <+ (bar-string c)}
        {sr <- (string-append sr scbar)})
   sr)
@@ -318,11 +331,13 @@
 ;;
 (define (n-arity-operation->binary-operation expr)
 
-  (debug-mode-on)
+  (debug-mode-off)
   (when debug-mode
     (display "n-arity-operation->binary-operation : ")
     (dv expr))
 
+  
+  
   (cond
    ((boolean? expr) expr)
    ((number? expr) expr)
@@ -428,6 +443,8 @@
   (when debug-mode
     (display "n-arity : ")
     (dv expr))
+
+  
   
   (cond
    ((null? expr) expr)
@@ -438,7 +455,7 @@
     (cons
      (operator expr)
      (list (n-arity (arg expr)))))
-   ;;(else ;;(binary-operation? expr) ;;(or (isOR? expr) (isAND? expr))
+   ;;(else #;(binary-operation? expr) #;(or (isOR? expr) (isAND? expr))
     ((or (isOR? expr)
 	 (isAND? expr)
 	 (isADD? expr)
@@ -455,7 +472,7 @@
 	     (map n-arity (args expr)))))
 
 	;;(list expr)))
-    ;;(else expr)
+    ;;#;(else expr)
     ))
 
 
@@ -505,7 +522,7 @@
 		   (cons
 		    (operator expr)
 		    (list (n-arity (arg expr))))))
-		 ((ourOperation? expr) ;;(eqv? oper (operator expr))
+		 ((ourOperation? expr) ;; #;(eqv? oper (operator expr))
 		  (apply append (map collect-leaves-operator (args expr))))
 		 (else (list (n-arity expr)))))))
 
@@ -550,11 +567,3 @@
   (replace expr 'expt '^))
 
 
-;; SRFI 105 do the work
-;; (3*a*b+c/d)
-(define (infix->prefix expr)
-  (if (list? expr)
-      expr ;; TODO continue
-      expr))
-
-;; 
