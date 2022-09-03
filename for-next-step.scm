@@ -97,7 +97,7 @@
 
      (let loop ((i from))
        (when (<= i to)
-	     (let ()
+	     (let () ;; why only this one have let ?
 	       b1 ...)
 	     (loop (incf i)))))
     
@@ -216,15 +216,34 @@
 ;;
 ;;  (for-basic/break breaky (i 1 3) (if (= i 3)  (breaky i) '()) )
 ;; 3
+
+;; (for-basic/break breaky (i 1 3) (display i) (newline) (if (= i 2)  (begin (breaky i)) '()) )
+;; 1
+;; 2
+;; $3 = 2
+
 (define-syntax for-basic/break
   (syntax-rules ()
     ((_ <break-id> (i from to) b1 ...)
      (call/cc (lambda (<break-id>)
 		(let loop ((i from))
         	  (when (<= i to)
-			(begin b1 ...
-			       (loop (incf i))))))))))
+			;;(begin b1 ...
+			b1 ...
+			(loop (incf i)))))))));)
 
+;; scheme@(guile-user)>  (for-basic/break-cont break continue (i 1 3) (display i) (newline) (if (= i 2)  (begin (continue) (break)) '()) )
+;; 1
+;; 2
+;; 3
+(define-syntax for-basic/break-cont
+  (syntax-rules ()
+    ((_ <break-id> <continue-id> (i from to) b1 ...)
+     (call/cc (lambda (<break-id>)
+		(let loop ((i from))
+        	  (when (<= i to)
+			(call/cc (lambda (<continue-id>) b1 ...))
+			(loop (incf i)))))))))
 
 
 ;; scheme@(guile-user)> (for ({i <+ 0} {i < 5} (incf i)) (display i) (newline))
@@ -241,7 +260,12 @@
 ;; 3
 ;; 4
 
-
+;;  (for ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (display x) (newline))
+;; 7
+;; 7
+;; 7
+;; 7
+;; 7
 (define-syntax for
   
   (syntax-rules ()
@@ -252,9 +276,37 @@
 	 init
 	 (let loop ()
 	   (when test
-		 (let ()
+		 ;;(let ()
 		   b1 ...
 		   incrmt
-		   (loop))))))))
+		   (loop)))))));)
+
+
+;; scheme@(guile-user)> (for/break-cont break continue ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (display x) (newline))
+;; 7
+;; 7
+;; 7
+;; 7
+;; 7
+;; scheme@(guile-user)> (for/break-cont break continue ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (display x) (newline) (break))7
+;; scheme@(guile-user)> (for/break-cont break continue ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (continue) (display x) (newline) (break))
+
+(define-syntax for/break-cont
+  
+  (syntax-rules ()
+    
+    ((_ <break-id> <continue-id> (init test incrmt) b1 ...)
+
+     (call/cc (lambda (<break-id>)
+		(let ()
+		  init
+		  (let loop ()
+		    (when test
+			  (call/cc (lambda (<continue-id>) b1 ...))
+			  incrmt
+			  (loop)))))))))
+
+
+
 
 

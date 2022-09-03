@@ -87,6 +87,8 @@
 (include "symbol.scm")
 (include "minterms.scm")
 
+(include "while-do-when-unless.scm")
+
 (include "guile/logiki+.scm")
 (include "logic-syracuse+.scm")
 
