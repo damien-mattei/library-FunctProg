@@ -288,7 +288,10 @@
 ;; 7
 ;; 7
 ;; 7
-;; scheme@(guile-user)> (for/break-cont break continue ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (display x) (newline) (break))7
+
+;; scheme@(guile-user)> (for/break-cont break continue ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (display x) (newline) (break))
+;; 7
+
 ;; scheme@(guile-user)> (for/break-cont break continue ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (continue) (display x) (newline) (break))
 
 (define-syntax for/break-cont
