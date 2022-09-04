@@ -69,7 +69,7 @@
 (include "r7rs/escape-char-r7rs-scheme.scm")
 (include "r6rs/display-r6rs-scheme.scm")
 
-(include "for-next-step.scm")
+(include "for_next_step.scm")
 
 (include "set.scm")
 (include "list.scm")

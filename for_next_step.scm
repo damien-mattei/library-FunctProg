@@ -16,6 +16,10 @@
 
 ;;(require (rename-in racket/base [for for-rack])) ;; backup original Racket 'for'
 
+
+;; (define-module (for-next-step)
+;;    #:export (break continue for))
+
 ;; > (for-basic ((k 5)) (display k) (newline))
 ;; 0
 ;; 1
@@ -293,7 +297,7 @@
 ;; 7
 
 ;; scheme@(guile-user)> (for/break-cont break continue ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (continue) (display x) (newline) (break))
-;; perheaps not usefull DEPRECATED?
+;; perheaps not usefull DEPRECATED? but compatible with R6RS and R5RS
 (define-syntax for/break-cont
   
   (syntax-rules ()
@@ -334,8 +338,10 @@
 ;; 2
 ;; 7
 
+;; does not works as expected (break is from srfi-1)
 ;; (for ({k <+ 0} {k < 3} {k <- {k + 1}})
 ;;      (display k)
+;;      (break even? '(3 1 4 1 5 9))
 ;;      (newline)
 ;;      (continue)
 ;;      (for ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7}
@@ -348,30 +354,120 @@
 ;; 1
 ;; 2
 
-(define-syntax for
+;; (define-syntax for
   
-  (lambda (stx)
-    (syntax-case stx ()
-      ((kwd (init test incrmt) body ...)
+;;   (lambda (stx)
+;;     (syntax-case stx ()
+;;       ((kwd (init test incrmt) body ...)
 	  
-       (with-syntax
-	((BREAK (datum->syntax #'kwd 'break))
-	 (CONTINUE (datum->syntax #'kwd 'continue)))
+;;        (with-syntax
+;; 	((BREAK (datum->syntax #'kwd 'break))
+;; 	 (CONTINUE (datum->syntax #'kwd 'continue)))
 
-	#`(call/cc
-	   (lambda (escape)
-	     (let-syntax
-		 ((BREAK (identifier-syntax (escape))))
-	       init
-	       (let loop ()
-		 (when test
+;; 	#`(call/cc
+;; 	   (lambda (escape)
+;; 	     (let-syntax
+;; 		 ((BREAK (identifier-syntax (escape))))
+;; 	       init
+;; 	       (let loop ()
+;; 		 (when test
 
-		       #,#'(call/cc
-			    (lambda (next)
-			      (let-syntax
-				  ((CONTINUE (identifier-syntax (next))))
-				body ...)))
+;; 		       #,#'(call/cc
+;; 			    (lambda (next)
+;; 			      (let-syntax
+;; 				  ((CONTINUE (identifier-syntax (next))))
+;; 				body ...)))
 			  
-		       incrmt
-		       (loop)))))))))))
+;; 		       incrmt
+;; 		       (loop)))))))))))
 
+
+(define-syntax for
+   (lambda (stx)
+     (syntax-case stx ()
+       ((kwd (init test incrmt) body ...)
+        (with-syntax ((BREAK (datum->syntax #'kwd 'break))
+                      (CONTINUE (datum->syntax #'kwd 'continue)))
+          #'(call/cc
+             (lambda (escape)
+               (let-syntax ((BREAK (identifier-syntax (escape))))
+                 init
+                 (let loop ()
+                   (when test
+                     (call/cc
+                      (lambda (next)
+                        (let-syntax ((CONTINUE (identifier-syntax (next))))
+                          body ...)))
+                       incrmt
+                       (loop)))))))))))
+
+
+;; (for/bc ({k <+ 0} {k < 3} {k <- {k + 1}})
+;;      (display k)
+;;      (break even? '(3 1 4 1 5 9))
+;;      (newline)
+;;      (continue)
+;;      (for/bc ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7}
+;; 	  (display x)
+;; 	  (newline)
+;; 	  (break))
+;;      (newline))
+
+;; (use-modules (ice-9 control))
+
+
+;; (define-syntax-parameter break
+;;    (lambda (sintax)
+;;      (syntax-violation 'break "break outside of for/bc" sintax)))
+
+;; (define-syntax-parameter continue
+;;    (lambda (sintax)
+;;      (syntax-violation 'continue "continue outside of for/bc" sintax)))
+
+;; (define-syntax-rule (for/bc (init test increment) body body* ...)
+;;    (let () ;; (begin 
+;;      init
+;;      (let/ec escape
+;;        (syntax-parameterize ((break (identifier-syntax (escape))))
+;;          (let loop ()
+;;            (when test
+;;              (let/ec next
+;;                (syntax-parameterize ((continue (identifier-syntax (next))))
+;;                  body body* ...))
+;;              increment
+;;              (loop)))))))
+
+
+
+;; (let ((i #f))
+;;    (for/bc ((set! i 0) (< i 10) (set! i (1+ i)))
+;;      (when (< i 5)
+;;        continue)
+;;      (when (> i 9)
+;;        break)
+;;      (display i)
+;;      (newline)))
+
+
+
+
+
+
+;; (define-syntax for/bc
+;;    (lambda (stx)
+;;      (syntax-case stx ()
+;;        ((kwd (init test incrmt) body ...)
+;;         #`(call/cc
+;;            (lambda (escape)
+;;              (let-syntax ((#,(datum->syntax #'kwd 'break)
+;;                            (identifier-syntax (escape))))
+;;                init
+;;                (let loop ()
+;;                  (when test
+;;                    (call/cc
+;;                     (lambda (next)
+;;                       (let-syntax ((#,(datum->syntax #'kwd 'continue)
+;;                                     (identifier-syntax (next))))
+;;                         body ...)))
+;;                    incrmt
+;;                    (loop))))))))))
