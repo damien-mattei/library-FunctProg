@@ -14,8 +14,6 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-;; TODO: create 'for' that works with 'down to' step
-
 ;;(require (rename-in racket/base [for for-rack])) ;; backup original Racket 'for'
 
 ;; > (for-basic ((k 5)) (display k) (newline))
@@ -73,6 +71,7 @@
 ;; '()
 ;;
 
+;; DEPRECATED
 (define-syntax for-basic
   
   (syntax-rules ()
@@ -137,7 +136,7 @@
 ;; 4
 ;; 5
 ;; > 
-
+;; DEPRECATED
 (define-syntax for-next
   
   (syntax-rules (= to step)
@@ -221,7 +220,7 @@
 ;; 1
 ;; 2
 ;; $3 = 2
-
+;; DEPRECATED
 (define-syntax for-basic/break
   (syntax-rules ()
     ((_ <break-id> (i from to) b1 ...)
@@ -236,6 +235,7 @@
 ;; 1
 ;; 2
 ;; 3
+;; DEPRECATED
 (define-syntax for-basic/break-cont
   (syntax-rules ()
     ((_ <break-id> <continue-id> (i from to) b1 ...)
