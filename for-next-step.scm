@@ -266,20 +266,20 @@
 ;; 7
 ;; 7
 ;; 7
-(define-syntax for
+;; (define-syntax for
   
-  (syntax-rules ()
+;;   (syntax-rules ()
     
-    ((_ (init test incrmt) b1 ...)
+;;     ((_ (init test incrmt) b1 ...)
 
-       (let ()
-	 init
-	 (let loop ()
-	   (when test
-		 ;;(let ()
-		   b1 ...
-		   incrmt
-		   (loop)))))));)
+;;        (let ()
+;; 	 init
+;; 	 (let loop ()
+;; 	   (when test
+;; 		 ;;(let ()
+;; 		   b1 ...
+;; 		   incrmt
+;; 		   (loop)))))));)
 
 
 ;; scheme@(guile-user)> (for/break-cont break continue ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (display x) (newline))
@@ -293,7 +293,7 @@
 ;; 7
 
 ;; scheme@(guile-user)> (for/break-cont break continue ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (continue) (display x) (newline) (break))
-
+;; perheaps not usefull DEPRECATED?
 (define-syntax for/break-cont
   
   (syntax-rules ()
@@ -311,5 +311,67 @@
 
 
 
+;; scheme@(guile-user)> (for ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (display x) (newline) (break))
+;; 7
+;; scheme@(guile-user)> (for ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7} (continue) (display x) (newline) (break))
+;; scheme@(guile-user)>
 
+;; (for ({k <+ 0} {k < 3} {k <- {k + 1}})
+;;      (display k)
+;;      (newline)
+;;      (for ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7}
+;; 	  (display x)
+;; 	  (newline)
+;; 	  (break))
+;;      (newline))
+
+;; 0
+;; 7
+
+;; 1
+;; 7
+
+;; 2
+;; 7
+
+;; (for ({k <+ 0} {k < 3} {k <- {k + 1}})
+;;      (display k)
+;;      (newline)
+;;      (continue)
+;;      (for ({i <+ 0} {i < 5} {i <- {i + 1}}) {x <+ 7}
+;; 	  (display x)
+;; 	  (newline)
+;; 	  (break))
+;;      (newline))
+
+;; 0
+;; 1
+;; 2
+
+(define-syntax for
+  
+  (lambda (stx)
+    (syntax-case stx ()
+      ((kwd (init test incrmt) body ...)
+	  
+       (with-syntax
+	((BREAK (datum->syntax #'kwd 'break))
+	 (CONTINUE (datum->syntax #'kwd 'continue)))
+
+	#`(call/cc
+	   (lambda (escape)
+	     (let-syntax
+		 ((BREAK (identifier-syntax (escape))))
+	       init
+	       (let loop ()
+		 (when test
+
+		       #,#'(call/cc
+			    (lambda (next)
+			      (let-syntax
+				  ((CONTINUE (identifier-syntax (next))))
+				body ...)))
+			  
+		       incrmt
+		       (loop)))))))))))
 

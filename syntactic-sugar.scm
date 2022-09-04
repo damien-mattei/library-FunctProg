@@ -131,7 +131,7 @@
 ;;                         ((BREAK (identifier-syntax (escape))))
 ;;                       (let loop ((?var ?from))
 ;;                         (when (< ?var ?to)
-;;                           (begin ?body0 ?body ...)
+;;                           (begin ?body0 ?body ...) ;; when already have a begin inside??? why one more ?
 ;;                           (loop (+ 1 ?var)))))))))
 ;;          )))
 
