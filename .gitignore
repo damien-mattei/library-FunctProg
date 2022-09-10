@@ -48,4 +48,9 @@ Temporary Items
 *.scm#*
 .#*.scm
 
+# Racket
 *compiled*
+
+# useless backup files
+*.bak
+
