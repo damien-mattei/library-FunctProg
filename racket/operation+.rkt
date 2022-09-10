@@ -5,7 +5,7 @@
 (require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
 
-(include "../for-next-step.scm")
+(include "../for_next_step.scm")
 (include "../increment.scm")
 (include "../debug.scm")
 (include "display-racket-scheme.scm")

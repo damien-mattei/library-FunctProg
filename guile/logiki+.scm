@@ -786,28 +786,79 @@
 ;;
 ;; > (is-AND-antilogy? '(and c (not a) a)) -> #t
 ;; > (is-AND-antilogy? '(and (not c) a (not b))) -> #f
-(define (is-AND-antilogy? expr)
-  (letrec ((lep (args expr)) ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
-           (detect-antilogy (λ (listExpr)
-                              (if (null? listExpr) 
-                                  #f
-                                  (if (symbol? (first listExpr)) ;; we search for a literal ex: 'x    
-                                      (if (search-not-lit? (first listExpr) lep) ;; search antilogy with literal and the whole operands of AND
-                                          #t
-                                          (detect-antilogy (rest listExpr))) ;; check the rest of the list with another literal
-                                  (detect-antilogy (rest listExpr))))))) ;; check the rest of the list to find a literal                              
-    (detect-antilogy lep)))
+;; (define (is-AND-antilogy? expr)
+;;   (letrec ((lep (args expr)) ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
+;;            (detect-antilogy (λ (listExpr)
+;;                               (if (null? listExpr) 
+;;                                   #f
+;;                                   (if (symbol? (first listExpr)) ;; we search for a literal ex: 'x    
+;;                                       (if (search-not-lit? (first listExpr) lep) ;; search antilogy with literal and the whole operands of AND
+;;                                           #t
+;;                                           (detect-antilogy (rest listExpr))) ;; check the rest of the list with another literal
+;; 				      (detect-antilogy (rest listExpr))))))) ;; check the rest of the list to find a literal                              
+;;     (detect-antilogy lep)))
 
-;; remove the antilogies out of a list of ANDed expressions... whaooo j'aime cette phrase...
+
+
+(define (is-False? expr)
+  (or (equal? expr #f) (equal? expr 'F) (equal? expr '□)))
+
+;; input : get an AND example: (AND x (not x) y z)
+;; will check all operands of AND to see if there is an antilogy in it 
+;;
+;; > (is-AND-antilogy? '(and c (not a) a)) -> #t
+;; > (is-AND-antilogy? '(and (not c) a (not b))) -> #f
+;; (is-AND-antilogy?  '(and (not c) F))
+(define (is-AND-antilogy? expr)
+
+  {lep <+ (args expr)}  ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
+  {detect-antilogy <+ (λ (listExpr)
+			(condx ((null? listExpr) #f)
+			       (exec {fst <+ (first listExpr)})
+			       ((is-False? fst) #t)
+			       ;; now we search for a literal ex: 'x  
+			       ((symbol? fst) (if (search-not-lit? fst lep) ;; search antilogy with literal in the whole operands of AND
+						  #t
+						  (detect-antilogy (rest listExpr)))) ;; check the rest of the list with another literal
+			       (else (detect-antilogy (rest listExpr)))))} ;; check the rest of the list to find a literal                              
+  (detect-antilogy lep))
+
+
+;; remove the antilogies out of a list of ANDed expressions and also remove useless 'T.
 ;; (remove-antilogies '((and c (not a) a) (and c (not a) (not b)))) -> '((and c (not a) (not b)))
 ;;  (remove-antilogies '()) -> '()
 ;; (remove-antilogies '(c (and a b (not b)))) -> '(c)
-(define (remove-antilogies andList) ;; argument is a list of ANDed expressions
-  (cond
-   ((null? andList) '())
-   ((and (isAND? (first andList)) (is-AND-antilogy? (first andList))) (remove-antilogies (rest andList)))
-   ;;[((isAND? (first andList)) . and . (is-AND-antilogy? (first andList))) (remove-antilogies (rest andList))]
-   (else (cons (first andList) (remove-antilogies (rest andList))))))
+;;
+;; (define (remove-antilogies andList) ;; argument is a list of ANDed expressions
+;;   (cond
+;;    ((null? andList) '())
+;;    ({(isAND? (first andList)) and (is-AND-antilogy? (first andList))} (remove-antilogies (rest andList)))
+;;    (else (cons (first andList) (remove-antilogies (rest andList))))))
+
+(def (remove-antilogies-and-useless-true andList) ;; argument is a list of ANDed expressions
+
+     (when (null? andList) (return '()))
+
+     {fst <+ (first andList)}
+     
+     (when (isAND? fst)
+	   
+       {fst <- (filter (lambda (x) (not (is-True? x))) fst)} ;; remove useless 'True
+
+       (case (length fst)
+	 ((0) (error "List of null length found in first element of argument of function." andList))
+	 ((1) (return (cons 'T (remove-antilogies-and-useless-true (rest andList))))) ;; (and) remaining ! keep a 'T and continue with the rest
+	 ((2) {fst <- (second fst)}))) ;; (and x) remaining !
+
+	     
+     (if {(isAND? fst) and (is-AND-antilogy? fst)}
+	 (remove-antilogies-and-useless-true (rest andList))
+	 (cons fst (remove-antilogies-and-useless-true (rest andList)))))
+
+
+
+(define (is-True? expr)
+  (or (equal? expr #t) (equal? expr 'T) (equal? expr '■)))
 
 
 ;; input : get an OR example: (OR x (not x) y z)
@@ -815,17 +866,33 @@
 ;;
 ;; >  (is-OR-tautology? '(or a (not b) (not b) (not a))) -> #t
 ;; >  (is-OR-tautology? '(or a (not b) (not c))) -> #f
+;; (define (is-OR-tautology? expr)
+;;   (letrec ((lep (args expr)) ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
+;;            (detect-tautology (λ (listExpr)
+;;                                (if (null? listExpr) 
+;;                                   #f
+;;                                   (if (symbol? (first listExpr)) ;; we search for a literal ex: 'x    
+;;                                      (if (search-not-lit? (first listExpr) lep) ;; search tautology with literal and the whole operands of OR
+;;                                         #t
+;;                                         (detect-tautology (rest listExpr))) ;; check the rest of the list with another literal
+;;                                      (detect-tautology (rest listExpr))))))) ;; check the rest of the list to find a literal                              
+;;     (detect-tautology lep)))
+
+
 (define (is-OR-tautology? expr)
-  (letrec ((lep (args expr)) ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
-           (detect-tautology (λ (listExpr)
-                               (if (null? listExpr) 
-                                  #f
-                                  (if (symbol? (first listExpr)) ;; we search for a literal ex: 'x    
-                                     (if (search-not-lit? (first listExpr) lep) ;; search tautology with literal and the whole operands of OR
-                                        #t
-                                        (detect-tautology (rest listExpr))) ;; check the rest of the list with another literal
-                                     (detect-tautology (rest listExpr))))))) ;; check the rest of the list to find a literal                              
-    (detect-tautology lep)))
+
+  {lep <+ (args expr)}  ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
+  {detect-tautology <+ (λ (listExpr)
+			(condx ((null? listExpr) #f)
+			       (exec {fst <+ (first listExpr)})
+			       ((is-True? fst) #t)
+			       ;; now we search for a literal ex: 'x  
+			       ((symbol? fst) (if (search-not-lit? fst lep) ;; search tautology with literal in the whole operands of OR
+						  #t
+						  (detect-tautology (rest listExpr)))) ;; check the rest of the list with another literal
+			       (else (detect-tautology (rest listExpr)))))} ;; check the rest of the list to find a literal                              
+  (detect-tautology lep))
+
 
 ;; remove the tautologies out of a list of ORed expressions...
 ;; (remove-tautologies  
@@ -847,12 +914,34 @@
 ;; ->  '((or c a b) (or c (not b) (not a)) (or (not a) b (not c)) (or a (not b) (not c)))
 ;;
 ;;  (remove-tautologies '()) -> '()
-(define (remove-tautologies orList) ;; argument is a list of ORed expressions
-  (cond
-   ((null? orList) '())
-   ;;[((isOR? (first orList)) . and . (is-OR-tautology? (first orList))) (remove-tautologies (rest orList))]
-   ((and (isOR? (first orList)) (is-OR-tautology? (first orList))) (remove-tautologies (rest orList)))
-   (else (cons (first orList) (remove-tautologies (rest orList))))))
+;; (define (remove-tautologies orList) ;; argument is a list of ORed expressions
+;;   (cond
+;;    ((null? orList) '())
+;;    ((and (isOR? (first orList)) (is-OR-tautology? (first orList))) (remove-tautologies (rest orList)))
+;;    (else (cons (first orList) (remove-tautologies (rest orList))))))
+
+
+(def (remove-tautologies-and-useless-false orList) ;; argument is a list of ORed expressions
+
+     (when (null? orList) (return '()))
+
+     {fst <+ (first orList)}
+     
+     (when (isOR? fst)
+	   
+       {fst <- (filter (lambda (x) (not (is-False? x))) fst)} ;; remove useless 'False
+
+       (case (length fst)
+	 ((0) (error "List of null length found in first element of argument of function." orList))
+	 ((1) (return (cons 'F (remove-tautologies-and-useless-false (rest orList))))) ;; (or) remaining ! keep a 'F and continue with the rest
+	 ((2) {fst <- (second fst)}))) ;; (or x) remaining !
+   
+     (if {(isOR? fst) and (is-OR-tautology? fst)}
+	 (remove-tautologies-and-useless-false (rest orList)) ;; drop the tautologie and continue checking the rest
+	 (cons fst (remove-tautologies-and-useless-false (rest orList)))))
+
+
+
 
 ;; simplify the expressions
 ;; (or e1 e2 .... eN)
@@ -875,14 +964,18 @@
     (dv dnfExpr))
   (if (is-OR-tautology? dnfExpr)
       #t
-      (let ((operandList (remove-antilogies (rest dnfExpr)))) ;; first we remove antilogies in the operands
+      (let* ((operandList0 (remove-antilogies-and-useless-true (rest dnfExpr)))  ;; first we remove antilogies in the operands
+	     (operandList (filter (lambda (x) (not (is-False? x)))
+				  operandList0))) ;; we remove the useless False if any from the 'or expression
 	(when debug-mode
 	  (dv operandList))
 	(cond ((null? operandList) #f) ;; dnfExpr is composed of antilogies ,so it is an antilogie too
 	      ((null? (rest operandList)) ;; if we have only one element in the result list
 	       (first operandList)) ;; we can forget the or operator
 	      (else (cons 'or operandList))))))
- 
+
+
+
 
 ;; simplify the expressions
 ;; (and e1 e2 .... eN)
@@ -894,7 +987,9 @@
 (define (simplify-CNF cnfExpr)
   (if (is-AND-antilogy? cnfExpr)
       #f
-      (let ((operandList (remove-tautologies (rest cnfExpr)))) ;; first we remove tautologies in the operands
+      (let* ((operandList0 (remove-tautologies-and-useless-false (rest cnfExpr))) ;; first we remove tautologies in the operands
+	     (operandList (filter (lambda (x) (not (is-True? x)))
+				  operandList0))) ;; we remove the useless True if any from the 'and expression
 	(cond ((null? operandList) #t) ;; cnfExpr is composed of tautologies ,so it is a tautologie too
 	      ((null? (rest operandList)) ;; if we have only one element in the result list
 	       (first operandList)) ;; we can forget the and operator
@@ -1034,7 +1129,7 @@
 
 (define (expression-negation-tested<? a b)
   
-  (debug
+  (nodebug
    (display  "expression-negation-tested<? : ")
    (dv a)
    (dv b))

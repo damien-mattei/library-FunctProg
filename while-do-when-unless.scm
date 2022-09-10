@@ -1,4 +1,4 @@
-
+;; those macro are rewritten mainly with a (let () ...) instead of 'begin to allow definitions in expression context
 
 ;; scheme@(guile-user)> (use-modules (Scheme+))
 ;; scheme@(guile-user)> (define i 0)

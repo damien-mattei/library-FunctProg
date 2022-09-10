@@ -661,7 +661,7 @@
 ;;                  1010000
 ;;                       10
 (define (compute-fc-size-times-over-numbers n-end)
-  (for (n 1 n-end)
+  (for-basic (n 1 n-end)
        (let ((res (fc-comp-size-times n)))
 	 (display (padding-spc res))
 	 (newline))))
@@ -827,7 +827,7 @@
 ;; '(#(9 22 13 9 10 1 2 0 0) . #(22 9 13 9 5 5 1 1 0))
 (define (compute-fc-comp-size-times--1-over-numbers-gap n-start n-end)
   (define L '())
-  (for (n n-start n-end)
+  (for-basic (n n-start n-end)
        (let ((res (fc-comp-size-times--1 n)))
 	 (insert-set! res L)
 	 (when debug-mode
@@ -843,7 +843,7 @@
 
 (define (compute-fc-comp-size-times--2-over-numbers-gap n-start n-end)
   (define L '())
-  (for (n n-start n-end)
+  (for-basic (n n-start n-end)
        (let ((res (fc-comp-size-times--2 n)))
 	 (insert-set! res L)
 	 (when debug-mode
@@ -878,7 +878,7 @@
 (define (compute-fc-comp-size--2-times-stop-over-numbers-gap n-start n-end)
   (define lsb1 0)
   (define lsb0 0)
-  (for (n n-start n-end)
+  (for-basic (n n-start n-end)
        (let* ((x (- (size-bit n) 2))
 	      (res (fc-comp-x-stop n x)))
 	 (if (bit-test? res 0)
@@ -1060,7 +1060,7 @@
 ;; 30 -- compressed Collatz X times ->                    10111
 ;; 31 -- compressed Collatz X times ->                  1000111
 (define (compute-fc-X-times-over-numbers-gap x n-start n-end)
-  (for (n n-start n-end)
+  (for-basic (n n-start n-end)
        (let ((res (fc-comp-x n x)))
 	 (display n) (display " = ")
 	 (display (padding-spc n))
@@ -1374,7 +1374,7 @@
 (define (compute-fc-comp-X-times-stop-over-numbers-gap x n-start n-end)
   (define lsb1 0)
   (define lsb0 0)
-  (for (n n-start n-end)
+  (for-basic (n n-start n-end)
        (let ((res (fc-comp-x-stop n x)))
 	 (if (bit-test? res 0)
 	     (incf lsb1)
@@ -1406,13 +1406,13 @@
 ;;                   100011
 ;;                      100
 (define (compute-fc-half-size-times-over-numbers n-end)
-  (for (n 1 n-end)
+  (for-basic (n 1 n-end)
        (let ((res (fc-comp-half-size-times n)))
 	 (display (padding-spc res))
 	 (newline))))
 
 (define (compute-fc-x-times-over-numbers x n-end)
-  (for (n 1 n-end)
+  (for-basic (n 1 n-end)
        (let ((res (fc-comp-x n x)))
 	 (display (padding-spc res))
 	 (newline))))
@@ -1470,11 +1470,11 @@
 ;;collatz-odd
 ;; DEPRECATED
 ;; (define (compute-d)
-;;   (for (i (arithmetic-shift 1 k))
+;;   (for-basic (i (arithmetic-shift 1 k))
 ;;        (vector-set! d i (fc-comp-x i k))))
   
 (define (compute-collatz-odd)
-  (for (i (arithmetic-shift 1 k))
+  (for-basic (i (arithmetic-shift 1 k))
        ;;(dv i)
        (vector-set! collatz-odd i (fc-comp-x-count-odd i k))))
 
@@ -1668,7 +1668,7 @@
 (define (scan-and-stat-bits n start stop)
   (define v-one-sum 0)
   (define v-zero-sum 0)
-  (for (k start stop)
+  (for-basic (k start stop)
        (when (or (< k 0)
 		 (>= k (size-bit n)))
 	     (dv k)
@@ -1685,7 +1685,7 @@
   (define stop (- (size-bit n) 2))
   (define v-one-sum 0)
   (define v-zero-sum 0)
-  (for (k 0 stop)
+  (for-basic (k 0 stop)
        (if (bit-test? n k)
 	   (incf v-one-sum)
 	   (incf v-zero-sum)))
@@ -1959,7 +1959,7 @@
 ;; C-freq = #(0.5030020477562562 0.49699795224374377)
 (define (stat-collatz-mod-2 n-start n-end)
   (define C-stat (make-vector 2 0))
-  (for (n n-start n-end)
+  (for-basic (n n-start n-end)
        (set! C-stat
 	     (vector-map +
 			 C-stat
@@ -1989,7 +1989,7 @@
 ;; C-freq = #(0.6619892841855874 0.3380107158144126)
 (define (stat-collatz-mod-2-not-compressed n-start n-end)
   (define C-stat (make-vector 2 0))
-  (for (n n-start n-end)
+  (for-basic (n n-start n-end)
        (set! C-stat
 	     (vector-map +
 			 C-stat
@@ -2011,7 +2011,7 @@
 ;; C-stat = #(1156337 568240 1137668 568767)
 (define (stat-collatz-mod-4 n-start n-end)
   (define C-stat (make-vector 4 0))
-  (for (n n-start n-end)
+  (for-basic (n n-start n-end)
        (set! C-stat
 	     (vector-map +
 			 C-stat
@@ -2028,7 +2028,7 @@
 ;; C-stat = #(46205 22441 46321 22503 44422 25469 46739 25812)
 (define (stat-collatz-mod-8 n-start n-end)
   (define C-stat (make-vector 8 0))
-  (for (n n-start n-end)
+  (for-basic (n n-start n-end)
        (set! C-stat
 	     (vector-map +
 			 C-stat
@@ -2063,7 +2063,7 @@
 ;; n = 9999900
 ;; C-stat = #(85823360 41885509 85350252 42146170 83653742 45121692 85372334 44885200)
 (define (re-stat-collatz-mod-8 C-stat n-start n-end)
-  (for (n n-start n-end)
+  (for-basic (n n-start n-end)
        (set! C-stat
 	     (vector-map +
 			 C-stat
@@ -2130,7 +2130,7 @@
 ;; > v-one-sum
 ;; '#(1 0 1 0 1)
 (define (scan-and-stat n sb v-zero-sum v-one-sum)
-  (for (k 0 (- sb 1))
+  (for-basic (k 0 (- sb 1))
        (if (bit-test? n k)
 	   (vector-set! v-one-sum 
 			k 
@@ -2190,7 +2190,7 @@
 	    L)
 
   ;; compute probabilities
-  (for (t 0 (- (vector-length P-one) 1))
+  (for-basic (t 0 (- (vector-length P-one) 1))
        (if (not (zero? (+ (vector-ref v-one-sum t) (vector-ref v-zero-sum t))))
 	   (vector-set! P-one
 			t
@@ -2294,10 +2294,10 @@
       (display "alea = ")
       (display alea)
       (newline)
-      (for (a alea)
+      (for-basic (a alea)
 	   ;;(display a)
 	   ;;(newline)
-	   (for (b alea)
+	   (for-basic (b alea)
 		(incf omega-universe)
 		(let ((S1 (+ a b)))
 		  (if (flag-set? C S1)
@@ -2407,7 +2407,7 @@
     (display alea)
     (newline)
     
-    (for (b alea)
+    (for-basic (b alea)
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       (incf omega-universe)
 	       (let ((S1 (+ (bitwise-ior 1 (shift-left b)) b))) ; shift to left and set lowest significant bit and add b, i.e compute 2b+incfb = 3b+1 
@@ -2494,7 +2494,7 @@
     (display alea)
     (newline)
 
-    (for (b alea)
+    (for-basic (b alea)
 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       
@@ -3056,7 +3056,7 @@
     (display alea)
     (newline)
     
-    (for (b alea)
+    (for-basic (b alea)
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 
@@ -3209,7 +3209,7 @@
     (display alea)
     (newline)
     
-    (for (b alea)
+    (for-basic (b alea)
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 
@@ -3346,7 +3346,7 @@
     (display alea)
     (newline)
 
-    (for (b alea)
+    (for-basic (b alea)
 
 	 ;;(incf omega-universe)
 	 
@@ -3460,7 +3460,7 @@
     (display alea)
     (newline)
 
-    (for (b alea)
+    (for-basic (b alea)
 
 	 ;;(incf omega-universe)
 	 
@@ -3678,7 +3678,7 @@
     (display "mask = ") (display (padding-spc mask)) (newline)
 
     ;; loop over numbers
-    (for (b alea) ; b is in range of 0 to 111...11 , alea being 1000...00 = 111...11 + 1 , example with Ck = 100000, b is in range of 0 to 11111
+    (for-basic (b alea) ; b is in range of 0 to 111...11 , alea being 1000...00 = 111...11 + 1 , example with Ck = 100000, b is in range of 0 to 11111
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       
@@ -3845,14 +3845,14 @@
     (dv mb)
     (dv m)
 
-    (for (x 0 m) ;; x : input number
+    (for-basic (x 0 m) ;; x : input number
 	 
 	 (set! fx (mult3add1 x))
 	 (display (padding-spc x))
 	 (display " -> ")
 	 (display (padding-spc fx)) (newline)
 	 
-	 (for (k 0 (- mb 1)) ;; k : bit number
+	 (for-basic (k 0 (- mb 1)) ;; k : bit number
 
 	      (if (bit-test? fx k)
 		  (vector-set! v-one-sum 
@@ -3885,14 +3885,14 @@
     (dv mb)
     (dv m)
 
-    (for (x 1 m 2) ;; x : input number
+    (for-basic (x 1 m 2) ;; x : input number
 	 
 	 (set! fx (mult3add1 x))
 	 (display (padding-spc x))
 	 (display " -> ")
 	 (display (padding-spc fx)) (newline)
 	 
-	 (for (k 0 (- mb 1)) ;; k : bit number
+	 (for-basic (k 0 (- mb 1)) ;; k : bit number
 
 	      (if (bit-test? fx k)
 		  (vector-set! v-one-sum 
@@ -3960,14 +3960,14 @@
     (dv mb)
     (dv m)
 
-    (for (x 1 m 2) ;; x : input number
+    (for-basic (x 1 m 2) ;; x : input number
 	 
 	 (set! fx (mult3add1div2 x))
 	 (display (padding-spc x))
 	 (display " -> ")
 	 (display (padding-spc fx)) (newline)
 	 
-	 (for (k 0 (- mb 1)) ;; k : bit number
+	 (for-basic (k 0 (- mb 1)) ;; k : bit number
 
 	      (if (bit-test? fx k)
 		  (vector-set! v-one-sum 
@@ -4014,14 +4014,14 @@
     (dv mb)
     (dv m)
 
-    (for (x 0 m) ;; x : input number
+    (for-basic (x 0 m) ;; x : input number
 	 
 	 (set! fx (f x))
 	 (display (padding-spc x))
 	 (display " -> ")
 	 (display (padding-spc fx)) (newline)
 	 
-	 (for (k 0 (- mb 1)) ;; k : bit number
+	 (for-basic (k 0 (- mb 1)) ;; k : bit number
 
 	      (if (bit-test? fx k)
 		  (vector-set! v-one-sum 
@@ -4076,14 +4076,14 @@
     (dv mb)
     (dv m)
 
-    (for (x 1 m 2) ;; x : input number
+    (for-basic (x 1 m 2) ;; x : input number
 	 
 	 (set! fx (f x))
 	 (display (padding-spc x))
 	 (display " -> ")
 	 (display (padding-spc fx)) (newline)
 	 
-	 (for (k 0 (- mb 1)) ;; k : bit number
+	 (for-basic (k 0 (- mb 1)) ;; k : bit number
 
 	      (if (bit-test? fx k)
 		  (vector-set! v-one-sum 
@@ -4139,11 +4139,11 @@
     (dv mb)
     (dv m)
 
-    (for (x 0 m)
+    (for-basic (x 0 m)
 	 
 	 (set! fx (mult3 x))
 	 
-	 (for (k 0 (- mb 1))
+	 (for-basic (k 0 (- mb 1))
 	      
 	      
 	      (if (bit-test? fx k)
@@ -4214,7 +4214,7 @@
     (dv to)
 
     ;; loop over numbers
-    (for (b from to) ; b is in range of 11...11 to 111...11 , example with Cn+1 = 100000, b is in range of 1111 to 11111
+    (for-basic (b from to) ; b is in range of 11...11 to 111...11 , example with Cn+1 = 100000, b is in range of 1111 to 11111
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       
@@ -4428,7 +4428,7 @@
     (display "mask = ") (display (padding-spc mask)) (newline)
 
     ;; loop over numbers
-    (for (b alea) ; b is in range of 0 to 111...11 , alea being 1000...00 = 111...11 + 1 , example with Ck = 100000, b is in range of 0 to 11111
+    (for-basic (b alea) ; b is in range of 0 to 111...11 , alea being 1000...00 = 111...11 + 1 , example with Ck = 100000, b is in range of 0 to 11111
 	 
 	 (if-t (flag-set? #b1 b) ; only for odd numbers
 	       
@@ -4564,7 +4564,7 @@
     
     ))
 
-;; (for (n 0 24) (display n) (display " -f8-> ") (display (modulo (fc1-8 n) 8)) (newline))
+;; (for-basic (n 0 24) (display n) (display " -f8-> ") (display (modulo (fc1-8 n) 8)) (newline))
 ;; 0 -f8-> 1
 ;; 1 -f8-> 7
 ;; 2 -f8-> 5
@@ -4729,7 +4729,7 @@
 (define (scan-3x-1 n-end)
   (define L-cycle '())
   (define s 0)
-  (for (n 1 n-end)
+  (for-basic (n 1 n-end)
        (set! s (syracuse-3x-1 n))
        (when (not (number? s))
 	     (when (not (member s L-cycle))

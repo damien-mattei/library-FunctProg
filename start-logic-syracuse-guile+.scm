@@ -88,6 +88,7 @@
 (include "minterms.scm")
 
 (include "while-do-when-unless.scm")
+(include "repeat-until.scm")
 
 (include "guile/logiki+.scm")
 (include "logic-syracuse+.scm")

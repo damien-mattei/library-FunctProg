@@ -64,15 +64,15 @@
 
 
 ;; then and else do as BEGINners ;-)
-(define-syntax then-block
-  (syntax-rules ()
-    ((_ ev)  ev)
-    ((_ ev ...) (begin ev ...))))
+;; (define-syntax then-block
+;;   (syntax-rules ()
+;;     ((_ ev)  ev)
+;;     ((_ ev ...) (begin ev ...))))
 
-(define-syntax else-block
-  (syntax-rules ()
-    ((_ ev)  ev)
-    ((_ ev ...) (begin ev ...))))
+;; (define-syntax else-block
+;;   (syntax-rules ()
+;;     ((_ ev)  ev)
+;;     ((_ ev ...) (begin ev ...))))
 
 
 

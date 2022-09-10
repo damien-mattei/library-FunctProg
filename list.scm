@@ -111,6 +111,7 @@
 ;; '(1 (1 2 7 4 (5 6 7) 7 4))
 ;;
 ;;  (replace 4 4 5) -> 5
+;; warning : element to replace must not be () !!!
 (define (replace L old new)
  
 	(if (list? L)

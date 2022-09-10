@@ -272,6 +272,19 @@
 ;;        {sr <- (string-append sr scbar)})
 ;;   sr)
 
+
+(define (string->bar-string s)
+  (define lg (string-length s))
+  (define sr "")
+  (define c '())
+  (define scbar '())
+
+  (for-basic (i 0 (- lg 1))
+       (set! c (string-ref s i))
+       (set! scbar (bar-string c))
+       (set! sr (string-append sr scbar)))
+  sr)
+
 ;; convert from alphabetic operators to symbolic operators
 (define (alpha-op->symb-op op)
   (cond
