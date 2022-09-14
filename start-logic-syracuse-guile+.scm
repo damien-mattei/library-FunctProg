@@ -93,5 +93,9 @@
 (include "guile/logiki+.scm")
 (include "logic-syracuse+.scm")
 
+(debug-mode-off)
+
+(display "start-logic-syracuse-guile+.scm : ")
+(dv debug-mode)
 
 

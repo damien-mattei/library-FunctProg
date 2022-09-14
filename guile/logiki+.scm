@@ -413,7 +413,7 @@
 
 (define (phase3-dnf expr)
 
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
     (display "phase3-dnf : ")
     (dv expr))
@@ -959,6 +959,7 @@
 ;;;;  (simplify-DNF '(or c (and a b (not b)))) -> c
 ;;
 (define (simplify-DNF dnfExpr)
+  ;;(debug-mode-on)
   (when debug-mode
     (display "simplify-DNF : ")
     (dv dnfExpr))
@@ -1008,7 +1009,7 @@
 ;;;; (simplify-*NF '(or (and c c)  (and a b (not b)))) -> 'c
 ;;
 (define (simplify-*NF norm-form)
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
     (display "simplify-*NF : ")
     (dv norm-form))
@@ -1022,7 +1023,7 @@
     (when debug-mode
       (dv expr-no-dup-sorted)
       )
-    (if (equal? (first expr-no-dup-sorted) 'and)
+    (if (isAND? expr-no-dup-sorted) ;;(equal? (first expr-no-dup-sorted) 'and)
 	(simplify-CNF expr-no-dup-sorted)
 	(simplify-DNF expr-no-dup-sorted))))
 
@@ -1060,7 +1061,7 @@
      (let* ((oper (operator expr)) ;; define operator
 	    (expr-no-dup (remove-duplicates-in-operation expr)) ;; remove duplicate symbols
 	    (expr-no-dup-sorted (sort-arguments-in-operation expr-no-dup))) ;; sort variables
-       (if (equal? oper 'and) ;; AND => search for antilogies
+       (if (AND-op? oper) ;;(equal? oper 'and) ;; AND => search for antilogies
 	   (if (is-AND-antilogy? expr-no-dup-sorted) #f expr-no-dup-sorted)
 	   (if (is-OR-tautology? expr-no-dup-sorted) #t expr-no-dup-sorted)))) ;;  OR => search for tautologies
 
@@ -1486,13 +1487,15 @@
 	 (disj-norm-form (dnf-n-arity-simp expr)) ;; disjunctive form
 	 (essential-prime-implicants '())
 	 (formula-find-with-Quine-Mc-Cluskey '())
-	 (infix-disj-norm-form (dnf-infix-symb disj-norm-form))
+	 (infix-disj-norm-form (dnf-infix-symb disj-norm-form)) ;; infix only used for display, not for computation
 	 (non-essential-prime-implicants '())
 	 (min-expr '())
 	 (petrick-expr '())
 	 )
-    
-    (debug-mode-off)
+
+    ;; (display "minimal-dnf : ")
+    ;; (dv debug-mode)
+    ;;(debug-mode-off)
     (when debug-mode
 	  (dv disj-norm-form)
 	  (dv var-list))
@@ -1507,7 +1510,7 @@
 	  (set! essential-prime-implicants (Quine-Mc-Cluskey disj-norm-form var-list))
 
 	  (set! formula-find-with-Quine-Mc-Cluskey (essential-prime-implicants-list->formula essential-prime-implicants var-list))
-	  (debug-mode-off)
+	  ;;(debug-mode-off)
 	  (when debug-mode
 		(dv disj-norm-form)
 		(dv var-list)
@@ -1713,14 +1716,11 @@
 ;;   given: '()
 (define (funct-unify-minterms-set-of-sets-rec sos)
   
-  ;;(set! debug-mode-save debug-mode)
-  ;;(set! debug-mode #t)
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
 	(newline)
 	(display "funct-unify-minterms-set-of-sets-rec :: ")
-	(dvsos sos)
-	(set! debug-mode debug-mode-save))
+	(dvsos sos))
   
   (cond
    
@@ -1833,7 +1833,7 @@
 ;;   (1 1 0 x))
 (define (recursive-unify-minterms-set-of-sets sos)
 
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
 	(newline)
 	(display "recursive-unify-minterms-set-of-sets : ")
@@ -2035,7 +2035,7 @@
 ;; used by Quine - Mc Cluskey
 (define (init-hash-table-with-set-and-value ht s val)
 
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
 	(display "init-hash-table-with-set-and-value") (newline))
   
@@ -2095,7 +2095,7 @@
   {y-pos-epi ⥆ 0} ;; position of essential prime implicant in colomn if there exists one
   {star-in-column ⥆ #f} ;; at the beginning
     
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
     (display-nl "identify-essential-prime-implicants ::")
     (dv prime-implicants)
@@ -2280,7 +2280,7 @@
 ;; '((x 0 0 x) (x x 1 0))
 (def (Quine-Mc-Cluskey disj-norm-form var-list)
 
-     (debug-mode-off)
+     ;;(debug-mode-off)
      (when debug-mode
 	   (display-nl "Entering Quine-Mc-Cluskey"))
      
@@ -2312,8 +2312,7 @@
 			     (when debug-mode (dv minterms-ht))
 			     (recursive-unify-minterms-set-of-sets  set-of-sets-of-minterms))}
 	 
-     {essential-prime-implicants ⥆ ($ {prime-implicants-lst ← ($ {debug-mode ← debug-mode-save}
-								  (prime-implicants minterms-ht))}
+     {essential-prime-implicants ⥆ ($ {prime-implicants-lst ← (prime-implicants minterms-ht)}
 				      (identify-essential-prime-implicants prime-implicants-lst minterms))}
 
      (when debug-mode

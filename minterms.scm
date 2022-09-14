@@ -102,7 +102,7 @@
 
 ;; (bin-minterm-weight '(0 1 0 1 1)) -> 3
 (define (bin-minterm-weight bin-minterm)
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
 	(display-msg-symb-nl  "bin-minterm-weight ::" bin-minterm))
   

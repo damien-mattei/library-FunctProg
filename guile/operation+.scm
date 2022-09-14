@@ -318,7 +318,7 @@
 ;;
 (define (n-arity-operation->binary-operation expr)
 
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
     (display "n-arity-operation->binary-operation : ")
     (dv expr))
@@ -426,7 +426,7 @@
   ;;     ;;(list expr)))
   ;;     expr))
 
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
     (display "n-arity : ")
     (dv expr))

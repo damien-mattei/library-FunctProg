@@ -1,5 +1,5 @@
-;; those macro are rewritten mainly with a (let () ...) instead of 'begin to allow definitions in expression context
 
+;; warning: 'do is already part of R6RS (reserved keyword) 'while is not in R5RS,R6RS, R7RS-small
 ;; scheme@(guile-user)> (use-modules (Scheme+))
 ;; scheme@(guile-user)> (define i 0)
 ;; scheme@(guile-user)> (define do '())
