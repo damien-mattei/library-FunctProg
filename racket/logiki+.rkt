@@ -22,7 +22,6 @@
 (include "../for_next_step.scm")
 (include "../map.scm")
 (include "../list.scm")
-;;(include "../operation.scm")
 (include "display-formula.scm")
 (include "../minterms.scm")
 
