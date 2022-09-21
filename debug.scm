@@ -10,28 +10,29 @@
 (define debug-mode-save-lst '(#f))
 
 
+;; save the debug mode and set it true
 (define (debug-mode-on)
   (when (not debug-mode)
     ;;(display "debug-mode-on : ")
     (insert debug-mode debug-mode-save-lst)
     (set! debug-mode-save debug-mode)
-    (set! debug-mode #t)
-    ;;(dv debug-mode)
-    ;;(dv debug-mode-save-lst)
-    ;;(insert debug-mode debug-mode-save-lst)
-    ;;(display-nl "end debug-mode-on")
-    )
-  )
+    (set! debug-mode #t)))
+
+
+
+(define (debug-mode-restore)
+  (when (not (null? debug-mode-save-lst))
+    (set! debug-mode (first debug-mode-save-lst))
+    (set! debug-mode-save-lst (rest debug-mode-save-lst))))
 
 
 (define (debug-mode-off)
   (when debug-mode
-	(if (not (null? debug-mode-save-lst))
-	    ($
-	     (set! debug-mode (first debug-mode-save-lst))
-	     (set! debug-mode-save-lst (rest debug-mode-save-lst)))
-	    (set! debug-mode #f)))
-  )
+    ;;(display "debug-mode-on : ")
+    (insert debug-mode debug-mode-save-lst)
+    (set! debug-mode-save debug-mode)
+    (set! debug-mode #f)))
+
 
 
 ;; (debug block) or (nodebug block)
@@ -128,17 +129,29 @@
 
 
 
+;; debug or not a region
 (define-syntax debug-region
   (syntax-rules ()
     
     ((_ instructions ...)
      (begin
        (debug-mode-on)
-       (let ((rv (begin
-		   instructions
-		   ...)))
-	 (debug-mode-off)
-	 rv)))))
+       (define rv (let ()
+		    instructions
+		    ...))
+       (debug-mode-restore)
+       rv))))
 
 
     
+(define-syntax no-debug-region
+  (syntax-rules ()
+    
+    ((_ instructions ...)
+     (begin
+       (debug-mode-off)
+       (define rv (let ()
+		    instructions
+		    ...))
+       (debug-mode-restore)
+       rv))))

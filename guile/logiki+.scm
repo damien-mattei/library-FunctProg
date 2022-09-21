@@ -16,7 +16,7 @@
 ;;
 ;;
 ;;
-;; version 5.0 for Guile
+;; version 7.0 for Guile
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -1480,6 +1480,7 @@
 ;;
 (define (minimal-dnf expr)
 
+  (debug-region 
   (declare min-expr-sorted)
   
   (let* (
@@ -1549,7 +1550,7 @@
 		(dv min-expr)
 		(dv min-expr-sorted))
 
-	  min-expr-sorted))))
+	  min-expr-sorted)))))
 		
   
 
@@ -1570,8 +1571,8 @@
 
 
 ;; the hash table for minterms, better to be a top-level definition,it's nightmare otherwise...
-(declare minterms-ht)
-;;(define minterms-ht (make-hash-table)) ;; Guile
+;;(declare minterms-ht)
+(define minterms-ht (make-hash-table)) ;; SRFI 69
 ;;(define minterms-ht (make-hash)) ;; DrRacket
 ;;(define minterms-ht (make-hashtable)) ;; Bigloo 
 
@@ -1844,7 +1845,6 @@
       ;;(equal? sos '(()))
       ;;(hash-map->list (λ (k v) k) minterms-ht) ;; guile built-in
       (hash-table-keys minterms-ht)
-      ;;(hash-keys minterms-ht) ;; DrRacket
       ;;(hashtable-key-list minterms-ht) ;; Bigloo
       (begin
 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets ::" minterms-ht))
@@ -2307,7 +2307,7 @@
 
      {unified-minterms ⥆ ($
 			     (when debug-mode (display-nl "Quine-Mc-Cluskey:"))
-			     {minterms-ht <- (make-hash-table)}  ;; need to be cleared at each run
+			     ;;{minterms-ht <- (make-hash-table)}  ;; need to be cleared at each run
 			     (init-hash-table-with-set-and-value minterms-ht minterms #f)
 			     (when debug-mode (dv minterms-ht))
 			     (recursive-unify-minterms-set-of-sets  set-of-sets-of-minterms))}
@@ -2332,7 +2332,9 @@
 	   (dv essential-prime-implicants)
 	   (display-nl "function expressed by essential prime implicants ?")
 	   (dv feepi))
-     
+
+     (hash-table-clear! minterms-ht) ;; to avoid GC Warning: Repeated allocation of very large block (appr. size 144117760): May lead to memory leak and poor performance (from Boehm garbage collector)
+   
      essential-prime-implicants)
 
 

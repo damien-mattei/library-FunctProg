@@ -102,13 +102,13 @@
 
 ;; (bin-minterm-weight '(0 1 0 1 1)) -> 3
 (define (bin-minterm-weight bin-minterm)
-  ;;(debug-mode-off)
+  (no-debug-region
   (when debug-mode
 	(display-msg-symb-nl  "bin-minterm-weight ::" bin-minterm))
   
   (if (null? bin-minterm)
       0
-      (+ (first bin-minterm) (bin-minterm-weight (rest bin-minterm))))) 
+      (+ (first bin-minterm) (bin-minterm-weight (rest bin-minterm))))))
 
 
 ;; change x to 0

@@ -88,6 +88,7 @@
 (include "display-formula.scm")
 (include "symbol.scm")
 (include "minterms.scm")
+(include "hash-table.scm")
 
 (include "guile/logiki+.scm")
 

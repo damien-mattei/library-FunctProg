@@ -24,6 +24,7 @@
 (include "../list.scm")
 (include "display-formula.scm")
 (include "../minterms.scm")
+(include "../hash-table.scm")
 
 
 ;;
@@ -43,7 +44,7 @@
 ;;
 ;;
 ;;
-;; version 5.0 for Racket
+;; version 7.0 for Racket
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -250,6 +251,9 @@
 
 
 
+
+
+
 ;; PHASE 0 : eliminate equivalence
 ;; a <=> b ----> (a => b) and (b => a)
 
@@ -404,7 +408,7 @@
 
 (define (phase3-dnf expr)
 
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
     (display "phase3-dnf : ")
     (dv expr))
@@ -815,15 +819,38 @@
   (detect-antilogy lep))
 
 
-;; remove the antilogies out of a list of ANDed expressions... whaooo j'aime cette phrase...
+;; remove the antilogies out of a list of ANDed expressions and also remove useless 'T.
 ;; (remove-antilogies '((and c (not a) a) (and c (not a) (not b)))) -> '((and c (not a) (not b)))
 ;;  (remove-antilogies '()) -> '()
 ;; (remove-antilogies '(c (and a b (not b)))) -> '(c)
-(define (remove-antilogies andList) ;; argument is a list of ANDed expressions
-  (cond
-   ((null? andList) '())
-   ((and (isAND? (first andList)) (is-AND-antilogy? (first andList))) (remove-antilogies (rest andList)))
-   (else (cons (first andList) (remove-antilogies (rest andList))))))
+;;
+;; (define (remove-antilogies andList) ;; argument is a list of ANDed expressions
+;;   (cond
+;;    ((null? andList) '())
+;;    ({(isAND? (first andList)) and (is-AND-antilogy? (first andList))} (remove-antilogies (rest andList)))
+;;    (else (cons (first andList) (remove-antilogies (rest andList))))))
+
+(def (remove-antilogies-and-useless-true andList) ;; argument is a list of ANDed expressions
+
+     (when (null? andList) (return '()))
+
+     {fst <+ (first andList)}
+     
+     (when (isAND? fst)
+	   
+       {fst <- (filter (lambda (x) (not (is-True? x))) fst)} ;; remove useless 'True
+
+       (case (length fst)
+	 ((0) (error "List of null length found in first element of argument of function." andList))
+	 ((1) (return (cons 'T (remove-antilogies-and-useless-true (rest andList))))) ;; (and) remaining ! keep a 'T and continue with the rest
+	 ((2) {fst <- (second fst)}))) ;; (and x) remaining !
+
+	     
+     (if {(isAND? fst) and (is-AND-antilogy? fst)}
+	 (remove-antilogies-and-useless-true (rest andList))
+	 (cons fst (remove-antilogies-and-useless-true (rest andList)))))
+
+
 
 (define (is-True? expr)
   (or (equal? expr #t) (equal? expr 'T) (equal? expr '■)))
@@ -882,11 +909,34 @@
 ;; ->  '((or c a b) (or c (not b) (not a)) (or (not a) b (not c)) (or a (not b) (not c)))
 ;;
 ;;  (remove-tautologies '()) -> '()
-(define (remove-tautologies orList) ;; argument is a list of ORed expressions
-  (cond
-   ((null? orList) '())
-   ((and (isOR? (first orList)) (is-OR-tautology? (first orList))) (remove-tautologies (rest orList)))
-   (else (cons (first orList) (remove-tautologies (rest orList))))))
+;; (define (remove-tautologies orList) ;; argument is a list of ORed expressions
+;;   (cond
+;;    ((null? orList) '())
+;;    ((and (isOR? (first orList)) (is-OR-tautology? (first orList))) (remove-tautologies (rest orList)))
+;;    (else (cons (first orList) (remove-tautologies (rest orList))))))
+
+
+(def (remove-tautologies-and-useless-false orList) ;; argument is a list of ORed expressions
+
+     (when (null? orList) (return '()))
+
+     {fst <+ (first orList)}
+     
+     (when (isOR? fst)
+	   
+       {fst <- (filter (lambda (x) (not (is-False? x))) fst)} ;; remove useless 'False
+
+       (case (length fst)
+	 ((0) (error "List of null length found in first element of argument of function." orList))
+	 ((1) (return (cons 'F (remove-tautologies-and-useless-false (rest orList))))) ;; (or) remaining ! keep a 'F and continue with the rest
+	 ((2) {fst <- (second fst)}))) ;; (or x) remaining !
+   
+     (if {(isOR? fst) and (is-OR-tautology? fst)}
+	 (remove-tautologies-and-useless-false (rest orList)) ;; drop the tautologie and continue checking the rest
+	 (cons fst (remove-tautologies-and-useless-false (rest orList)))))
+
+
+
 
 ;; simplify the expressions
 ;; (or e1 e2 .... eN)
@@ -904,19 +954,24 @@
 ;;;;  (simplify-DNF '(or c (and a b (not b)))) -> c
 ;;
 (define (simplify-DNF dnfExpr)
+  ;;(debug-mode-on)
   (when debug-mode
     (display "simplify-DNF : ")
     (dv dnfExpr))
   (if (is-OR-tautology? dnfExpr)
       #t
-      (let ((operandList (remove-antilogies (rest dnfExpr)))) ;; first we remove antilogies in the operands
+      (let* ((operandList0 (remove-antilogies-and-useless-true (rest dnfExpr)))  ;; first we remove antilogies in the operands
+	     (operandList (filter (lambda (x) (not (is-False? x)))
+				  operandList0))) ;; we remove the useless False if any from the 'or expression
 	(when debug-mode
 	  (dv operandList))
 	(cond ((null? operandList) #f) ;; dnfExpr is composed of antilogies ,so it is an antilogie too
 	      ((null? (rest operandList)) ;; if we have only one element in the result list
 	       (first operandList)) ;; we can forget the or operator
 	      (else (cons 'or operandList))))))
- 
+
+
+
 
 ;; simplify the expressions
 ;; (and e1 e2 .... eN)
@@ -928,7 +983,9 @@
 (define (simplify-CNF cnfExpr)
   (if (is-AND-antilogy? cnfExpr)
       #f
-      (let ((operandList (remove-tautologies (rest cnfExpr)))) ;; first we remove tautologies in the operands
+      (let* ((operandList0 (remove-tautologies-and-useless-false (rest cnfExpr))) ;; first we remove tautologies in the operands
+	     (operandList (filter (lambda (x) (not (is-True? x)))
+				  operandList0))) ;; we remove the useless True if any from the 'and expression
 	(cond ((null? operandList) #t) ;; cnfExpr is composed of tautologies ,so it is a tautologie too
 	      ((null? (rest operandList)) ;; if we have only one element in the result list
 	       (first operandList)) ;; we can forget the and operator
@@ -947,7 +1004,7 @@
 ;;;; (simplify-*NF '(or (and c c)  (and a b (not b)))) -> 'c
 ;;
 (define (simplify-*NF norm-form)
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
     (display "simplify-*NF : ")
     (dv norm-form))
@@ -961,7 +1018,7 @@
     (when debug-mode
       (dv expr-no-dup-sorted)
       )
-    (if (equal? (first expr-no-dup-sorted) 'and)
+    (if (isAND? expr-no-dup-sorted) ;;(equal? (first expr-no-dup-sorted) 'and)
 	(simplify-CNF expr-no-dup-sorted)
 	(simplify-DNF expr-no-dup-sorted))))
 
@@ -999,7 +1056,7 @@
      (let* ((oper (operator expr)) ;; define operator
 	    (expr-no-dup (remove-duplicates-in-operation expr)) ;; remove duplicate symbols
 	    (expr-no-dup-sorted (sort-arguments-in-operation expr-no-dup))) ;; sort variables
-       (if (equal? oper 'and) ;; AND => search for antilogies
+       (if (AND-op? oper) ;;(equal? oper 'and) ;; AND => search for antilogies
 	   (if (is-AND-antilogy? expr-no-dup-sorted) #f expr-no-dup-sorted)
 	   (if (is-OR-tautology? expr-no-dup-sorted) #t expr-no-dup-sorted)))) ;;  OR => search for tautologies
 
@@ -1068,7 +1125,7 @@
 
 (define (expression-negation-tested<? a b)
   
-  (debug
+  (nodebug
    (display  "expression-negation-tested<? : ")
    (dv a)
    (dv b))
@@ -1425,13 +1482,15 @@
 	 (disj-norm-form (dnf-n-arity-simp expr)) ;; disjunctive form
 	 (essential-prime-implicants '())
 	 (formula-find-with-Quine-Mc-Cluskey '())
-	 (infix-disj-norm-form (dnf-infix-symb disj-norm-form))
+	 (infix-disj-norm-form (dnf-infix-symb disj-norm-form)) ;; infix only used for display, not for computation
 	 (non-essential-prime-implicants '())
 	 (min-expr '())
 	 (petrick-expr '())
 	 )
-    
-    (debug-mode-off)
+
+    ;; (display "minimal-dnf : ")
+    ;; (dv debug-mode)
+    ;;(debug-mode-off)
     (when debug-mode
 	  (dv disj-norm-form)
 	  (dv var-list))
@@ -1446,7 +1505,7 @@
 	  (set! essential-prime-implicants (Quine-Mc-Cluskey disj-norm-form var-list))
 
 	  (set! formula-find-with-Quine-Mc-Cluskey (essential-prime-implicants-list->formula essential-prime-implicants var-list))
-	  (debug-mode-off)
+	  ;;(debug-mode-off)
 	  (when debug-mode
 		(dv disj-norm-form)
 		(dv var-list)
@@ -1506,8 +1565,8 @@
 
 
 ;; the hash table for minterms, better to be a top-level definition,it's nightmare otherwise...
-(declare minterms-ht)
-;;(define minterms-ht (make-hash-table)) ;; Guile
+;;(declare minterms-ht)
+(define minterms-ht (make-hash-table)) ;; SRFI 69
 ;;(define minterms-ht (make-hash)) ;; DrRacket
 ;;(define minterms-ht (make-hashtable)) ;; Bigloo 
 
@@ -1652,14 +1711,11 @@
 ;;   given: '()
 (define (funct-unify-minterms-set-of-sets-rec sos)
   
-  ;;(set! debug-mode-save debug-mode)
-  ;;(set! debug-mode #t)
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
 	(newline)
 	(display "funct-unify-minterms-set-of-sets-rec :: ")
-	(dvsos sos)
-	(set! debug-mode debug-mode-save))
+	(dvsos sos))
   
   (cond
    
@@ -1772,7 +1828,7 @@
 ;;   (1 1 0 x))
 (define (recursive-unify-minterms-set-of-sets sos)
 
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
 	(newline)
 	(display "recursive-unify-minterms-set-of-sets : ")
@@ -1783,7 +1839,6 @@
       ;;(equal? sos '(()))
       ;;(hash-map->list (λ (k v) k) minterms-ht) ;; guile built-in
       (hash-table-keys minterms-ht)
-      ;;(hash-keys minterms-ht) ;; DrRacket
       ;;(hashtable-key-list minterms-ht) ;; Bigloo
       (begin
 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets ::" minterms-ht))
@@ -1974,7 +2029,7 @@
 ;; used by Quine - Mc Cluskey
 (define (init-hash-table-with-set-and-value ht s val)
 
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
 	(display "init-hash-table-with-set-and-value") (newline))
   
@@ -2034,7 +2089,7 @@
   {y-pos-epi ⥆ 0} ;; position of essential prime implicant in colomn if there exists one
   {star-in-column ⥆ #f} ;; at the beginning
     
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
     (display-nl "identify-essential-prime-implicants ::")
     (dv prime-implicants)
@@ -2219,7 +2274,7 @@
 ;; '((x 0 0 x) (x x 1 0))
 (def (Quine-Mc-Cluskey disj-norm-form var-list)
 
-     (debug-mode-off)
+     ;;(debug-mode-off)
      (when debug-mode
 	   (display-nl "Entering Quine-Mc-Cluskey"))
      
@@ -2246,13 +2301,12 @@
 
      {unified-minterms ⥆ ($
 			     (when debug-mode (display-nl "Quine-Mc-Cluskey:"))
-			     {minterms-ht <- (make-hash-table)}  ;; need to be cleared at each run
+			     ;;{minterms-ht <- (make-hash-table)}  ;; need to be cleared at each run
 			     (init-hash-table-with-set-and-value minterms-ht minterms #f)
 			     (when debug-mode (dv minterms-ht))
 			     (recursive-unify-minterms-set-of-sets  set-of-sets-of-minterms))}
 	 
-     {essential-prime-implicants ⥆ ($ {prime-implicants-lst ← ($ {debug-mode ← debug-mode-save}
-								  (prime-implicants minterms-ht))}
+     {essential-prime-implicants ⥆ ($ {prime-implicants-lst ← (prime-implicants minterms-ht)}
 				      (identify-essential-prime-implicants prime-implicants-lst minterms))}
 
      (when debug-mode
@@ -2272,7 +2326,9 @@
 	   (dv essential-prime-implicants)
 	   (display-nl "function expressed by essential prime implicants ?")
 	   (dv feepi))
-     
+
+     (hash-table-clear! minterms-ht) ;; to avoid GC Warning: Repeated allocation of very large block (appr. size 144117760): May lead to memory leak and poor performance (from Boehm garbage collector)
+   
      essential-prime-implicants)
 
 
