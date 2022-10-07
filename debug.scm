@@ -140,6 +140,7 @@
 		    instructions
 		    ...))
        (debug-mode-restore)
+       (dv rv)
        rv))))
 
 
@@ -148,6 +149,37 @@
   (syntax-rules ()
     
     ((_ instructions ...)
+     (begin
+       (debug-mode-off)
+       (define rv (let ()
+		    instructions
+		    ...))
+       (debug-mode-restore)
+       rv))))
+
+
+
+;; debug or not a region
+(define-syntax debug-region-name
+  (syntax-rules ()
+    
+    ((_ name instructions ...)
+     (begin
+       (debug-mode-on)
+       (define rv (let ()
+		    instructions
+		    ...))
+       (debug-mode-restore)
+       (display-nl name)
+       (dv rv)
+       rv))))
+
+
+    
+(define-syntax no-debug-region-name
+  (syntax-rules ()
+    
+    ((_ name instructions ...)
      (begin
        (debug-mode-off)
        (define rv (let ()

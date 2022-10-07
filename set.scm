@@ -82,6 +82,8 @@
 ;;
 ;; (associate-set-with-set '(a b c) '(d e f g)) -> '((a d) (a e) (a f) (a g) (b d) (b e) (b f) (b g) (c d) (c e) (c f) (c g))
 (define (associate-set-with-set set1 set2)
+  (nodebug
+   (display-nl "associate-set-with-set"))
   (if (null? set1)
       set1
       (append (associate-elem-with-set (first set1) set2) (associate-set-with-set (rest set1) set2))))
@@ -92,8 +94,34 @@
       (append (product-elem-with-set (first set1) set2) (product-set-with-set (rest set1) set2))))
 
 
+
+;; (set-of-multiple-empty-sets? '(() () ())) -> #t
+;; (set-of-multiple-empty-sets? '(() () (x) ())) -> #f
+;; (set-of-multiple-empty-sets? '(())) -> #t
+;; (set-of-multiple-empty-sets? '()) -> #f
+
+(define (set-of-multiple-empty-sets? s)
+  (if (null? s)
+      #f
+      (andmap null? s)))
+
+
+;; scheme@(guile-user)> (set-of-empty-set? '(()))
+;; $2 = #t
+;; scheme@(guile-user)> (set-of-empty-set? '())
+;; $3 = #f
 (define (set-of-empty-set? s)
-  (equal? s '(())))
+  (equal? s '(()) )  )
+
+;; the same as previous with macro
+;; scheme@(guile-user)> (macro-set-of-empty-set? '())
+;; $2 = #f
+;; scheme@(guile-user)> (macro-set-of-empty-set? '(()))
+;; $3 = #t
+(define-syntax macro-set-of-empty-set? 
+  (syntax-rules ()
+    ((_ s) (equal? s '(()) ))))
+
 
 ;; > (display-sos '(((1 0 x x) (1 x 0 x) (1 x x 0)) ((x x 1 1) (x 1 x 1) (1 x x 1) (1 x 1 x) (1 1 x x))))
 ;; (1 0 x x)
@@ -110,6 +138,7 @@
 ;; > 
 (define (display-sos sos)
   (display-nl "{")
+  (newline)
   (map (lambda (s)
 	 (display-set s)
 	 (newline))
@@ -136,12 +165,6 @@
 	     s)
 	(display-nl "}"))))
 
-
-;; (set-of-empty-sets? '(() () ())) -> #t
-;; (set-of-empty-sets? '(() () (x) ())) -> #f
-;; (set-of-empty-sets? '(())) -> #t
-(define (set-of-empty-sets? s)
-  (andmap null? s))
 
 
 ;; (browse-set '(a b c d e)) -> '((a b) (b c) (c d) (d e))

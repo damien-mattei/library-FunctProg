@@ -64,8 +64,9 @@
 	       (display var)
 	       (newline)))))
 
+;; deprecated 
 (define (fdv var)
-  (begin (display (symbol->string var)) (display " = ") (display (eval var)) (newline)))
+  (begin (display (symbol->string var)) (display " = ") (display (eval var)) (newline))) ;; eval without environment !
 
 
 ;; > (define _quai 34)

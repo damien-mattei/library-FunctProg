@@ -58,12 +58,14 @@
   (let ((aff-list (map (lambda (var-list) (cons c var-list)) lst)) ;; affirmation
 	(neg-list (map (lambda (var-list) (cons (list 'not c) var-list)) lst))) ;; negation
     (when debug-mode
-	  (dv aff-list)
-	  (dv neg-list))
+      (display "insert-literal : ")
+      (dv aff-list)
+      (display "insert-literal : ")
+      (dv neg-list))
     (append aff-list neg-list)
     ))
 
-;; (expand-minterm '(A B c) '(and A B)) -> '((c A B) ((not C) A B))
+;; (expand-minterm '(A B c) '(and A B)) -> '((c A B) ((not c) A B))
 ;; (expand-minterm '(A B C D) '(and A B)) -> '((D C A B) (D (not C) A B) ((not D) C A B) ((not D) (not C) A B))
 ;;  (expand-minterm '(A B C) 'A)
 ;; '((C B A) (C (not B) A) ((not C) B A) ((not C) (not B) A))
@@ -87,14 +89,15 @@
 	     (when (and
 		    (not (member c min-term-args)) ;; (c !C-? min-term-args) AND (!c !C-? min-term-args)
 		    (not (member (list 'not c) min-term-args)))
-		   (when debug-mode
-			 (dv c)
-			 (dv min-term-args))
-		   (set! result (insert-literal c result))
-		   (when debug-mode
-			 (dv result)))
+	       (when debug-mode
+		 (display "expand-minterm-rec : ")
+		 (dv c)
+		 (dv min-term-args))
+	       (set! result (insert-literal c result))
+	       (when debug-mode
+		 (dv result)))
 	     (expand-minterm-rec L))))) ;; expand-minterm-rec(L)
-
+  
   (expand-minterm-rec var-list)
   
   result)
@@ -120,8 +123,8 @@
 
 ;; (floor-bin-minterm-weight '(0 1 0 x 1)) -> 2
 (define (floor-bin-minterm-weight bin-minterm)
-  (when debug-mode
-	(display-msg-symb-nl  "floor-bin-minterm-weight ::" bin-minterm))
+  (nodebug
+   (display-msg-symb-nl  "floor-bin-minterm-weight ::" bin-minterm))
   (bin-minterm-weight (map x->0 bin-minterm)))
 
 
@@ -241,6 +244,10 @@
   #;(map-with-escaping-by-continuation macro-compare-2-bits-with-continuation mt1 mt2)
   (function-map-with-escaping-by-kontinuation2  (macro-function-compare-2-bits-with-continuation) mt1 mt2))
   ;;(map-with-escaping-by-kontinuation-clozure (macro-compare-2-bits-with-kontinuation) mt1 mt2) ;; do not works with DrRacket, too much hygiene in macros?
+
+
+
+
 
 ;; test if equal modulo 1 bit (strict version, arguments must NOT be equal)
 ;;

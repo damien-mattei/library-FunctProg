@@ -233,6 +233,8 @@
 	       (apply map clozure kontinuation lists)))))
 
 
+
+
 ;; (function-map-with-escaping-by-kontinuation2 (macro-function-compare-2-bits-with-continuation)   '(1 1 0 1 0 1 1 0) '(1 1 0 1 1 1 1 1))
 
 ;; list1 = (1 1 0 1 0 1 1 0)
@@ -266,6 +268,8 @@
 	          ;; (newline)
 
 	       (apply map funct-continu lists)))))
+
+
 
 
 

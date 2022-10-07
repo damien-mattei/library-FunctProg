@@ -11,8 +11,9 @@
 (require "operation+.rkt")
 
 (include "../syntactic-sugar.scm")
-(include "../set.scm")
 (include "../debug.scm")
+(include "../set.scm")
+
 (include "display-racket-scheme.scm")
 (include "../array.scm") ;; use SRFI-25 instead, done in Scheme+
 (include "../symbolic.scm")

@@ -102,13 +102,16 @@
 ;;
 ;; '((b ^ d) v (!a ^ !b ^ !c ^ !d) v (a ^ c ^ !d))
 ;; ((b ∧ d) ∨ (¬a ∧ ¬b ∧ ¬c ∧ ¬d) ∨ (a ∧ c ∧ ¬d))
+;; ((a ∧ c ∧ ¬d) ∨ (¬a ∧ ¬b ∧ ¬c ∧ ¬d) ∨ (b ∧ d))
 
 ;;
 ;;
 ;; (dnf-infix-symb (minimal-dnf '(and (or x0 x1) (or x1 x2) x3 x5))) -> '((x1 ^ x3 ^ x5) v (x0 ^ x2 ^ x3 ^ x5))
+;; (x0 ∧ x2 ∧ x3 ∧ x5) ∨ (x1 ∧ x3 ∧ x5))
 ;;
 ;;
 ;; (pretty-display  (dnf-infix-symb '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b)))))) -> (a ^ !b ^ !c)  v  (!a ^ b ^ !c)  v  (!a ^ !b ^ c)  v  (a ^ b ^ c)
+;; (a ∧ b ∧ c)  ∨  (a ∧ ¬b ∧ ¬c)  ∨  (¬a ∧ b ∧ ¬c)  ∨  (¬a ∧ ¬b ∧ c)
 ;;
 ;; with DrRacket Scheme:
 ;;
@@ -117,6 +120,7 @@
 ;; (dnf-infix-symb '(or (and (not a) b (not c) d) (and (not a) b c d) (and a b (not c) (not d)) (and a b (not c) d) (and a b c (not d)) (and a b c d) (and a (not b) (not c) (not d)) (and a (not b) c (not d))))
 ;;
 ;;  -> '((!a ^ b ^ !c ^ d) v (!a ^ b ^ c ^ d) v (a ^ b ^ !c ^ !d) v (a ^ b ^ !c ^ d) v (a ^ b ^ c ^ !d) v (a ^ b ^ c ^ d) v (a ^ !b ^ !c ^ !d) v (a ^ !b ^ c ^ !d))
+;; (a ∧ b ∧ c ∧ d) ∨ (a ∧ b ∧ c ∧ ¬d) ∨ (a ∧ b ∧ ¬c ∧ d) ∨ (a ∧ b ∧ ¬c ∧ ¬d) ∨ (a ∧ ¬b ∧ c ∧ ¬d) ∨ (a ∧ ¬b ∧ ¬c ∧ ¬d) ∨ (¬a ∧ b ∧ c ∧ d) ∨ (¬a ∧ b ∧ ¬c ∧ d))
 ;;
 ;;
 ;; (infix-symb-min-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) b (not c) d) (and (not a) b c d) (and a (not b) c (not d)) (and c d) (and a c (not d)) (and a b c d) (and a  (not c))))
@@ -127,6 +131,7 @@
 ;; (dnf-infix-symb (minimal-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) b (not c) d) (and (not a) b c d) (and a (not b) c (not d)) (and c d) (and a c (not d)) (and a b c d) (and a  (not c)))))
 ;;
 ;; -> '((c ^ d) v (!b ^ !c ^ !d) v (b ^ d) v a)
+;; (a ∨ (b ∧ d) ∨ (¬b ∧ ¬c ∧ ¬d) ∨ (c ∧ d))
 ;;
 ;;
 ;;
@@ -215,6 +220,7 @@
 ;;  (cnf-infix-symb '(and (=> (and p q) r) (=> (not (and p q)) r))) -> '((p ∨ r) ∧ (¬p ∨ ¬q ∨ r) ∧ (q ∨ r))
 ;;
 ;;  (enlight-dnf '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b))))) -> (a^b^c)v(!a^!b^c)v(!a^b^!c)v(a^!b^!c)
+;; (a∧b∧c)∨(a∧¬b∧¬c)∨(¬a∧b∧¬c)∨(¬a∧¬b∧c)
 ;;
 ;; (enlight-dnf '(or (and a b) a)) -> a
 ;;
@@ -230,6 +236,7 @@
 
 ;; (cnf-infix-symb '{A ⊕ B ⊕ Ci})
 ;; '((¬A ∨ B ∨ ¬Ci) ∧ (¬A ∨ ¬B ∨ Ci) ∧ (A ∨ ¬B ∨ ¬Ci) ∧ (A ∨ B ∨ Ci))
+;; ((A ∨ B ∨ Ci) ∧ (A ∨ ¬B ∨ ¬Ci) ∧ (¬A ∨ B ∨ ¬Ci) ∧ (¬A ∨ ¬B ∨ Ci))
 
 ;; (infix-symb-bool-min-dnf '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
 ;; ((b̅ · c̅) ➕ (c · d̅) ➕ (a̅ · b · d))
@@ -541,11 +548,13 @@
 	  {result <- (cons oper decaps-args)})))) ;; reconstruct operation expression with simplified arguments list
 
   (nodebug
+   (display "simplify-NF-by-unitary-reduction : ")
    (dv result))
 
   {result-sorted <- (sort-expressions-in-operation result)}
   
   (nodebug
+   (display "simplify-NF-by-unitary-reduction : ")
    (dv result-sorted))
   
   result-sorted) 
@@ -1094,6 +1103,23 @@
 
 
 ;; compare logical expressions args
+;; scheme@(guile-user)> (compare-list-args<? '(A B C) '(B C))
+;; #t
+;; scheme@(guile-user)> (compare-list-args<? '(A B C) '(A B C))
+;; #t
+;; scheme@(guile-user)> (compare-list-args<? '(A B C) '(A B C D))
+;; #t
+;; scheme@(guile-user)> (compare-list-args<? '(A B C D E) '(A B C D))
+;; #f
+;; scheme@(guile-user)> (compare-list-args<? '(B C D E F) '(A B C D))
+;; #f
+;; scheme@(guile-user)> (compare-list-args<? '(B C D E F) '((not A) B C D))
+;; #f
+;; scheme@(guile-user)> (compare-list-args<? '(B C D E F) '((not A) (not B) C D))
+;; #f
+;; scheme@(guile-user)> (compare-list-args<? '(B C D E F) '((not B) C D))
+;; #t
+
 (define (compare-list-args<? L1 L2)
   (cond ((null? L1) #t)
 	((null? L2) #f)
@@ -1411,14 +1437,15 @@
 
       (debug-mode-off)
       (when debug-mode
-	    (dv disj-norm-form)
-	    (dv var-list)
-	    (dv and-terms)
-	    (dv expanded-var-terms)
-	    (dv sorted-expanded-var-terms)
-	    (dv uniq-sorted-expanded-var-terms)
-	    (dv sorted-expanded-and-term)
-	    )
+	(display "maximal-dnf:")
+	(dv disj-norm-form)
+	(dv var-list)
+	(dv and-terms)
+	(dv expanded-var-terms)
+	(dv sorted-expanded-var-terms)
+	(dv uniq-sorted-expanded-var-terms)
+	(dv sorted-expanded-and-term)
+	)
       maximal-disj-norm-form))))
 
 
@@ -1480,7 +1507,7 @@
 ;;
 (define (minimal-dnf expr)
 
-  (debug-region 
+  (no-debug-region 
   (declare min-expr-sorted)
   
   (let* (
@@ -1570,10 +1597,10 @@
 
 
 
+
 ;; the hash table for minterms, better to be a top-level definition,it's nightmare otherwise...
-;;(declare minterms-ht)
+
 (define minterms-ht (make-hash-table)) ;; SRFI 69
-;;(define minterms-ht (make-hash)) ;; DrRacket
 ;;(define minterms-ht (make-hashtable)) ;; Bigloo 
 
 
@@ -1604,62 +1631,45 @@
   ;; 	   (map cons (hashtable-key-list mt-ht) (hashtable->list mt-ht)))))
 
 
+;; diagram of calls:
+;; funct-unify-minterms-set-of-sets-rec --> funct-unify-minterms-set-1-unit  --> associate-set-with-set
+;;                                                                               function-unify-minterms-list
+;;                                      <-- 
 
+;; funct-unify-minterms-set-1-unit  --> associate-set-with-set
+;;                                      function-unify-minterms-list --> function-unify-two-minterms-and-tag --> unify-two-minterms
 
 ;; unify two sets of minterms separated by a weight distance of one unit (1 bit)
 ;;
-;; (funct-unify-minterms-set '((1 0 0 0)) '((1 0 1 0) (0 1 0 1) (1 1 0 0))) -> '((1 0 x 0) (1 x 0 0))
+;; (funct-unify-minterms-set-1-unit '((1 0 0 0)) '((1 0 1 0) (0 1 0 1) (1 1 0 0))) -> '((1 0 x 0) (1 x 0 0))
 ;;  minterms-ht
 ;; '#hash(((1 1 0 0) . #t) ((1 0 1 0) . #t) ((1 0 0 0) . #t))
 ;;
-;; (funct-unify-minterms-set '((0 1 1) (1 0 1) (1 1 0)) '((1 1 1))) -> '((x 1 1) (1 x 1) (1 1 x))
+;; (funct-unify-minterms-set-1-unit '((0 1 1) (1 0 1) (1 1 0)) '((1 1 1))) -> '((x 1 1) (1 x 1) (1 1 x))
 ;;
 (define (funct-unify-minterms-set-1-unit set1 set2)
 
-  ;;(debug-mode-on)
-  (when debug-mode
-	(display-nl "funct-unify-minterms-set-1-unit : ")
-	(dvs set1)
-	(dvs set2)
-	)
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit")
+   (dvs set1)
+   (dvs set2))
   
-  (letrec ((function-unify-minterms-list (λ (L) (apply function-unify-two-minterms-and-tag L))))
-    (let* (
-	   (minterms-set (associate-set-with-set set1 set2)) ;; create pair list of minterms
-	   (unified-minterms-set-1 (map function-unify-minterms-list minterms-set))
-	   (unified-minterms-set-2 (filter (λ (x) x) unified-minterms-set-1)) ;; remove false results
-	   (unified-minterms-set (remove-duplicates-sorted unified-minterms-set-2)) ;; uniq
-	   )
+  {function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
+  
+  {minterms-set <+ (associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
+
+  (nodebug
+   ;;(display "after call of recursive function associate-set-with-set: ")
+   (dvs minterms-set))
+
+  {unified-minterms-set-1 <+ (map function-unify-minterms-list minterms-set)}
+  {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  {unified-minterms-set <+ (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq
+	    
+  (nodebug
+    (dvs unified-minterms-set))
       
-      ;;(debug-mode-on)
-      (when debug-mode
-	(dvs unified-minterms-set)
-	)
-      
-      unified-minterms-set)))
-
-
-;; unify two sets of minterms separated by a weight distance of one unit (1 bit)
-;;
-;; (funct-unify-minterms-set '((1 0 0 0)) '((1 0 1 0) (0 1 0 1) (1 1 0 0))) -> '((1 0 x 0) (1 x 0 0))
-;;  minterms-ht
-;; '#hash(((1 1 0 0) . #t) ((1 0 1 0) . #t) ((1 0 0 0) . #t))
-;;
-;; (funct-unify-minterms-set '((0 1 1) (1 0 1) (1 1 0)) '((1 1 1))) -> '((x 1 1) (1 x 1) (1 1 x))
-;;
-;; (funct-unify-minterms-set '((1 x x 0)) '((x 1 x 1) (1 1 x x))) -> '()
-(define (funct-unify-minterms-set set1 set2)
-  (if (or (null? set1) (null? set2))
-      '()
-      (letrec ((function-unify-minterms-list (λ (L) (apply function-unify-two-minterms-and-tag L))))
-	(let* (
-	       (minterms-set (associate-set-with-set set1 set2)) ;; create pair list of minterms
-	       (unified-minterms-set-1 (map function-unify-minterms-list minterms-set))
-	       (unified-minterms-set-2 (filter (λ (x) x) unified-minterms-set-1)) ;; remove false results
-	       (unified-minterms-set (remove-duplicates-sorted unified-minterms-set-2)) ;; uniq
-	       )
-	  unified-minterms-set))))
-
+  unified-minterms-set)
 
 
 
@@ -1689,13 +1699,10 @@
 ;;        ((1 1 1 0) . #t)
 ;;        ((1 0 1 0) . #t))
 ;;
-;;  (funct-unify-minterms-set-of-sets '(((1 x x 0)) ((x 1 x 1) (1 1 x x)))) -> '(())
-(define (funct-unify-minterms-set-of-sets sos) 
-   (map-2-shift funct-unify-minterms-set sos))
 
 
-
-
+;; funct-unify-minterms-set-of-sets-rec --> funct-unify-minterms-set-1-unit
+;;                                      <--   
 
 ;; argument: a set of sets of minterms
 ;; this function advance of a level in unify minterms set of sets
@@ -1715,40 +1722,114 @@
 ;; . . car: contract violation
 ;;   expected: pair?
 ;;   given: '()
+
+;; see the tail recursive version after
+(define (funct-unify-minterms-set-of-sets-rec-backup sos)
+  
+  (debug
+   (display-nl "funct-unify-minterms-set-of-sets-rec")
+   ;;(dvsos sos)
+   )
+   
+  (debug-region-name "region inside funct-unify-minterms-set-of-sets-rec"
+  (if (singleton-set? sos)
+
+      ;; singleton
+      ($ (debug ;; debug
+	  (display-nl "funct-unify-minterms-set-of-sets-rec :: singleton-set? ")
+	  (dvsos sos)
+	  )
+	 
+	 '() ) ;; return '()
+
+      ;; at least 2 elements in set of sets
+      (& {mt-set1 <+ (car sos)} ;; minterm set 1
+	 {mt-set2 <+ (cadr sos)} ;; minterm set 2
+	 {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
+	 {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
+	 {weight-mt-set2 <+ (floor-bin-minterm-weight (car mt-set2))}
+	 {delta-weight <+ {weight-mt-set2 - weight-mt-set1}}
+
+	 (nodebug
+	  (dvs mt-set1)
+	  (newline)
+	  (dvs mt-set2)
+	  (newline)
+	  (dv delta-weight))
+
+	 ;; this was not original code! here we do first the computation from set 2 to set n and after set 1 and set 2! so no tail recursion optimisation
+	 {unified-minterms-set2-to-setn <+ (funct-unify-minterms-set-of-sets-rec mt-set2-to-mt-setn)} ;; in any case we continue with sets from 2 to n
+	 
+	 (if {delta-weight = 1} ;; if minterms set are neighbours
+	     
+	     (& {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
+		
+		(if (null? unified-mt-set1-and-mt-set2)
+		    unified-minterms-set2-to-setn ;; the result will be the continuation with sets from 2 to n
+		    (insert unified-mt-set1-and-mt-set2 unified-minterms-set2-to-setn))) ;; end &
+	     
+	     unified-minterms-set2-to-setn))))) ;; continue with sets from 2 to n
+       ;; this procedure returns a set of unified minterms of the current level and
+       ;; and when there is no more minterms set to unify this procedure returns '() and perheaps
+       ;; sort of '(()) or '(() () ...)
+
+
+;; a tail recursive version
+(define (funct-unify-minterms-set-of-sets-rec-tail sos acc) ;; with accumulator
+    
+    ;;(debug-region-name "region inside funct-unify-minterms-set-of-sets-rec-tail"
+    (if (singleton-set? sos)
+
+	;; singleton
+	($ (nodebug ;; debug
+	    (display-nl "funct-unify-minterms-set-of-sets-rec :: singleton-set? ")
+	    (dvsos sos)
+	    )
+	 
+	   (reverse acc) )
+
+	;; at least 2 elements in set of sets
+	(& {mt-set1 <+ (car sos)} ;; minterm set 1
+	   {mt-set2 <+ (cadr sos)} ;; minterm set 2
+	   {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
+	   {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
+	   {weight-mt-set2 <+ (floor-bin-minterm-weight (car mt-set2))}
+	   {delta-weight <+ {weight-mt-set2 - weight-mt-set1}}
+
+	   (nodebug
+	    (dvs mt-set1)
+	    (newline)
+	    (dvs mt-set2)
+	    (newline)
+	    (dv delta-weight))
+
+	   (if {delta-weight = 1} ;; if minterms set are neighbours
+	     
+	       (& {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
+		
+		  (if (null? unified-mt-set1-and-mt-set2)
+		      (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc) ;; the result will be the continuation with sets from 2 to n
+		      (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn (insert unified-mt-set1-and-mt-set2 acc)))) ;; end &
+	     
+	     (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc))))) ;; continue with sets from 2 to n
+  
+       ;; this procedure returns a set of unified minterms of the current level and
+       ;; and when there is no more minterms set to unify this procedure returns '() and perheaps
+       ;; sort of '(()) or '(() () ...)
+
+;; a tail recursive version
 (define (funct-unify-minterms-set-of-sets-rec sos)
   
-  ;;(debug-mode-off)
-  (when debug-mode
-	(newline)
-	(display "funct-unify-minterms-set-of-sets-rec :: ")
-	(dvsos sos))
-  
-  (cond
-   
-   ((singleton-set? sos) ;;(null? (cdr sos)) ;; (equal? sos '(())) marcherais pas
-    (nodebug ;; debug
-     (display-nl "funct-unify-minterms-set-of-sets-rec :: singleton-set? ")
-     (dvsos sos))
-    '())
-    
-   (else
-    (let* ((mt-set1 (car sos)) ;; minterm set 1
-	   (mt-set2 (cadr sos)) ;; minterm set 2
-	   (mt-set2-to-mt-setn (cdr sos)) ;; minterm sets 2 to n
-	   (weight-mt-set1 (floor-bin-minterm-weight (car mt-set1))) ;; in a set all minterms have same weight
-	   (weight-mt-set2 (floor-bin-minterm-weight (car mt-set2)))
-	   (delta-weight (- weight-mt-set2 weight-mt-set1)))
+  (nodebug
+   (display-nl "funct-unify-minterms-set-of-sets-rec")
+   ;;(dvsos sos)
+   )
 
-      (if (= delta-weight 1)
-	  (let ((unified-mt-set1-and-mt-set2 (funct-unify-minterms-set-1-unit mt-set1 mt-set2)))
-
-	    (if (null? unified-mt-set1-and-mt-set2)
-		(funct-unify-minterms-set-of-sets-rec mt-set2-to-mt-setn)
-		(insert unified-mt-set1-and-mt-set2 (funct-unify-minterms-set-of-sets-rec mt-set2-to-mt-setn)))) ;; end let
-	  (funct-unify-minterms-set-of-sets-rec mt-set2-to-mt-setn))))))
+  ;; now call the tail recursive version
+  (funct-unify-minterms-set-of-sets-rec-tail sos '()))
 
   
-
+;; funct-unify-minterms-set-of-sets-rec-wrap --> funct-unify-minterms-set-of-sets-rec
 
 ;; it's a wrap of previous function to return empty set 
 ;; > (funct-unify-minterms-set-of-sets-rec-wrap '(((1 x x 0)) ((x 1 x 1) (1 1 x x))))
@@ -1757,31 +1838,35 @@
 ;; '()
 ;; > (funct-unify-minterms-set-of-sets-rec-wrap '(((1 0 0 0)) ((0 1 0 1) (1 0 1 0) (1 1 0 0)) ((0 1 1 1) (1 1 0 1) (1 1 1 0)) ((1 1 1 1))))
 ;; '(((1 0 x 0) (1 x 0 0)) ((0 1 x 1) (x 1 0 1) (1 x 1 0) (1 1 0 x) (1 1 x 0)) ((x 1 1 1) (1 1 x 1) (1 1 1 x)))
-;; > 
-(define (funct-unify-minterms-set-of-sets-rec-wrap sos)
+;; >
+;; DEPRECATED (but keep in case of error on other data set to reuse it)
 
-  ;;(debug-mode-on)
-  (when debug-mode
-	(newline)
-	(newline)
-	(display "funct-unify-minterms-set-of-sets-rec-wrap : ")
-	(dvsos sos)
-	)
+;; (define (funct-unify-minterms-set-of-sets-rec-wrap sos)
 
-  (let ((rv (funct-unify-minterms-set-of-sets-rec sos)))
-    ;;(debug-mode-on)
-    (when debug-mode
-	(newline)
-	(newline)
-	(display "funct-unify-minterms-set-of-sets-rec-wrap : ")
-	(dvsos rv)
-	)
-    (if (set-of-empty-set? rv)
-	'()
-	rv)))
+;;   (debug
+;;    (newline)
+;;    (newline)
+;;    (display "funct-unify-minterms-set-of-sets-rec-wrap : ")
+;;    (dvsos sos))
+
+;;   (let ((rv (funct-unify-minterms-set-of-sets-rec sos)))
+
+;;     (debug
+;;      (newline)
+;;      (newline)
+;;      (display "funct-unify-minterms-set-of-sets-rec-wrap : ")
+;;      (dv rv)
+;;      (dvsos rv))
+
+;;     (if (set-of-empty-set? rv)
+;; 	'()
+;; 	rv)))
+
 	  
 
-
+;; recursive-unify-minterms-set-of-sets --> put-elements-of-set-of-sets-in-minterms-ht
+;;                                          funct-unify-minterms-set-of-sets-rec
+;;                                      <--
 
 ;; (recursive-unify-minterms-set-of-sets '(((1 0 0 0)) ((0 1 0 1) (1 0 1 0) (1 1 0 0)) ((0 1 1 1) (1 1 0 1) (1 1 1 0)) ((1 1 1 1))))
 ;; '((0 1 x 1)
@@ -1832,28 +1917,58 @@
 ;;   (x 1 1 1)
 ;;   (1 1 1 0)
 ;;   (1 1 0 x))
+;; (define (recursive-unify-minterms-set-of-sets sos)
+
+;;   (debug
+;;    (display-nl "recursive-unify-minterms-set-of-sets : "))
+   
+;;   (debug
+;; 	(newline)
+;; 	;;(display "recursive-unify-minterms-set-of-sets : ")
+;; 	(dv sos)
+;; 	(dvsos sos)
+;; 	)
+  
+;;   (if (set-of-multiple-empty-sets? sos)
+      
+;;       (hash-table-keys minterms-ht)
+;;       ;;(hashtable-key-list minterms-ht) ;; Bigloo
+
+;;       (begin
+;; 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets ::" minterms-ht))
+
+;; 	(put-elements-of-set-of-sets-in-minterms-ht sos)
+
+;; 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets :: after (put-elements-of-set-of-sets-in-minterms-ht sos)" minterms-ht))
+
+;; 	(recursive-unify-minterms-set-of-sets (funct-unify-minterms-set-of-sets-rec-wrap sos)))))
+
+
 (define (recursive-unify-minterms-set-of-sets sos)
 
-  ;;(debug-mode-off)
-  (when debug-mode
+  (nodebug
+   (display-nl "recursive-unify-minterms-set-of-sets : "))
+   
+  (nodebug
 	(newline)
-	(display "recursive-unify-minterms-set-of-sets : ")
+	;;(display "recursive-unify-minterms-set-of-sets : ")
+	(dv sos)
 	(dvsos sos)
 	)
   
-  (if (set-of-empty-sets? sos)
-      ;;(equal? sos '(()))
-      ;;(hash-map->list (λ (k v) k) minterms-ht) ;; guile built-in
+  (if {(null? sos) or (set-of-multiple-empty-sets? sos)}
+      
       (hash-table-keys minterms-ht)
       ;;(hashtable-key-list minterms-ht) ;; Bigloo
+
       (begin
 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets ::" minterms-ht))
+
 	(put-elements-of-set-of-sets-in-minterms-ht sos)
+
 	(when debug-mode (display-msg-symb-nl "recursive-unify-minterms-set-of-sets :: after (put-elements-of-set-of-sets-in-minterms-ht sos)" minterms-ht))
-	(recursive-unify-minterms-set-of-sets (funct-unify-minterms-set-of-sets-rec-wrap ;;funct-unify-minterms-set-of-sets
-					       sos)))))
 
-
+	(recursive-unify-minterms-set-of-sets (funct-unify-minterms-set-of-sets-rec sos)))))
 
 
 ;; (put-elements-of-set-of-sets-in-minterms-ht '(((1 0 x 0) (1 x 0 0)) ((0 1 x 1) (x 1 0 1) (1 x 1 0) (1 1 0 x) (1 1 x 0)) ((x 1 1 1) (1 1 x 1) (1 1 1 x))))
@@ -1993,9 +2108,9 @@
 ;; sos set of sets
 (define (put-elements-of-set-of-sets-in-minterms-ht sos)
   (map ;; deal with sets of the 'set of sets'
-   (λ (s) (map ;; deal with elements of a set
-		(λ (e) {minterms-ht[e] <- #f})
-		s))
+   (λ (s)
+     ;; deal with elements of a set
+     (map    ( λ (e) {minterms-ht[e] <- #f} )     s))
    sos))
 
 
@@ -2094,6 +2209,8 @@
   {cpt-mt ⥆ 0} ;; counter of minterms
   {y-pos-epi ⥆ 0} ;; position of essential prime implicant in colomn if there exists one
   {star-in-column ⥆ #f} ;; at the beginning
+
+  {feepi ← #f} ;; at the beginning
     
   ;;(debug-mode-off)
   (when debug-mode
@@ -2252,7 +2369,7 @@
 
 
 
-(define feepi #f) ;; function expressed by essential prime implicants
+(declare feepi) ;; function expressed by essential prime implicants
 
 
 
@@ -2290,48 +2407,72 @@
 				(when debug-mode
 				  (dv and-terms)) ;; dv:display value
 				(apply append
-				       (map (λ (min-term)
-					      (expand-minterm var-list min-term))
+				       (map (λ (min-term) (expand-minterm var-list min-term))
 					    and-terms)))}
+     ;; TODO: inserer un uniq ? pour supprimer les doublons avant de continuer
 
      {sorted-expanded-var-terms  ⥆ (map sort-arguments expanded-var-terms)} ;; sorted variable list of expanded minterms
-     {binary-minterms ⥆ (map var->binary sorted-expanded-var-terms)} ;; minterms in binary form
+
+     {sorted-minterms-list <+ (sort sorted-expanded-var-terms compare-list-args<?)} ;; sort expanded minterms list
+
+     {uniq-sorted-minterms <+ (remove-duplicates-sorted sorted-minterms-list)}
+     
+     (nodebug
+      (display "Quine-Mc-Cluskey:")
+      ;; dv : display value
+      (dv disj-norm-form)
+      (dv var-list)
+      (dv and-terms)
+      ;; (dv expanded-var-terms)
+      ;; (dv sorted-expanded-var-terms)
+      ;; (dv sorted-minterms-list)
+      (dv uniq-sorted-minterms))
+     
+     {binary-minterms ⥆ (map var->binary uniq-sorted-minterms)} ;; minterms in binary form
      {sorted-binary-minterms ⥆ (sort binary-minterms minterm-binary-weight-number<?)} ;; sorted binary minterms
-     {uniq-sorted-binary-minterms ⥆ (remove-duplicates-sorted sorted-binary-minterms)}  ;; prevoir uniq pourquoi???? sais plus !
+     {uniq-sorted-binary-minterms ⥆ (remove-duplicates-sorted sorted-binary-minterms)}  ;; uniq? because there could be the same many times
      {minterms ⥆ uniq-sorted-binary-minterms}
+
+     (nodebug
+      (display "Quine-Mc-Cluskey:")
+      
+      ;; (dv binary-minterms)
+      ;; (dv sorted-binary-minterms)
+      (dv uniq-sorted-binary-minterms))
+     
      {set-of-sets-of-minterms ⥆ (order-by-weight-minterms uniq-sorted-binary-minterms)} ;; set of sets of minterms ordered by weight
      ;; (begin
      ;;   (de (order-by-weight-basic uniq-sorted-binary-minterms)) ;; set of sets of minterms ordered by weight
      ;;   (error "escaping from Quine-Mc-Cluskey")))
      ;; (order-by-weight-basic uniq-sorted-binary-minterms))
 
+     (nodebug
+      (dvsos set-of-sets-of-minterms))
+     
      {unified-minterms ⥆ ($
 			     (when debug-mode (display-nl "Quine-Mc-Cluskey:"))
-			     ;;{minterms-ht <- (make-hash-table)}  ;; need to be cleared at each run
 			     (init-hash-table-with-set-and-value minterms-ht minterms #f)
 			     (when debug-mode (dv minterms-ht))
 			     (recursive-unify-minterms-set-of-sets  set-of-sets-of-minterms))}
+
+     (nodebug
+      (newline)
+      (display-nl "Quine-Mc-Cluskey:")
+      (dv unified-minterms)
+      (newline))
 	 
      {essential-prime-implicants ⥆ ($ {prime-implicants-lst ← (prime-implicants minterms-ht)}
 				      (identify-essential-prime-implicants prime-implicants-lst minterms))}
 
-     (when debug-mode
-	   ;; dv : display value
-	   (dv disj-norm-form)
-	   (dv var-list)
-	   (dv and-terms)
-	   (dv expanded-var-terms)
-	   (dv sorted-expanded-var-terms)
-	   (dv binary-minterms)
-	   (dv sorted-binary-minterms)
-	   (dv uniq-sorted-binary-minterms)
-	   (dvsos set-of-sets-of-minterms)
-	   (dv unified-minterms)
-	   (dv minterms-ht)
-	   (dv prime-implicants-lst)
-	   (dv essential-prime-implicants)
-	   (display-nl "function expressed by essential prime implicants ?")
-	   (dv feepi))
+
+     (nodebug
+      ;;(dvsos set-of-sets-of-minterms)
+      ;;(dv unified-minterms)
+      (dv minterms-ht)
+      (dv prime-implicants-lst)
+      (dv essential-prime-implicants)
+      (display-nl "function expressed by essential prime implicants ?")
+      (dv feepi))
 
      (hash-table-clear! minterms-ht) ;; to avoid GC Warning: Repeated allocation of very large block (appr. size 144117760): May lead to memory leak and poor performance (from Boehm garbage collector)
    

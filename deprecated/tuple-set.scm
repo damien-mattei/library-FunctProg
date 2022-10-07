@@ -26,7 +26,7 @@
   (let [(c -1)]
     (if (or (null? exp-seq) (begin (set! c (map-by-exp? x (first exp-seq))) (not c)))
 	(list x)
-	(cons x (compute-tuple c (rest exp-seq))))))
+	(cons x (compute-tuple-readable c (rest exp-seq))))))
 
 ; compute tuple if it exists for a starting number and the exponent list
 ;
@@ -34,7 +34,7 @@
 (define (compute-tuple-non-efficiently x exp-seq)
   (if (or (null? exp-seq) (not (map-by-exp? x (first exp-seq))))
       (list x)
-      (cons x (compute-tuple (map-by-exp? x (first exp-seq)) (rest exp-seq)))))
+      (cons x (compute-tuple-non-efficiently (map-by-exp? x (first exp-seq)) (rest exp-seq)))))
 
 ; compute the tuple set for an exponent sequence and up to i-max level
 ; (compute-tuple-set 7 '(1 1 2)) ->

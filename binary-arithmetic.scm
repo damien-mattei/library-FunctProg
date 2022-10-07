@@ -315,9 +315,9 @@
 	   (lambda (continuation b1 b2) (if (equal? b1 b2)
 					  b1
 					  (begin
-					    (set! cnt (add1 cnt))
+					    (set! cnt (add1 cnt)) ;; we leave with continuation in case cpt > 1, we can have used a flag too instead of a counter
 					    (when (> cnt 1) (continuation #f)) ;; escaping with the continuation
-					    'x)))))))
+					    'x))))))) ;; return x in case of (b1,b2) = (O,1) or (1,0)
 
 (define-syntax macro-return-function-compare-2-bits-with-kontinuation ;; continuation version of macro-compare-2-bits
   ;; i need a macro because of external function to the clozure
