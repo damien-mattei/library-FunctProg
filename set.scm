@@ -72,15 +72,34 @@
       set
       (append (list (list elem (first set))) (associate-elem-with-set elem (rest set)))))
 
+;;  (product-elem-with-set 'a '(b c d))
+;; = ((a b) (a c) (a d))
 (define (product-elem-with-set elem set)
   (if (null? set)
       set
       (cons (list elem (first set)) (product-elem-with-set elem (rest set)))))
 
+;; (product-elem-with-set-accumulator 'a '(b c d) '())
+;; = ((a d) (a c) (a b))
+(define (product-elem-with-set-tail-rec elem set acc)
+  (if (null? set)
+      acc
+      (product-elem-with-set-tail-rec elem (rest set) (cons (list elem (first set)) acc))))
+
+
 
 ;; set multiplication : find all the combinations of the possible association of two elements
 ;;
 ;; (associate-set-with-set '(a b c) '(d e f g)) -> '((a d) (a e) (a f) (a g) (b d) (b e) (b f) (b g) (c d) (c e) (c f) (c g))
+;; this use append and is slow
+;; (define (associate-set-with-set set1 set2)
+;;   (nodebug
+;;    (display-nl "associate-set-with-set"))
+;;   (if (null? set1)
+;;       set1
+;;       (append (associate-elem-with-set (first set1) set2) (associate-set-with-set (rest set1) set2))))
+
+
 (define (associate-set-with-set set1 set2)
   (nodebug
    (display-nl "associate-set-with-set"))
@@ -88,10 +107,30 @@
       set1
       (append (associate-elem-with-set (first set1) set2) (associate-set-with-set (rest set1) set2))))
 
+;; this use append and is slow
+;; (define (product-set-with-set set1 set2)
+;;   (if (null? set1)
+;;       set1
+;;       (append (product-elem-with-set (first set1) set2) (product-set-with-set (rest set1) set2))))
+
+
+;; (define (product-set-with-set set1 set2)
+;;   (if (null? set1)
+;;       set1
+;;       (append (product-elem-with-set-tail-rec (first set1) set2 '()) (product-set-with-set (rest set1) set2))))
+
+
+;; (product-set-with-set '(a b c) '(d e f g))
+;; = ((a g) (a f) (a e) (a d) (b g) (b f) (b e) (b d) (c g) (c f) (c e) (c d))
+;; this one is still not tail recursive :
+;; we go deep in product-set-with-set but stacking product-elem-with-set-tail-rec !
+;; in Racket the memory must be increased
+;; but there is no more append slowing down the code
 (define (product-set-with-set set1 set2)
   (if (null? set1)
       set1
-      (append (product-elem-with-set (first set1) set2) (product-set-with-set (rest set1) set2))))
+      (product-elem-with-set-tail-rec (first set1) set2 (product-set-with-set (rest set1) set2))))
+
 
 
 

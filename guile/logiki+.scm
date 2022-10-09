@@ -1656,7 +1656,7 @@
   
   {function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
   
-  {minterms-set <+ (associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
+  {minterms-set <+ (product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
 
   (nodebug
    ;;(display "after call of recursive function associate-set-with-set: ")
