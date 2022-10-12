@@ -1,10 +1,7 @@
+;; Racket version 
+
 
 ;; warning: 'do is already part of R6RS (reserved keyword) 'while is not in R5RS,R6RS, R7RS-small
-
-;; but 'do in Scheme has a painful syntax
-
-;; syntax defined in this file are inspired from Pascal language
-
 ;; scheme@(guile-user)> (use-modules (Scheme+))
 ;; scheme@(guile-user)> (define i 0)
 ;; scheme@(guile-user)> (define do '())
@@ -58,8 +55,6 @@
 ;;   (set! p (+ p i x)))
 ;; $3 = 1257
 
-
-;; 'do is redefined here only to allow 'define in body as allowed in Scheme+
 (define-syntax do
 
   (syntax-rules ()
@@ -107,17 +102,19 @@
      y)))
 
 
-;; definitions redefined here only to allow 'define in body as allowed in Scheme+
+
 (define-syntax when
   (syntax-rules ()
     ((when test result1 result2 ...)
      (if test
          ;;(begin result1 result2 ...)))))
-	 (let () result1 result2 ...)))))
+	 (let () result1 result2 ...)
+	 '()))))
 
 (define-syntax unless
   (syntax-rules ()
     ((unless test result1 result2 ...)
      (if (not test)
          ;;(begin result1 result2 ...)))))
-	 (let () result1 result2 ...)))))
+	 (let () result1 result2 ...)
+	 '()))))

@@ -9,6 +9,7 @@
 ;;(require Scheme-PLUS-for-Racket/Scheme+)
 
 (require "operation+.rkt")
+(require "set+.rkt")
 
 (include "../syntactic-sugar.scm")
 (include "../debug.scm")
@@ -222,6 +223,7 @@
 ;; (cnf-infix-symb '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}})
 
 ;;  in Racket the memory must be increased because of product-set-with-set version (see comments in set.scm)
+;; 128 Mb -> 1024 Mb
 ;; '((¬a ∨ ¬b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬d) ∧ (¬a ∨ ¬c ∨ ¬d) ∧ (b ∨ ¬c ∨ ¬d) ∧ (¬b ∨ c ∨ d))
 
 
@@ -250,7 +252,6 @@
 ;; TODO: verifier rapidité en remplaçant les chaines de caracteres " * " et "(*)" par des nombres entiers
 
 ;; macros and functions definitions are included in files
-
 
 
 
@@ -1645,7 +1646,7 @@
   
   {function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
   
-  {minterms-set <+ (product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
+  {minterms-set <+ (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
 
   (nodebug
    ;;(display "after call of recursive function associate-set-with-set: ")

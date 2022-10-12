@@ -239,6 +239,12 @@
 ;; (unify-two-minterms '(1 0 1 0 0 1 0 1 0 1) '(1 0 1 0 1 1 0 1 0 1)) -> '(1 0 1 0 x 1 0 1 0 1)
 ;; (unify-two-minterms '(1 0 1 0 0 1 0 1 0 1) '(1 1 1 0 1 0 0 1 0 1)) -> #f
 (define (unify-two-minterms mt1 mt2)
+
+  (nodebug
+   (display-nl "unify-two-minterms : ")
+   (dv mt1)
+   (dv mt2))
+  
   #;(map-with-escaping macro-compare-2-bits mt1 mt2)
   #;(function-map-with-escaping-by-continuation (macro-function-compare-2-bits-with-continuation) mt1 mt2)
   #;(map-with-escaping-by-continuation macro-compare-2-bits-with-continuation mt1 mt2)
