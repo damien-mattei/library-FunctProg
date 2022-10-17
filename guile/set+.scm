@@ -86,6 +86,9 @@
       acc
       (product-elem-with-set-tail-rec elem (rest set) (cons (list elem (first set)) acc))))
 
+;; the same version but keep result sorted if input was
+(define (product-elem-with-set-tail-rec-sorted elem set acc)
+  (reverse (product-elem-with-set-tail-rec elem set acc)))
 
 
 ;; set multiplication : find all the combinations of the possible association of two elements
@@ -131,7 +134,11 @@
       set1
       (product-elem-with-set-tail-rec (first set1) set2 (product-set-with-set (rest set1) set2))))
 
-
+;; the same version but keep result sorted if input was
+(define (product-set-with-set-sorted set1 set2)
+  (if (null? set1)
+      set1
+      (product-elem-with-set-tail-rec-sorted (first set1) set2 (product-set-with-set (rest set1) set2))))
 
 ;; (define set1 '(a b c))
 ;; (define set2 '(d e f g))
@@ -175,8 +182,9 @@
 
      result)
 
-
-
+;; the same version but keep result sorted if input was
+(define (product-set-with-set-imperative-sorted set1 set2)
+  (reverse (product-set-with-set-imperative set1 set2)))
       
        
 
