@@ -245,13 +245,19 @@
    (dv mt1)
    (dv mt2))
   
-  #;(map-with-escaping macro-compare-2-bits mt1 mt2)
-  #;(function-map-with-escaping-by-continuation (macro-function-compare-2-bits-with-continuation) mt1 mt2)
-  #;(map-with-escaping-by-continuation macro-compare-2-bits-with-continuation mt1 mt2)
   (function-map-with-escaping-by-kontinuation2  (macro-function-compare-2-bits-with-continuation) mt1 mt2))
-  ;;(map-with-escaping-by-kontinuation-clozure (macro-compare-2-bits-with-kontinuation) mt1 mt2) ;; do not works with DrRacket, too much hygiene in macros?
+  
 
 
+(define function-compare-2-bits-1-false-tolerant
+ 
+  (let ((cnt 0)) ;; counter
+    (lambda (continuation x y) (if (equal? x y)
+				   x
+				   (begin
+				     (set! cnt (add1 cnt))
+				     (if (> cnt 1) #f 
+					 'x))))))
 
 
 

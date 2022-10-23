@@ -549,6 +549,15 @@
      (else (apply append (map collect-variables (args expr))))))
    symbol<?))
 
+;; collect variables but no sorting nor remove duplicates
+(define (collect-var expr)
+    (cond 
+     ((symbol? expr) (list expr))
+     ((number? expr) '())
+     ((boolean? expr) '())
+     ((unary-operation? expr) (collect-var (arg expr)))
+     ((binary-operation? expr) (append (collect-var (arg1 expr)) (collect-var (arg2 expr))))
+     (else (apply append (map collect-var (args expr))))))
 
 (define (expt->^ expr)
   (replace expr 'expt '^))

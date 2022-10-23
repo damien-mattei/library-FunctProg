@@ -90,5 +90,7 @@
 (include "minterms.scm")
 (include "hash-table.scm")
 
+(include "guile/regex+.scm")
+
 (include "guile/logiki+.scm")
 
