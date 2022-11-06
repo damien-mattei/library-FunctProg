@@ -4,7 +4,7 @@
 
 ;; Damien MATTEI
 
-(provide singleton-set? dvs dvsos singleton? include? set-difference product-elem-with-set product-elem-with-set-tail-rec product-set-with-set product-set-with-set-imperative set-of-multiple-empty-sets? set-of-empty-set? display-sos display-set browse-set some? union)
+(provide singleton-set? dvs dvsos singleton? include? set-difference product-elem-with-set product-elem-with-set-tail-rec product-set-with-set product-set-with-set-imperative set-of-multiple-empty-sets? set-of-empty-set? display-sos display-set browse-set some? union length-sos product-set-with-set-imperative-sorted product-set-with-set-sorted product-elem-with-set-tail-rec-sorted)
 
 
 (require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
@@ -14,6 +14,10 @@
 (include "while-do-when-unless.scm")
 (include "../repeat-until.scm")
 (include "../list.scm")
+
+
+;; the code below is copy/paste from the Guile code
+
 
 ;; (singleton-set? '(a)) -> #t
 (define-syntax singleton-set?
@@ -99,6 +103,9 @@
       acc
       (product-elem-with-set-tail-rec elem (rest set) (cons (list elem (first set)) acc))))
 
+;; the same version but keep result sorted if input was
+(define (product-elem-with-set-tail-rec-sorted elem set acc)
+  (reverse (product-elem-with-set-tail-rec elem set acc)))
 
 
 ;; set multiplication : find all the combinations of the possible association of two elements
@@ -144,7 +151,11 @@
       set1
       (product-elem-with-set-tail-rec (first set1) set2 (product-set-with-set (rest set1) set2))))
 
-
+;; the same version but keep result sorted if input was
+(define (product-set-with-set-sorted set1 set2)
+  (if (null? set1)
+      set1
+      (product-elem-with-set-tail-rec-sorted (first set1) set2 (product-set-with-set-sorted (rest set1) set2))))
 
 ;; (define set1 '(a b c))
 ;; (define set2 '(d e f g))
@@ -157,6 +168,9 @@
 
 (def (product-set-with-set-imperative set1 set2)
 
+     (nodebug
+      (display-nl "product-set-with-set-imperative : begin"))
+      
      ;; https://www.quora.com/What-happens-if-you-take-a-cartesian-product-of-an-empty-set-and-a-non-empty-set
      (when (null? set1) (return set1)) ;; empty set result
      (when (null? set2) (return set2)) ;; empty set result
@@ -180,10 +194,14 @@
 
       until (null? set1))
 
+     (nodebug
+      (display-nl "product-set-with-set-imperative : end"))
+
      result)
 
-
-
+;; the same version but keep result sorted if input was
+(define (product-set-with-set-imperative-sorted set1 set2)
+  (reverse (product-set-with-set-imperative set1 set2)))
       
        
 
@@ -216,18 +234,24 @@
 
 
 ;; > (display-sos '(((1 0 x x) (1 x 0 x) (1 x x 0)) ((x x 1 1) (x 1 x 1) (1 x x 1) (1 x 1 x) (1 1 x x))))
+
+;;{
+
+;; {
 ;; (1 0 x x)
 ;; (1 x 0 x)
 ;; (1 x x 0)
+;; }
 
+;; {
 ;; (x x 1 1)
 ;; (x 1 x 1)
 ;; (1 x x 1)
 ;; (1 x 1 x)
 ;; (1 1 x x)
+;; }
 
-;; '(#<void> #<void>)
-;; > 
+;; }
 (define (display-sos sos)
   (display-nl "{")
   (newline)
@@ -238,13 +262,24 @@
   (display-nl "}"))
 
 
+
+
+;; (length-sos '(((1 0 x x) (1 x 0 x) (1 x x 0)) ((x x 1 1) (x 1 x 1) (1 x x 1) (1 x 1 x) (1 1 x x))))
+;; 8
+
+(define (length-sos sos)
+  (apply + (map length sos)))
+
+
+
 ;; (display-set '((x x 1 1) (x 1 x 1) (1 x x 1) (1 x 1 x) (1 1 x x)))
+;;{
 ;; (x x 1 1)
 ;; (x 1 x 1)
 ;; (1 x x 1)
 ;; (1 x 1 x)
 ;; (1 1 x x)
-;;'(#<void> #<void> #<void> #<void> #<void>)
+;;}
 (define (display-set s)
 
   (if (null? s)

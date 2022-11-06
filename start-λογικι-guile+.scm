@@ -55,11 +55,12 @@
 
 
 (use-modules (Scheme+)
+	     (ice-9 futures)
+	     (ice-9 format)
+	     ;;(ice-9 hash-table) ;; built-in Hash Table
 	     (srfi srfi-1) ;; for 'first' procedure
 	     (srfi srfi-60) ;; for arithmetic-shift
 	     ;;(srfi srfi-28) ;; for format and escape ~
-	     (ice-9 format)
-	     ;;(ice-9 hash-table) ;; built-in Hash Table
 	     (srfi srfi-69) ;; SRFI 69 Hash Table
 	     ;;((rnrs) :version (6)) ;; contains hash tables too
 	     )
@@ -73,9 +74,13 @@
 
 (include "for_next_step.scm")
 
-(include "set.scm")
-(include "list.scm")
+
 (include "debug.scm")
+
+(include "while-do-when-unless.scm")
+(include "repeat-until.scm")
+(include "guile/set+.scm")
+(include "list.scm")
 
 (include "array.scm")
 (include "symbolic.scm")

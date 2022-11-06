@@ -382,24 +382,53 @@
 ;; 		       (loop)))))))))))
 
 
+;; note: may require the specific 'when (that allows inner definitions)
+
+;; below syntax is incompatible with SRFI-105 implementation for Racket
+;; (define-syntax for
+;;   (lambda (stx)
+;;     (syntax-case stx ()
+;;       ((kwd (init test incrmt) body ...)
+;;        (with-syntax ((BREAK (datum->syntax #'kwd 'break))
+;; 		     (CONTINUE (datum->syntax #'kwd 'continue)))
+;; 		    #'(call/cc
+;; 		       (lambda (escape)
+;; 			 (let-syntax ((BREAK (identifier-syntax (escape))))
+;; 			   init
+;; 			   (let loop ()
+;; 			     (when test
+;; 				   (call/cc
+;; 				    (lambda (next)
+;; 				      (let-syntax ((CONTINUE (identifier-syntax (next))))
+;; 					body ...)))
+;; 				   incrmt
+;; 				   (loop)))))))))))
+;;
+;; insert in header:
+;; (require (for-syntax r6rs/private/base-for-syntax))
+
 (define-syntax for
    (lambda (stx)
      (syntax-case stx ()
        ((kwd (init test incrmt) body ...)
-        (with-syntax ((BREAK (datum->syntax #'kwd 'break))
-                      (CONTINUE (datum->syntax #'kwd 'continue)))
-          #'(call/cc
-             (lambda (escape)
-               (let-syntax ((BREAK (identifier-syntax (escape))))
-                 init
-                 (let loop ()
-                   (when test
-                     (call/cc
-                      (lambda (next)
-                        (let-syntax ((CONTINUE (identifier-syntax (next))))
-                          body ...)))
-                       incrmt
-                       (loop)))))))))))
+        (with-syntax ((BREAK (datum->syntax (syntax kwd) 'break))
+                      (CONTINUE (datum->syntax (syntax kwd) 'continue)))
+		     (syntax
+		      (call/cc
+		       (lambda (escape)
+			 (let-syntax ((BREAK (identifier-syntax (escape))))
+			   init
+			   (let loop ()
+			     (when test
+				   (call/cc
+				    (lambda (next)
+				     (let-syntax ((CONTINUE (identifier-syntax (next))))
+				       body ...)))
+				   incrmt
+				   (loop))))))
+		      ) ;; close syntax
+		     
+		     )))))
 
 
 ;; (for/bc ({k <+ 0} {k < 3} {k <- {k + 1}})

@@ -216,6 +216,14 @@
   (and (pair? expr) (XOR-op?  (operator expr))))
 
 
+(define (is-True? expr)
+  (or (equal? expr #t) (equal? expr 'T) (equal? expr '■) (equal? expr 'True)))
+
+
+(define (is-False? expr)
+  (or (equal? expr #f) (equal? expr 'F) (equal? expr '□) (equal? expr 'False)))
+
+
 ;; test for a monomial negation
 ;; (is-monomial-NOT? '(not x)) -> #t
 ;; (is-monomial-NOT? '(not (not x))) -> #f
@@ -540,10 +548,12 @@
 (define (collect-variables expr)
   (sort 
    (remove-duplicates 
-    (cond 
+    (cond
+     ;;((boolean? expr) '())
+     ((is-True? expr) '()) ;; they are not variables
+     ((is-False? expr) '())
      ((symbol? expr) (list expr))
      ((number? expr) '())
-     ((boolean? expr) '())
      ((unary-operation? expr) (collect-variables (arg expr)))
      ((binary-operation? expr) (append (collect-variables (arg1 expr)) (collect-variables (arg2 expr))))
      (else (apply append (map collect-variables (args expr))))))
@@ -551,13 +561,16 @@
 
 ;; collect variables but no sorting nor remove duplicates
 (define (collect-var expr)
-    (cond 
-     ((symbol? expr) (list expr))
-     ((number? expr) '())
-     ((boolean? expr) '())
-     ((unary-operation? expr) (collect-var (arg expr)))
-     ((binary-operation? expr) (append (collect-var (arg1 expr)) (collect-var (arg2 expr))))
-     (else (apply append (map collect-var (args expr))))))
+  (cond
+   ;;((boolean? expr) '())
+   ((is-True? expr) '()) ;; they are not variables
+   ((is-False? expr) '())
+   ((symbol? expr) (list expr))
+   ((number? expr) '())
+   
+   ((unary-operation? expr) (collect-var (arg expr)))
+   ((binary-operation? expr) (append (collect-var (arg1 expr)) (collect-var (arg2 expr))))
+   (else (apply append (map collect-var (args expr))))))
 
 (define (expt->^ expr)
   (replace expr 'expt '^))

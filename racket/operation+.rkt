@@ -1,6 +1,6 @@
 #lang reader "SRFI-105.rkt"
 
-(provide operator arg1 arg2 arg args unary-operation? binary-operation? prefix->infix prefix->infix-C-style prefix->infix-symb prefix->infix-symb-bool insert-op AND-op? OR-op? XOR-op? NOT-op? ADD-op? IMPLIC-op? EQUIV-op? isADD? MULTIPLY-op? isMULTIPLY? isOR? isAND? isOR-AND? isNOT? isIMPLIC? isEQUIV? isXOR? is-monomial-NOT? is-simple-form? prefix-NOT->infix-symbolic-form prefix-NOT->infix-symbolic-form-greek prefix-NOT->infix-symbolic-form-bool bar-string string->bar-string alpha-op->symb-op alpha-op->symb-op-bool n-arity-operation->binary-operation is+? is*? is^? n-arity make-collect-leaves-operator collect-variables  expt->^ )
+(provide operator arg1 arg2 arg args unary-operation? binary-operation? prefix->infix prefix->infix-C-style prefix->infix-symb prefix->infix-symb-bool insert-op AND-op? OR-op? XOR-op? NOT-op? ADD-op? IMPLIC-op? EQUIV-op? isADD? MULTIPLY-op? isMULTIPLY? isOR? isAND? isOR-AND? isNOT? isIMPLIC? isEQUIV? isXOR? is-monomial-NOT? is-simple-form? prefix-NOT->infix-symbolic-form prefix-NOT->infix-symbolic-form-greek prefix-NOT->infix-symbolic-form-bool bar-string string->bar-string alpha-op->symb-op alpha-op->symb-op-bool n-arity-operation->binary-operation is+? is*? is^? n-arity make-collect-leaves-operator collect-variables collect-var expt->^ is-True? is-False?)
 
 (require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
@@ -12,6 +12,7 @@
 (include "../list.scm")
 
 ;; the code below is copy/paste from the Guile code
+
 
 ;; return the operator of an operation
 ;; TODO: use macro
@@ -231,6 +232,14 @@
   (and (pair? expr) (XOR-op?  (operator expr))))
 
 
+(define (is-True? expr)
+  (or (equal? expr #t) (equal? expr 'T) (equal? expr '■) (equal? expr 'True)))
+
+
+(define (is-False? expr)
+  (or (equal? expr #f) (equal? expr 'F) (equal? expr '□) (equal? expr 'False)))
+
+
 ;; test for a monomial negation
 ;; (is-monomial-NOT? '(not x)) -> #t
 ;; (is-monomial-NOT? '(not (not x))) -> #f
@@ -333,7 +342,7 @@
 ;;
 (define (n-arity-operation->binary-operation expr)
 
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
     (display "n-arity-operation->binary-operation : ")
     (dv expr))
@@ -441,7 +450,7 @@
   ;;     ;;(list expr)))
   ;;     expr))
 
-  (debug-mode-off)
+  ;;(debug-mode-off)
   (when debug-mode
     (display "n-arity : ")
     (dv expr))
@@ -555,26 +564,29 @@
 (define (collect-variables expr)
   (sort 
    (remove-duplicates 
-    (cond 
+    (cond
+     ;;((boolean? expr) '())
+     ((is-True? expr) '()) ;; they are not variables
+     ((is-False? expr) '())
      ((symbol? expr) (list expr))
      ((number? expr) '())
-     ((boolean? expr) '())
      ((unary-operation? expr) (collect-variables (arg expr)))
      ((binary-operation? expr) (append (collect-variables (arg1 expr)) (collect-variables (arg2 expr))))
      (else (apply append (map collect-variables (args expr))))))
    symbol<?))
 
-
 ;; collect variables but no sorting nor remove duplicates
 (define (collect-var expr)
-    (cond 
-     ((symbol? expr) (list expr))
-     ((number? expr) '())
-     ((boolean? expr) '())
-     ((unary-operation? expr) (collect-var (arg expr)))
-     ((binary-operation? expr) (append (collect-var (arg1 expr)) (collect-var (arg2 expr))))
-     (else (apply append (map collect-var (args expr))))))
-
+  (cond
+   ;;((boolean? expr) '())
+   ((is-True? expr) '()) ;; they are not variables
+   ((is-False? expr) '())
+   ((symbol? expr) (list expr))
+   ((number? expr) '())
+   
+   ((unary-operation? expr) (collect-var (arg expr)))
+   ((binary-operation? expr) (append (collect-var (arg1 expr)) (collect-var (arg2 expr))))
+   (else (apply append (map collect-var (args expr))))))
 
 (define (expt->^ expr)
   (replace expr 'expt '^))

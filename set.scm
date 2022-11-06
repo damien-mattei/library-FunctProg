@@ -163,18 +163,25 @@
 
 
 ;; > (display-sos '(((1 0 x x) (1 x 0 x) (1 x x 0)) ((x x 1 1) (x 1 x 1) (1 x x 1) (1 x 1 x) (1 1 x x))))
+
+;;{
+
+;; {
 ;; (1 0 x x)
 ;; (1 x 0 x)
 ;; (1 x x 0)
+;; }
 
+;; {
 ;; (x x 1 1)
 ;; (x 1 x 1)
 ;; (1 x x 1)
 ;; (1 x 1 x)
 ;; (1 1 x x)
+;; }
 
-;; '(#<void> #<void>)
-;; > 
+;; }
+
 (define (display-sos sos)
   (display-nl "{")
   (newline)
@@ -185,13 +192,19 @@
   (display-nl "}"))
 
 
+(define (length-sos sos)
+  (apply + (map length sos)))
+
+
 ;; (display-set '((x x 1 1) (x 1 x 1) (1 x x 1) (1 x 1 x) (1 1 x x)))
+;;{
 ;; (x x 1 1)
 ;; (x 1 x 1)
 ;; (1 x x 1)
 ;; (1 x 1 x)
 ;; (1 1 x x)
-;;'(#<void> #<void> #<void> #<void> #<void>)
+;;}
+
 (define (display-set s)
 
   (if (null? s)

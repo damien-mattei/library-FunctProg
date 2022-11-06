@@ -138,7 +138,7 @@
 (define (product-set-with-set-sorted set1 set2)
   (if (null? set1)
       set1
-      (product-elem-with-set-tail-rec-sorted (first set1) set2 (product-set-with-set (rest set1) set2))))
+      (product-elem-with-set-tail-rec-sorted (first set1) set2 (product-set-with-set-sorted (rest set1) set2))))
 
 ;; (define set1 '(a b c))
 ;; (define set2 '(d e f g))
@@ -217,18 +217,24 @@
 
 
 ;; > (display-sos '(((1 0 x x) (1 x 0 x) (1 x x 0)) ((x x 1 1) (x 1 x 1) (1 x x 1) (1 x 1 x) (1 1 x x))))
+
+;;{
+
+;; {
 ;; (1 0 x x)
 ;; (1 x 0 x)
 ;; (1 x x 0)
+;; }
 
+;; {
 ;; (x x 1 1)
 ;; (x 1 x 1)
 ;; (1 x x 1)
 ;; (1 x 1 x)
 ;; (1 1 x x)
+;; }
 
-;; '(#<void> #<void>)
-;; > 
+;; }
 (define (display-sos sos)
   (display-nl "{")
   (newline)
@@ -239,17 +245,28 @@
   (display-nl "}"))
 
 
+
+
+;; (length-sos '(((1 0 x x) (1 x 0 x) (1 x x 0)) ((x x 1 1) (x 1 x 1) (1 x x 1) (1 x 1 x) (1 1 x x))))
+;; 8
+
+(define (length-sos sos)
+  (apply + (map length sos)))
+
+
+
 ;; (display-set '((x x 1 1) (x 1 x 1) (1 x x 1) (1 x 1 x) (1 1 x x)))
+;;{
 ;; (x x 1 1)
 ;; (x 1 x 1)
 ;; (1 x x 1)
 ;; (1 x 1 x)
 ;; (1 1 x x)
-;;'(#<void> #<void> #<void> #<void> #<void>)
+;;}
 (define (display-set s)
 
   (if (null? s)
-      (display-nl "∅" #;"{}")
+      (display-nl "∅") ;;"{}")
       (begin
 	(display-nl "{")
 	(map (lambda (e)
