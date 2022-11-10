@@ -23,7 +23,7 @@
 
 (define empty '())
 
-;; insert an element in a list (at the end) if the element is not already included in the list
+;; insert an element in a list (at the begin) if the element is not already included in the list
 (define (insertNoDups element lst)
   (cond
    ((empty? lst) (cons element lst))

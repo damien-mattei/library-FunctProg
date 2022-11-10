@@ -317,7 +317,7 @@
   ;; (compute-sum #t #t #t) -> #t
   (xor Cin (xor A B)))
 
-
+;; compare two list of bits until we got more than one difference
 (define-syntax macro-function-compare-2-bits-with-continuation ;; continuation version of macro-compare-2-bits
   ;; i need a macro because of external function to the clozure
   (syntax-rules ()

@@ -1879,7 +1879,7 @@
   {function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
 
   ;; note : sorting is useless
-  {minterms-set <+ (product-set-with-set-imperative-sorted set1 set2)}  ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
+  {minterms-set <+ (product-set-with-set-imperative set1 set2)} ;; (product-set-with-set-imperative-sorted set1 set2)}  ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms MODIF
 
   (nodebug
    ;;(display "after call of recursive function associate-set-with-set: ")
@@ -1904,7 +1904,7 @@
    {unified-minterms-set-length <+ (length unified-minterms-set-2)}
    (dv unified-minterms-set-length))
 
-  {unified-minterms-set <+ (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq
+  {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
   (nodebug
    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
@@ -2054,7 +2054,7 @@
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 	     
-	     (& {unified-mt-set1-and-mt-set2 <+   (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     (& {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
@@ -2490,7 +2490,7 @@
   ;; identifying essential prime implicant array
   ;; first line : minterms
   ;; first row : prime-implicants
-  { iepi ← (make-array-2d (+ lgt-mt 1) (+ lgt-pi 1) 0)} ;; two dimensions array
+  { iepi ← (make-array-2d {lgt-mt + 1} {lgt-pi + 1} 0)} ;; two dimensions array
   (when debug-mode
     (dv-2d iepi))
 
@@ -2500,64 +2500,12 @@
   (when debug-mode
     (dv-2d iepi)
     )
-  
-
-  (when debug-mode
-    
-    ;; (newline)
-    ;; (display "(array-iepi 1 2) =")
-    ;; (display (array-iepi 1 2))
-    ;; (newline)
-    
-    (display "{iepi[1 2]} = ")
-    (display {iepi[1 2]})
-    (newline)
-    
-    (display "{iepi[1 2] ← 1} = ")
-    (display {iepi[1 2] ← 1})
-    (newline)
-    
-    (display-array-2d iepi)
-    
-    (display "{iepi[1 2]} = ")
-    (display {iepi[1 2]})
-    (newline)
-    
-    ;; (display "(funct-array-2d-set! iepi 1 2 2) =")
-    ;; (display (funct-array-2d-set! iepi 1 2 2))
-    (display "((λ (tbl val x y) {tbl[x y] ← val}) iepi 1 1 2) = ")
-    (display ((λ (tbl val x y) {tbl[x y] ← val}) iepi 1 1 2))
-    (newline)
-
-    (display "(apply (λ (tbl val x y) {tbl[x y] ← val}) (list iepi 3 1 2)) = ")
-    (display (apply (λ (tbl val x y) {tbl[x y] ← val}) (list iepi 3 1 2)))
-    (newline)
-
-    (display "{iepi[1 2]} = ")
-    (display {iepi[1 2]})
-    (newline))
-
-  ;;(debug-mode-on)
-  (when debug-mode
-    (display vct-prime-implicants)
-    (newline)
-    (dv-2d vct-prime-implicants))
 
   ;; construction of the array
   ;; set the left column containing prime implicants 
-  (for-basic (y 0 (- lgt-pi 1))
-       ;;($
-	 ;;(display-expr-nl  (vector-ref vct-prime-implicants y))
-	 ;;(display-symb-nl y)
-       ;;{iepi[0 (+ y 1)] ← {vct-prime-implicants[y]}})
-       {iepi[0 (+ y 1)] ← vct-prime-implicants[y]})
-       ;;(vector-ref vct-prime-implicants y)))
-       ;;(display-symb-nl iepi)))
-       ;;)
-
-  (when debug-mode
-    (newline)
-    (dv-2d iepi))
+  (for-basic (y 0 {lgt-pi - 1})
+      
+       {iepi[0 {y + 1}] ← vct-prime-implicants[y]})
 
   ;; identify prime implicants
   (for-basic (x 1 lgt-mt)
@@ -2573,13 +2521,16 @@
 		  (incf cpt-mt)
 		  (when (= 1 cpt-mt)
 			{y-pos-epi ← y}) ;; position of essential prime implicant
-		  {iepi[x y] ← " * "})
+		  ;;{iepi[x y] ← " * "})
+		  {iepi[x y] ← 1})
 		
 		;; else
-		{iepi[x y] ← "   "})) ;; end for y
+		;;{iepi[x y] ← "   "})) ;; end for y
+		{iepi[x y] ← 3}))
        
        (when (= 1 cpt-mt) ;; essential prime implicant
-	     {iepi[x y-pos-epi] ← "(*)"}
+	     ;;{iepi[x y-pos-epi] ← "(*)"}
+	     {iepi[x y-pos-epi] ← 2}
 	     ;; add essential prime implicant to list
 	     {essential-prime-implicants-list ← (cons {iepi[0 y-pos-epi]} essential-prime-implicants-list)})
 
@@ -2609,8 +2560,10 @@
 			       (de {iepi[x y]}))
 			  
 			      ;; is the essential prime implicant expressing this minterms?
-			      (when (or (string=?  {iepi[x y]} "(*)")
-					(string=?  {iepi[x y]} " * "))
+			      ;; (when (or (string=?  {iepi[x y]} "(*)")
+			      ;; 		(string=?  {iepi[x y]} " * "))
+			      (when (or (= {iepi[x y]} 2)
+					(= {iepi[x y]} 1))
 				    
 				    (when debug-mode
 					  (display-nl "star-in-column"))
@@ -2772,9 +2725,10 @@
 	      ;; check wether prime implicant is a non essential one?
 	      (when (member prim-imp non-essential-prime-implicants)
 		
-		;; is the non essential prime implicant expressing this minterms?
-		(when (string=? {iepi[x y]} " * ")
-		  (insert-set! (minterm->var prim-imp) col))))
+		    ;; is the non essential prime implicant expressing this minterms?
+		    ;; (when (string=? {iepi[x y]} " * ")
+		    (when (= {iepi[x y]} 1)
+			  (insert-set! (minterm->var prim-imp) col))))
 	 
 	 ;; end for y
 	 
@@ -2935,8 +2889,6 @@
      
      #t)
      
-
-
 
 
 
@@ -3145,7 +3097,7 @@ the REDUCE-INIT argument."
 
   ;; note : sorting is useless
 
-  {minterms-set <+ (product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set-imperative set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list
+  {minterms-set <+ (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list      MODIF
 
   (nodebug
    (dvs minterms-set))
@@ -3163,7 +3115,7 @@ the REDUCE-INIT argument."
 
   {minterms-vector-length <+ (vector-length minterms-vector)}
 
-  {nb-procs <+ (processor-count)} ;;(current-processor-count)}
+  {nb-procs <+ 1} ;; (processor-count)} ;;(current-processor-count)}
 
   (nodebug
    (dv nb-procs))
@@ -3196,7 +3148,7 @@ the REDUCE-INIT argument."
    {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
    (dv unified-minterms-set-2-length))
 
-  {unified-minterms-set <+ (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq
+  {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;; (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
   (nodebug
    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
