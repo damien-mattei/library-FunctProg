@@ -2056,7 +2056,7 @@
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 	     
-	     (& {unified-mt-set1-and-mt-set2 <+   (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     (& {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;; (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
@@ -2389,7 +2389,7 @@
   (nodebug
    (display-nl "function-unify-two-minterms-and-tag : begin"))
   
-  {res ⥆ (unify-two-minterms mt1 mt2)}
+  {res ⥆ (unify-two-minterms mt1 mt2)} ;; (unify-two-minterms-rec mt1 mt2)} 
   (when res
     {minterms-ht[mt1] <- #t}
     {minterms-ht[mt2] <- #t})
@@ -2780,53 +2780,35 @@
 )
 
 
-;; scheme@(guile-user)> (foo 5)
-;; $2 = (5 4 3 2 1 . end0)
-;; scheme@(guile-user)> (foo 10)
-;; $3 = (10 9 8 . end7)
-;; scheme@(guile-user)> (bar 5)
-;; $4 = (5 4 3 2 1 . end0)
-;; scheme@(guile-user)> (bar 10)
-;; $5 = end7
 
-(def (foo n)
-     (cond ((= n 0) 'end0)
-	   ((= n 7) (return 'end7))
-	   (else (cons n (foo {n - 1})))))
-
-
-(def (bar n)
-     (cond ((= n 0) 'end0)
-	   ((= n 7) (return-rec 'end7))
-	   (else (cons n (bar {n - 1})))))
 
 ;; scheme@(guile-user)> (unify-two-minterms-rec '(1 0 1 0 0 1 0 1 0 1) '(1 0 1 0 1 1 0 1 0 1))
 ;; $2 = (1 0 1 0 x 1 0 1 0 1)
-(define (unify-two-minterms-rec mt1 mt2)
+;; (define (unify-two-minterms-rec mt1 mt2)
   
-  {err <+ #f}
+;;   {err <+ #f}
 
-  (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
+;;   (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
 
-       (if {(null? mt1) and (null? mt2)}
-	   (return '()))
+;;        (if {(null? mt1) and (null? mt2)}
+;; 	   (return '()))
 
-       (if {{(null? mt1) and (not (null? mt2))} or {(not (null? mt1)) and (null? mt2)}}
-	   (return-rec #f))
+;;        (if {{(null? mt1) and (not (null? mt2))} or {(not (null? mt1)) and (null? mt2)}}
+;; 	   (return-rec #f))
 	 
        
-       {fst-mt1 <+ (first mt1)}
-       {fst-mt2 <+ (first mt2)}
+;;        {fst-mt1 <+ (first mt1)}
+;;        {fst-mt2 <+ (first mt2)}
        
-       (if (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
-						  (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))
-       (if err (return-rec #f))
+;;        (if (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
+;; 						  (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))
+;;        (if err (return-rec #f))
 
-       {err <- #t}
-       (cons 'x
-	     (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2))))
+;;        {err <- #t}
+;;        (cons 'x
+;; 	     (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2))))
   
-  (unify-two-lists-tolerant-one-mismatch mt1 mt2))
+;;   (unify-two-lists-tolerant-one-mismatch mt1 mt2))
 	  
 
 
@@ -3056,12 +3038,17 @@ REDUCE-PROC is applied to the map result using reduce and
 the REDUCE-INIT argument."
     (let ([futures
 	   (map (λ (seg)
+		  (display-nl "run-in-parallel : making future")
 		  (make-future
 		   ;; Need to wrap in a thunk, to not
 		   ;; immediately start evaluating.
 		   (λ () (map-proc seg))))
 		segments)])
-      (let ([segment-results (map touch futures)])
+      ;;(let ([segment-results (map touch futures)])
+      (let ([segment-results (map (lambda (f)
+				    (display-nl "run-in-parallel : touching future")
+				    (touch f))
+				  futures)])
 	segment-results
 	;; (reduce reduce-proc
 	;; 	reduce-init
@@ -3108,10 +3095,75 @@ the REDUCE-INIT argument."
 
 
 
-;; proc to be called with futures
+;; proc to be called with //
 (define (proc-unify-minterms-seg seg)
 
-  {function-unify-minterms-list <+ (λ (L) (apply unify-two-minterms-rec L))} ;; (apply unify-two-minterms L))}
+  ;; scheme@(guile-user)> (unify-two-minterms-rec '(1 0 1 0 0 1 0 1 0 1) '(1 0 1 0 1 1 0 1 0 1))
+  ;; $2 = (1 0 1 0 x 1 0 1 0 1)
+  (define (unify-two-minterms-rec mt1 mt2)
+    
+    {err <+ #f}
+
+    (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
+	 
+	 (if {(null? mt1) and (null? mt2)}
+	     (return '()))
+	 
+	 (if {{(null? mt1) and (not (null? mt2))} or {(not (null? mt1)) and (null? mt2)}}
+	     (return-rec #f))
+	 
+	 
+	 {fst-mt1 <+ (first mt1)}
+	 {fst-mt2 <+ (first mt2)}
+	 
+	 (if (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
+						    (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))
+	 (if err (return-rec #f))
+
+	 {err <- #t}
+	 (cons 'x
+	       (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2))))
+    
+    (unify-two-lists-tolerant-one-mismatch mt1 mt2))
+
+  (define (unify-two-minterms mt1 mt2)
+
+    (nodebug
+     (display-nl "unify-two-minterms : ")
+     (dv mt1)
+     (dv mt2))
+    
+    (function-map-with-escaping-by-kontinuation2  (macro-function-compare-2-bits-with-continuation) mt1 mt2))
+
+
+  (define (function-map-with-escaping-by-kontinuation2 clozure list1 . more-lists)
+  (call/cc (lambda (kontinuation)
+	     (let ((lists (cons list1 more-lists))
+		   (funct-continu ;; this function have the kontinuation in his environment 
+		    (lambda (arg1 . more-args)
+		      (let ((args (cons arg1 more-args)))
+			(apply clozure kontinuation args))))) ;; a tester: (apply clozure (cons conti args))
+		     
+	       (apply map funct-continu lists)))))
+
+  ;; compare two list of bits until we got more than one difference
+  (define-syntax macro-function-compare-2-bits-with-continuation ;; continuation version of macro-compare-2-bits
+    ;; i need a macro because of external function to the clozure
+    (syntax-rules ()
+      ((_) (let ((cnt 0)) ;; counter
+	     (lambda (continuation b1 b2) (if (equal? b1 b2)
+					      b1
+					      (begin
+						(set! cnt (add1 cnt))
+						(when (> cnt 1) (continuation #f)) ;; escaping with the continuation
+						'x)))))))
+
+  
+  (nodebug
+   (display "proc-unify-minterms-seg : ")
+   (dv seg))
+  
+  {function-unify-minterms-list <+ (λ (L) (apply unify-two-minterms L))} ;; (apply unify-two-minterms-rec L))} ;; 
    
   {start <+ (segment-start seg)}
   {end <+ (segment-end seg)}
@@ -3123,12 +3175,15 @@ the REDUCE-INIT argument."
 
 
 
-(define (funct-unify-minterms-set-1-unit-future set1 set2)
 
-  (debug
-   (display-nl "funct-unify-minterms-set-1-unit-future : begin"))
+
+
+(define (funct-unify-minterms-set-1-unit-threads set1 set2)
+
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-thread : begin"))
   
-  (debug
+  (nodebug
    {set1-length <+ (length set1)}
    {set2-length <+ (length set2)}
    (dv set1-length)
@@ -3146,7 +3201,7 @@ the REDUCE-INIT argument."
   (nodebug
    (dvs minterms-set))
 
-  (debug
+  (nodebug
    (display-nl "after Cartesian product set")
    {minterms-set-length <+ (length minterms-set)}
    {minterms-set-first <+ (first minterms-set)}
@@ -3166,20 +3221,30 @@ the REDUCE-INIT argument."
   
   {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
 
-  (debug
+  (nodebug
    (dv segmts))
 
   {unified-minterms-vector-1 <- (make-vector minterms-vector-length #f)}
 
-  (debug
+  (nodebug
    (display-nl "before //"))
-  
-  (run-in-parallel segmts proc-unify-minterms-seg) ;; run the parallel code
 
-  (debug
+  ;; run the parallel code
+  {threads <+ (map (λ (seg) (call-with-new-thread
+			     (λ () (proc-unify-minterms-seg seg))))
+		   segmts)}
+
+  (nodebug
+   (display-nl "waiting for threads to finish..."))
+  
+  ;; wait for threads to finish
+  (map (λ (thread) (join-thread thread)) ;;(+ start-time max-sleep)))
+       threads)
+
+  (nodebug
    (display-nl "after //"))
 
-  (debug
+  (nodebug
    {unified-minterms-vector-1-length <+ (vector-length unified-minterms-vector-1)}
    (dv unified-minterms-vector-1-length)
    (newline))
@@ -3205,8 +3270,190 @@ the REDUCE-INIT argument."
   (nodebug
    (dvs unified-minterms-set))
 
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-thread : end"))
+      
+  unified-minterms-set)
+
+
+
+
+
+(define (funct-unify-minterms-set-1-unit-future set1 set2)
+
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-future : begin"))
+  
+  (nodebug
+   {set1-length <+ (length set1)}
+   {set2-length <+ (length set2)}
+   (dv set1-length)
+   (dv set2-length)
+   (display-nl "before Cartesian product set"))
+  
+  (nodebug
+   (dvs set1)
+   (dvs set2))
+
+  ;; note : sorting is useless
+
+  {minterms-set <+ (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list MODIF
+
+  (nodebug
+   (dvs minterms-set))
+
+  (nodebug
+   (display-nl "after Cartesian product set")
+   {minterms-set-length <+ (length minterms-set)}
+   {minterms-set-first <+ (first minterms-set)}
+   (dv minterms-set-length)
+   (dv minterms-set-first))
+
+  {minterms-vector <- (list->vector minterms-set)} ;; vector of pair (mathematic) of minterms - pair (mathematic) is a 2 element list, not a pair (Lisp)
+
+  (nodebug
+   (dv minterms-vector))
+
+  {minterms-vector-length <+ (vector-length minterms-vector)}
+
   (debug
+   (dv minterms-vector-length))
+
+  ;; warning : // gives almost no better result, for this reason i use it on 1 CPU ,if you change to greater number of CPUs it slow down the code !
+  ;; but has it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists 
+  {nb-procs <+ (current-processor-count)} ;;{(current-processor-count) - 1}} ;;1} ;;  -1 leaves on CPU for system
+  
+  {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
+
+  (nodebug
+   (dv segmts))
+
+  {unified-minterms-vector-1 <- (make-vector minterms-vector-length #f)}
+
+  (debug
+   (display-nl "before //"))
+  
+  (run-in-parallel segmts proc-unify-minterms-seg) ;; run the parallel code
+
+  (debug
+   (display-nl "after //"))
+
+  (nodebug
+   {unified-minterms-vector-1-length <+ (vector-length unified-minterms-vector-1)}
+   (dv unified-minterms-vector-1-length)
+   (newline))
+
+  
+  (vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
+  
+  {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
+  
+  (nodebug
+   (dvs unified-minterms-set-1))
+  
+  {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  (nodebug
+   {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+   (dv unified-minterms-set-2-length))
+
+  {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  (nodebug
+   {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+   (dv unified-minterms-set-uniq-length))
+  
+  (nodebug
+   (dvs unified-minterms-set))
+
+  (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-future : end"))
+      
+  unified-minterms-set)
+
+
+(define (funct-unify-minterms-set-1-unit-par-for-each set1 set2)
+
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-par-for-each : begin"))
+  
+  (nodebug
+   {set1-length <+ (length set1)}
+   {set2-length <+ (length set2)}
+   (dv set1-length)
+   (dv set2-length)
+   (display-nl "before Cartesian product set"))
+  
+  (nodebug
+   (dvs set1)
+   (dvs set2))
+
+  ;; note : sorting is useless
+
+  {minterms-set <+ (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list MODIF
+
+  (nodebug
+   (dvs minterms-set))
+
+  (nodebug
+   (display-nl "after Cartesian product set")
+   {minterms-set-length <+ (length minterms-set)}
+   {minterms-set-first <+ (first minterms-set)}
+   (dv minterms-set-length)
+   (dv minterms-set-first))
+
+  {minterms-vector <- (list->vector minterms-set)} ;; vector of pair (mathematic) of minterms - pair (mathematic) is a 2 element list, not a pair (Lisp)
+
+  (nodebug
+   (dv minterms-vector))
+
+  {minterms-vector-length <+ (vector-length minterms-vector)}
+
+  ;; warning : // gives almost no better result, for this reason i use it on 1 CPU ,if you change to greater number of CPUs it slow down the code !
+  ;; but has it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists 
+  {nb-procs <+ (current-processor-count)} ;;{(current-processor-count) - 1}} ;;1} ;;  -1 leaves on CPU for system
+  
+  {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
+
+  (nodebug
+   (dv segmts))
+
+  {unified-minterms-vector-1 <- (make-vector minterms-vector-length #f)}
+
+  (nodebug
+   (display-nl "before //"))
+  
+  (par-for-each  proc-unify-minterms-seg segmts) ;; run the parallel code
+
+  (nodebug
+   (display-nl "after //"))
+
+  (nodebug
+   {unified-minterms-vector-1-length <+ (vector-length unified-minterms-vector-1)}
+   (dv unified-minterms-vector-1-length)
+   (newline))
+
+  
+  (vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
+  
+  {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
+  
+  (nodebug
+   (dvs unified-minterms-set-1))
+  
+  {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  (nodebug
+   {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+   (dv unified-minterms-set-2-length))
+
+  {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  (nodebug
+   {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+   (dv unified-minterms-set-uniq-length))
+  
+  (nodebug
+   (dvs unified-minterms-set))
+
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-par-for-each : end"))
       
   unified-minterms-set)
 
@@ -3230,7 +3477,7 @@ the REDUCE-INIT argument."
   (nodebug
    (dvs minterms-set))
 
-  (debug
+  (nodebug
    (display-nl "before (par-map-vector function-unify-minterms-list minterms-vector)")
    {minterms-set-length <+ (length minterms-set)}
    {minterms-set-first <+ (first minterms-set)}
@@ -3244,7 +3491,7 @@ the REDUCE-INIT argument."
   
   {unified-minterms-vector-1 <- (par-map-vector function-unify-minterms-list minterms-vector)} ;; // code
 
-  (debug
+  (nodebug
    (display-nl "after (par-map-vector function-unify-minterms-list minterms-vector)"))
 
   (vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
@@ -3311,7 +3558,7 @@ the REDUCE-INIT argument."
    ;;(display "after call of recursive function associate-set-with-set: ")
    (dvs minterms-set))
 
-  (debug
+  (nodebug
    (display-nl "before (par-map function-unify-minterms-list minterms-set)")
    {minterms-set-length <+ (length minterms-set)}
    {minterms-set-first <+ (first minterms-set)}
@@ -3319,7 +3566,7 @@ the REDUCE-INIT argument."
    (dv minterms-set-first))
   
   {unified-minterms-set-1 <+ (par-map function-unify-minterms-list minterms-set)} ;; // code
-  (debug
+  (nodebug
    (display-nl "after (par-map function-unify-minterms-list minterms-set)"))
 
   (nodebug
