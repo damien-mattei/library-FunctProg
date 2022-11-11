@@ -2058,7 +2058,7 @@
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 	     
-	     (& {unified-mt-set1-and-mt-set2 <+   (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)}  ;; (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     (& {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
@@ -3011,12 +3011,18 @@ REDUCE-PROC is applied to the map result using reduce and
 the REDUCE-INIT argument."
     (let ([futures
 	   (map (λ (seg)
+		  (display-nl "run-in-parallel : making future")
 		  (future ;; make-future
 		   ;; Need to wrap in a thunk, to not
 		   ;; immediately start evaluating.
 		   (λ () (map-proc seg))))
 		segments)])
-      (let ([segment-results (map touch futures)])
+      (let ([segment-results (map
+			      (lambda (f)
+				    (display-nl "run-in-parallel : touching future")
+				    (touch f))
+			      ;;touch
+			      futures)])
 	segment-results
 	;; (reduce reduce-proc
 	;; 	reduce-init
