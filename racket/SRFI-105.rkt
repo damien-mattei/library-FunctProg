@@ -134,8 +134,10 @@
         (#t
           (let ((datum (my-read port)))
             (cond
-               ;;((eq? datum '.)
-               ((eq? datum 'period)
+	     ;; processing period . is important for functions with variable numbers of parameters: (fct arg1 . restargs)
+	     ((eq? datum (string->symbol (string #\.))) ;; only this one works with Racket Scheme
+               ;;((eq? datum '.) ;; do not works with Racket Scheme
+               ;;((eq? datum 'period) ;; this one annihilate the processing: datum will never be equal to 'period !
                  (let ((datum2 (my-read port)))
                    (consume-whitespace port)
                    (cond
@@ -459,9 +461,10 @@
     ; We've peeked a period character.  Returns what it represents.
     (read-char port) ; Remove .
     (let ((c (peek-char port)))
-      (cond
-        ;((eof-object? c) '.) ; period eof; return period.
-        ((eof-object? c) 'period)
+      (cond ;; processing period . is important for functions with variable numbers of parameters: (fct arg1 . restargs)
+       ((eof-object? c) (string->symbol (string #\.)))  ;; only this one works with Racket Scheme
+        ;;((eof-object? c) '.) ; period eof; return period. ;; do not works with Racket Scheme
+       ;;((eof-object? c) 'period) ;; this one annihilate the processing using dummy 'period !
         ((ismember? c digits)
           (read-number port (list #\.)))  ; period digit - it's a number.
         (#t
