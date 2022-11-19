@@ -77,8 +77,6 @@
 
 (include "debug.scm")
 
-(include "while-do-when-unless.scm")
-(include "repeat-until.scm")
 (include "guile/set+.scm")
 (include "list.scm")
 

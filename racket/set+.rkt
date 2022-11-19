@@ -11,8 +11,7 @@
 
 (include "../debug.scm")
 (include "display-racket-scheme.scm")
-(include "while-do-when-unless.scm")
-(include "../repeat-until.scm")
+
 (include "../list.scm")
 
 
