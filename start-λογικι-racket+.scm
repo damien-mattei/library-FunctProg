@@ -4,7 +4,7 @@
 
 ;; Damien Mattei
 
-;; 19/6/2022
+;; november 2022
 
 
 ;; Note: you can start the code directly from racket/logiki+.rkt if you want. (because include can not be used directly in SRFI-105 REPL for Racket)
@@ -13,7 +13,6 @@
 
 
 (require "../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
-;;(require "../Scheme-PLUS-for-Racket/Scheme+.rkt")
 
 (require "racket/logiki+.rkt")
 

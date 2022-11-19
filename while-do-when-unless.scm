@@ -81,7 +81,7 @@
                ;;(begin
 	       (let ()
 
-                 #f ; avoid empty begin
+                 ;;#f ; avoid empty begin but with (let () i don't care !
 
                  expr ...)
 

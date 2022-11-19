@@ -18,16 +18,9 @@
 (require "set+.rkt")
 
 
-;;(include "../syntactic-sugar.scm")
-
-;;(include "if.rkt")
-
-
 (include "../increment.scm")
 
 (include "display-racket-scheme.scm")
-
-(include "while-do-when-unless.scm") ;; for when
 
 (include "../for_next_step.scm")
 
@@ -64,7 +57,7 @@
 ;;
 ;;
 ;;
-;; version 7.0 for Racket
+;; version 8.0 for Racket
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -267,7 +260,6 @@
 ;; '((¬A ∨ B ∨ ¬Ci) ∧ (¬A ∨ ¬B ∨ Ci) ∧ (A ∨ ¬B ∨ ¬Ci) ∧ (A ∨ B ∨ Ci))
 
 
-;; TODO: verifier rapidité en remplaçant les chaines de caracteres " * " et "(*)" par des nombres entiers
 
 ;; macros and functions definitions are included in files
 
