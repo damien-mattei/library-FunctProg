@@ -14,6 +14,21 @@
 ;; (regexp-match "^([A-Za-z]+)([0-9]+)$" "CA10")
 ;; ("CA10" "CA" "10")
 
+;; substring works also
+;; scheme@(guile-user)> (regexp-match "^([A-Za-z]+)([0-9]+)$" "c₁₃")
+;; ("c₁₃" "c" "₁₃")
+
+
+;; scheme@(guile-user)> (regexp-match "^([A-Za-z]+)(-?[0-9]+)$" "c-1")
+;; ("c-1" "c" "-1")
+
+;; scheme@(guile-user)> (regexp-match "^([A-Za-z]+)([-₋]?[0-9]+)$" "c₋₁₃") ;; substring ₋₁₃
+;; ("c₋₁₃" "c" "₋₁₃")
+;; scheme@(guile-user)> (regexp-match "^([A-Za-z]+)([-₋]?[0-9]+)$" "c-₁₃")
+;; ("c-₁₃" "c" "-₁₃")
+;; scheme@(guile-user)> (regexp-match "^([A-Za-z]+)([-₋]?[0-9]+)$" "c-13")
+;; ("c-13" "c" "-13")
+
 
 (def (regexp-match re s)
 

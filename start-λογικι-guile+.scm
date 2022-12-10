@@ -2,7 +2,7 @@
 
 ;; Damien Mattei
 
-;; 12/07/2022
+;; november 2022
 
 ;; (load "start-λογικι-guile+.scm")
 
@@ -56,9 +56,10 @@
 
 (use-modules (Scheme+)
 	     (ice-9 futures)
-	     (ice-9 format)
+	     ;;(ice-9 format)
 	     ;;(ice-9 hash-table) ;; built-in Hash Table
 	     (srfi srfi-1) ;; for 'first' procedure
+	     (srfi srfi-28) ;; Basic Format Strings
 	     (srfi srfi-60) ;; for arithmetic-shift
 	     ;;(srfi srfi-28) ;; for format and escape ~
 	     (srfi srfi-69) ;; SRFI 69 Hash Table
@@ -93,6 +94,7 @@
 (include "minterms.scm")
 (include "hash-table.scm")
 
+(include "guile/subscript+.scm")
 (include "guile/regex+.scm")
 
 (include "guile/logiki+.scm")

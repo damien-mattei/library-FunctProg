@@ -10,13 +10,13 @@
 ;; Copyright (C) 2014-2022  Damien MATTEI
 ;;
 ;;
-;; e-mail: damien.mattei@gmail.com 
+;; e-mail: damien.mattei@gmail.com
 ;;         ( damien.mattei@univ-cotedazur.fr, damien.mattei@unice.fr, damien.mattei@oca.eu , damien.mattei@cnrs.fr )
-;; 
 ;;
 ;;
 ;;
-;; version 7.0 for Guile
+;;
+;; version 9.0 for Guile
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -42,7 +42,7 @@
 ;; transformation from prefix to infix notation
 ;; simplification of DNF and CNF
 ;; search for antilogies and tautologies
-;; minimal form with Quine - Mc Cluskey and Petrick method 
+;; minimal form with Quine - Mc Cluskey and Petrick method
 ;;
 
 
@@ -85,7 +85,7 @@
 ;;
 ;;
 ;;
-;; (dnf-infix-symb (minimal-dnf '(or (and (and A B) (not (and C (or (and A (not B)) (and (not A) B))))) (and (not (and A B)) (and C (or (and A (not B)) (and (not A) B))))))) 
+;; (dnf-infix-symb (minimal-dnf '(or (and (and A B) (not (and C (or (and A (not B)) (and (not A) B))))) (and (not (and A B)) (and C (or (and A (not B)) (and (not A) B)))))))
 ;; ((B ∧ C) ∨ (A ∧ C) ∨ (A ∧ B))
 ;; ((A ∧ B) ∨ (A ∧ C) ∨ (B ∧ C))
 ;;
@@ -287,7 +287,7 @@
 ;; $3 = (not (and (=> a (and (=> b (not c)) (=> (not c) b))) (=> (and (=> b (not c)) (=> (not c) b)) a)))
 
 (define (elim-equivalence expr)
-  (cond 
+  (cond
    ((symbol? expr) expr)
    ((boolean? expr) expr)
    ((isNOT? expr) `(not ,(elim-equivalence (arg expr))))
@@ -307,7 +307,7 @@
 ;; PHASE1 : on élimine les implications (voir livre "Premier cours de programmation avec Scheme" page 210)
 ;;
 ;; example:
-;; 
+;;
 ;;> (show (elim-implications '(or (=> p q) (not (=> q r)))))
 ;;? (elim-implications '(or (=> p q) (not (=> q r))))
 ;;--> (or (or (not p) q) (not (or (not q) r)))
@@ -315,7 +315,7 @@
 ;; (elim-implications '(or (=> a b) (not (=> b c)))) -> '(or (or (not a) b) (not (or (not b) c)))
 
 (define (elim-implications expr)
-  (cond 
+  (cond
    ((symbol? expr) expr)
    ((boolean? expr) expr)
    ((isNOT? expr) `(not ,(elim-implications (arg expr))))
@@ -327,7 +327,7 @@
 (def (elim-exclusive-or expr)
 
      (cond
-      
+
       ((symbol? expr) expr)
       ((boolean? expr) expr)
       ((isNOT? expr) `(not ,(elim-exclusive-or (arg expr))))
@@ -337,7 +337,7 @@
 		      {ea1 <+ (elim-exclusive-or a1)}
 		      {ea2 <+ (elim-exclusive-or a2)}
 		      `{{(not ,ea1) and ,ea2} or {,ea1 and (not ,ea2)}}))
-      
+
       (else `(,(operator expr) ,(elim-exclusive-or (arg1 expr)) ,(elim-exclusive-or (arg2 expr))))))
 
 
@@ -362,7 +362,7 @@
 ;;
 ;; (move-in-negations '(not (or (not (and a b)) b))) --> '(and (and a b) (not b))
 
-(define (move-in-negations expr)  
+(define (move-in-negations expr)
   (cond
    ((or (symbol? expr) ; symbol , ex: 'a
 	(boolean? expr)) expr) ; boolean , ex: #f
@@ -370,25 +370,25 @@
    ;; this case is now studied in *
    ;;((and (isNOT? expr) (boolean? (arg expr))) expr)
 
-   ((isNOT? expr) 
+   ((isNOT? expr)
 
-    (let 
-	((p (arg expr))) ; expr = not (p) 
+    (let
+	((p (arg expr))) ; expr = not (p)
 
       (cond
 
        ((or (symbol? p)
 	    (boolean? p)) ;; *
-	expr) 
+	expr)
 
        ((isNOT? p) (move-in-negations (arg p))) ; expr = not p with p = not s, so expr = not(not (s)) = s
-       					
+
        ((isAND? p) ;; not(a and b) = not(a) or not(b)
 	(let
 	    ((a (arg1 p))
 	     (b (arg2 p)))
 	  `(or ,(move-in-negations `(not ,a)) ,(move-in-negations `(not ,b)))))
-					
+
        ((isOR? p) ;; not(a or b) = not(a) and not(b)
 	(let
 	    ((a (arg1 p))
@@ -420,7 +420,7 @@
 	  (q (arg1 expr2))
 	  (r (arg2 expr2)))
       `(or ,(distribute-and-over-or p q) ,(distribute-and-over-or p r)))) ; p and (q or r) = (p and q) or (p and r)
-   (else `(and ,expr1 ,expr2)))) ; else we create the expression ('and expr1 expr2) 
+   (else `(and ,expr1 ,expr2)))) ; else we create the expression ('and expr1 expr2)
 
 
 ;; we make the 'or going out by distributing them over the 'and
@@ -434,8 +434,8 @@
   (when debug-mode
     (display "phase3-dnf : ")
     (dv expr))
-  
-  
+
+
   (cond
    ((isOR? expr)
     (let ((p (arg1 expr))
@@ -453,7 +453,7 @@
 
 ;; simplify-negation in a classic recursive way
 ;; (simplify-negation '(not #t)) -> #f
-;; (simplify-negation '(not (not #t))) -> #t 
+;; (simplify-negation '(not (not #t))) -> #t
 (define (simplify-negation expr)
   (cond
    ((symbol? expr) expr) ; symbol , ex: 'a
@@ -461,10 +461,10 @@
    ((isNOT? expr) ; (not p)
     (let ((p (simplify-negation (arg1 expr)))) ; simplify p
       (cond
-       ((equal? p #t) #f) ; !#t = #f
-       ((equal? p #f) #t)    ; !#f = #t
+       ((is-True?  p) #f) ; !#t = #f
+       ((is-False? p) #t)    ; !#f = #t
        (else `(not ,p))))) ; (not p)
-					;; simplify (op p q) 
+					;; simplify (op p q)
    ((isOR-AND? expr) `(,(operator expr) ,(simplify-negation (arg1 expr)) ,(simplify-negation (arg2 expr))))))
 
 ;; simplify expression A ^ F or A ^ T or A v T ....
@@ -478,15 +478,15 @@
    ((isAND? expr) `(and ,(simplify-OR (arg1 expr)) ,(simplify-OR (arg2 expr)))) ;  and
    ((isOR? expr) ; (or p q)
     (let ((p-simp (simplify-OR (arg1 expr)))) ; p simplified
-      (if (equal? #t p-simp) ; (or #t q)
+      (if (is-True? p-simp) ; (or #t q)
 	  #t ; tautology
 	  (let ((q-simp (simplify-OR (arg2 expr)))) ; q simplified
-	    (if (equal? #t q-simp) ;  (or p #t)
+	    (if (is-True? q-simp) ;  (or p #t)
 		#t ; tautology
 		(cond
-		 ((equal? p-simp #f) q-simp) ; (or #f q)
-		 ((equal? q-simp #f) p-simp) ; (or p #f)
-		 (else `(or ,p-simp ,q-simp)))))))))) ; (or p q) 
+		 ((is-False? p-simp) q-simp) ; (or #f q)
+		 ((is-False? q-simp) p-simp) ; (or p #f)
+		 (else `(or ,p-simp ,q-simp)))))))))) ; (or p q)
 
 
 ;; (prefix->infix-symb (simplify-logic (n-arity (simplify-OR (simplify-AND (phase3-dnf (simplify-negation (move-in-negations (elim-implications  '(or (and Cin (not (or (and A (not #t)) (and (not A) #t)))) (and (not Cin) (or (and A (not #t)) (and (not A) #t))))))))))))) -> '((A ^ Cin) v (!A ^ !Cin))
@@ -498,15 +498,15 @@
    ((isOR? expr) `(or ,(simplify-AND (arg1 expr)) ,(simplify-AND (arg2 expr)))) ;  or
    ((isAND? expr) ; (and p q)
     (let ((p-simp (simplify-AND (arg1 expr)))) ; p simplified
-      (if (equal? #f p-simp) ; (and #f q)
+      (if (is-False? p-simp) ; (and #f q)
 	  #f ; antilogy
 	  (let ((q-simp (simplify-AND (arg2 expr)))) ; q simplified
-	    (if (equal? #f q-simp) ;  (and p #f)
+	    (if (is-False? q-simp) ;  (and p #f)
 		#f ; antilogy
 		(cond
-		 ((equal? p-simp #t) q-simp) ; (and #t q)
-		 ((equal? q-simp #t) p-simp) ; (and p #t)
-		 (else `(and ,p-simp ,q-simp)))))))))) ; (and p q) 
+		 ((is-True? p-simp) q-simp) ; (and #t q)
+		 ((is-True? q-simp) p-simp) ; (and p #t)
+		 (else `(and ,p-simp ,q-simp)))))))))) ; (and p q)
 
 
 ;; (dnf '(not (or (not (and a b)) b)))  --> '(and (and a b) (not b))
@@ -515,11 +515,11 @@
   ;; (dnf '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b)))))
   ;; -> '(or (or (or (and c (and (not a) a)) (and c (and (not a) (not b)))) (or (and c (and b a)) (and c (and b (not b)))))
   ;;   (or (and (not c) (and a (not b))) (and (not c) (and (not a) b))))
-  ;; 
+  ;;
   ;; (dnf '(or (and Cin (not (or (and A (not #t)) (and (not A) #t)))) (and (not Cin) (or (and A (not #t)) (and (not A) #t)))))
   ;; -> '(or (or (or (and Cin (and (not A) A)) (and Cin (and (not A) (not #t)))) (or (and Cin (and #t A)) (and Cin (and #t (not #t)))))
   ;;         (or (and (not Cin) (and A (not #t))) (and (not Cin) (and (not A) #t))))
-  
+
   (phase3-dnf (move-in-negations (elim-exclusive-or (elim-implications  (elim-equivalence expr))))))
 
 
@@ -534,11 +534,11 @@
    (dv expr))
 
   (declare result);; result-sorted)
-  
+
   (cond
    ((null? expr) {result <- expr})
    ((is-simple-form? expr) {result <- expr})
-   (else 
+   (else
     (let* ((oper (operator expr))
 	   (sL (args expr)) ; extract the arguments of operation
 	   (encaps (λ (expression)  ; put any remaining element in a set (list)
@@ -562,15 +562,15 @@
    (dv result))
 
   ;;{result-sorted <- (sort-expressions-in-operation result)} ;; REMOVE
-  
+
   (nodebug
    (display "simplify-NF-by-unitary-reduction : ")
    (dv result-sorted))
-  
-  ;;result-sorted) 
+
+  ;;result-sorted)
   result)
 
- 
+
 
 ;; simplify DNF of form ((a ^ b) v a) -> a
 ;; DEPRECATED,replaced by simplify-NF-by-unitary-reduction
@@ -594,7 +594,7 @@
   (cond
    ((null? expr) expr)
    ((is-simple-form? expr) expr)
-   (else 
+   (else
     (let* ((sL (args expr)) ; extract the arguments of 'or
 	   (encaps (λ (expression)  ; put any remaining element in a set (list)
 		     (if (symbol? expression)
@@ -617,7 +617,7 @@
 ;; parse-args-by-unitary-reduction = G
 ;;
 ;; algo :
-;;    
+;;
 ;; (C- means "is element of", !C- means "is not element of ")
 ;;
 ;; start with G(sL,sL)
@@ -631,7 +631,7 @@
 ;; example : (and a (not b)) , (and a e (not b)) if (and a (not b)) is satisfied then (and a e (not b)) is useless in expression
 ;; whatever the value of e is
 ;; the same apply with ANDed of ORed expressions too !!!
-;; 
+;;
 ;; (parse-args-by-unitary-reduction '((and a (not b)) (and a b) (and b d) (and a e (not b)) (and a (not b) c)) '((and a (not b)) (and a b) (and b d) (and a e (not b)) (and a (not b) c)))
 ;;   -> '((and b d) (and a b) (and a (not b)))
 ;;
@@ -646,7 +646,7 @@
       (let* ((s (first sL))
 	     (L (rest sL))
 	     (element (member s W))) ;; s C-? W
-	(if element ;; s C-? W 
+	(if element ;; s C-? W
 	    (let ((F (unitary-reduction s W)))
 	      (parse-args-by-unitary-reduction L (cons s F))) ;; s C- W  : G(sL,W) -> G(L,s.F(s,W))
 	    (parse-args-by-unitary-reduction L W)))))         ;; s !C- W : G(sL,W) -> G(L,W)
@@ -661,7 +661,7 @@
 ;; 	  (display "s=") (display s) (display "\n")
 ;; 	  (display "W=") (display W) (display "\n")
 ;; 	  (display "element=") (display element) (display "\n")
-;; 	  (if element ; s C-? W 
+;; 	  (if element ; s C-? W
 ;; 	      (let ((F (unitary-reduction s W)))
 ;; 		(begin
 ;; 		  (display "F =") (display F) (display "\n")
@@ -682,10 +682,10 @@
 ;; (unitary-reduction '(a) '((a b) (b d) (a b c) (a))) -> ((b d))
 ;; (unitary-reduction '(a) '((a) (a (not b)) (a b) (b d) (a e (not b)) (a (not b) c))) -> ((b d))
 ;; (unitary-reduction '(z) '((a b) (b d) (a b c))) -> ((a b) (b d) (a b c))
-;; 
+;;
 ;; algo:
 ;; sL = {} -> {}
-;; k C s  -> F(k,L)   
+;; k C s  -> F(k,L)
 ;; k !C s -> s.F(k,L)
 (define (unitary-reduction k sL) ;;; unitary-reduction = F
   (if (null? sL) ;;  sL = 0
@@ -694,7 +694,7 @@
 	    (L (rest sL))
 	    (F (unitary-reduction k L)))
 	(if (include? k s) ;;       C means "include in", !C means "not include in"
-	    F  ;; k C s -> F(k,L)      
+	    F  ;; k C s -> F(k,L)
 	    (cons s F))))) ;; k !C s -> s.F(k,L)
 
 
@@ -737,7 +737,7 @@
 ;; '((!b ^ !c) v (c ^ !d) v (!a ^ b ^ d))
 (define (infix-symb-min-dnf expr)
   (prefix->infix-symb  (minimal-dnf expr)))
- 
+
 ;; (infix-symb-bool-min-dnf '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
 ;; ((b̅ · c̅) ➕ (c · d̅) ➕ (a̅ · b · d))
 (define (infix-symb-bool-min-dnf expr)
@@ -769,7 +769,7 @@
   (sort-expressions-in-operation-var-index (simplify-NF-by-unitary-reduction (simplify-logic (n-arity (simplify-AND (simplify-OR (cnf (n-arity-operation->binary-operation expr)))))))))
 
 ;; (define (cnf-prefix expr)
-;;   (phase3-cnf (move-in-negations (elim-exclusive-or (elim-implications  (elim-equivalence  (n-arity-operation->binary-operation expr)))))))  
+;;   (phase3-cnf (move-in-negations (elim-exclusive-or (elim-implications  (elim-equivalence  (n-arity-operation->binary-operation expr)))))))
 
 
 
@@ -782,20 +782,20 @@
       (first (rest expr)) ;; WARNING: we should test and return T or F perheaps , not #t #f
       (if (boolean? expr)
 	  (if expr 'T 'F)
-	  expr))) 
+	  expr)))
 
 ;; return the literal of expression of type (not 'a) , 'a
-;; or return the first literal of a binary expression (OR / AND) 
+;; or return the first literal of a binary expression (OR / AND)
 ;; (get-first-literal '(or a b)) -> 'a
 ;; (get-first-literal '(or (not a) b)) -> 'a
 (define (get-first-literal expr)
   (if (isOR-AND? expr)
       (get-literal (first (rest expr)))
-      (get-literal expr))) 
+      (get-literal expr)))
 
 
 ;; search-not-lit
-;; test if we have (not x) 
+;; test if we have (not x)
 ;; lit : literal example: 'x 'b
 ;; lep : list of expressions ,example : '(a b (not x) c x (not a))
 ;;
@@ -807,20 +807,20 @@
   (member (list 'not lit) lep))
 
 ;; input : get an AND example: (AND x (not x) y z)
-;; will check all operands of AND to see if there is an antilogy in it 
+;; will check all operands of AND to see if there is an antilogy in it
 ;;
 ;; > (is-AND-antilogy? '(and c (not a) a)) -> #t
 ;; > (is-AND-antilogy? '(and (not c) a (not b))) -> #f
 ;; (define (is-AND-antilogy? expr)
 ;;   (letrec ((lep (args expr)) ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
 ;;            (detect-antilogy (λ (listExpr)
-;;                               (if (null? listExpr) 
+;;                               (if (null? listExpr)
 ;;                                   #f
-;;                                   (if (symbol? (first listExpr)) ;; we search for a literal ex: 'x    
+;;                                   (if (symbol? (first listExpr)) ;; we search for a literal ex: 'x
 ;;                                       (if (search-not-lit? (first listExpr) lep) ;; search antilogy with literal and the whole operands of AND
 ;;                                           #t
 ;;                                           (detect-antilogy (rest listExpr))) ;; check the rest of the list with another literal
-;; 				      (detect-antilogy (rest listExpr))))))) ;; check the rest of the list to find a literal                              
+;; 				      (detect-antilogy (rest listExpr))))))) ;; check the rest of the list to find a literal
 ;;     (detect-antilogy lep)))
 
 
@@ -828,7 +828,7 @@
 
 
 ;; input : get an AND example: (AND x (not x) y z)
-;; will check all operands of AND to see if there is an antilogy in it 
+;; will check all operands of AND to see if there is an antilogy in it
 ;;
 ;; > (is-AND-antilogy? '(and c (not a) a)) -> #t
 ;; > (is-AND-antilogy? '(and (not c) a (not b))) -> #f
@@ -840,11 +840,11 @@
 			(condx ((null? listExpr) #f)
 			       (exec {fst <+ (first listExpr)})
 			       ((is-False? fst) #t)
-			       ;; now we search for a literal ex: 'x  
+			       ;; now we search for a literal ex: 'x
 			       ((symbol? fst) (if (search-not-lit? fst lep) ;; search antilogy with literal in the whole operands of AND
 						  #t
 						  (detect-antilogy (rest listExpr)))) ;; check the rest of the list with another literal
-			       (else (detect-antilogy (rest listExpr)))))} ;; check the rest of the list to find a literal                              
+			       (else (detect-antilogy (rest listExpr)))))} ;; check the rest of the list to find a literal
   (detect-antilogy lep))
 
 
@@ -864,9 +864,9 @@
      (when (null? andList) (return '()))
 
      {fst <+ (first andList)}
-     
+
      (when (isAND? fst)
-	   
+
        {fst <- (filter (lambda (x) (not (is-True? x))) fst)} ;; remove useless 'True
 
        (case (length fst)
@@ -874,7 +874,7 @@
 	 ((1) (return (cons 'T (remove-antilogies-and-useless-true (rest andList))))) ;; (and) remaining ! keep a 'T and continue with the rest
 	 ((2) {fst <- (second fst)}))) ;; (and x) remaining !
 
-	     
+
      (if {(isAND? fst) and (is-AND-antilogy? fst)}
 	 (remove-antilogies-and-useless-true (rest andList))
 	 (cons fst (remove-antilogies-and-useless-true (rest andList)))))
@@ -884,20 +884,20 @@
 
 
 ;; input : get an OR example: (OR x (not x) y z)
-;; will check all operands of OR to see if there is a tautology in it 
+;; will check all operands of OR to see if there is a tautology in it
 ;;
 ;; >  (is-OR-tautology? '(or a (not b) (not b) (not a))) -> #t
 ;; >  (is-OR-tautology? '(or a (not b) (not c))) -> #f
 ;; (define (is-OR-tautology? expr)
 ;;   (letrec ((lep (args expr)) ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
 ;;            (detect-tautology (λ (listExpr)
-;;                                (if (null? listExpr) 
+;;                                (if (null? listExpr)
 ;;                                   #f
-;;                                   (if (symbol? (first listExpr)) ;; we search for a literal ex: 'x    
+;;                                   (if (symbol? (first listExpr)) ;; we search for a literal ex: 'x
 ;;                                      (if (search-not-lit? (first listExpr) lep) ;; search tautology with literal and the whole operands of OR
 ;;                                         #t
 ;;                                         (detect-tautology (rest listExpr))) ;; check the rest of the list with another literal
-;;                                      (detect-tautology (rest listExpr))))))) ;; check the rest of the list to find a literal                              
+;;                                      (detect-tautology (rest listExpr))))))) ;; check the rest of the list to find a literal
 ;;     (detect-tautology lep)))
 
 
@@ -908,16 +908,16 @@
 			(condx ((null? listExpr) #f)
 			       (exec {fst <+ (first listExpr)})
 			       ((is-True? fst) #t)
-			       ;; now we search for a literal ex: 'x  
+			       ;; now we search for a literal ex: 'x
 			       ((symbol? fst) (if (search-not-lit? fst lep) ;; search tautology with literal in the whole operands of OR
 						  #t
 						  (detect-tautology (rest listExpr)))) ;; check the rest of the list with another literal
-			       (else (detect-tautology (rest listExpr)))))} ;; check the rest of the list to find a literal                              
+			       (else (detect-tautology (rest listExpr)))))} ;; check the rest of the list to find a literal
   (detect-tautology lep))
 
 
 ;; remove the tautologies out of a list of ORed expressions...
-;; (remove-tautologies  
+;; (remove-tautologies
 ;;   '((or c (not c))
 ;;     (or c a (not a))
 ;;     (or c a b)
@@ -948,16 +948,16 @@
      (when (null? orList) (return '()))
 
      {fst <+ (first orList)}
-     
+
      (when (isOR? fst)
-	   
+
        {fst <- (filter (lambda (x) (not (is-False? x))) fst)} ;; remove useless 'False
 
        (case (length fst)
 	 ((0) (error "List of null length found in first element of argument of function." orList))
 	 ((1) (return (cons 'F (remove-tautologies-and-useless-false (rest orList))))) ;; (or) remaining ! keep a 'F and continue with the rest
 	 ((2) {fst <- (second fst)}))) ;; (or x) remaining !
-   
+
      (if {(isOR? fst) and (is-OR-tautology? fst)}
 	 (remove-tautologies-and-useless-false (rest orList)) ;; drop the tautologie and continue checking the rest
 	 (cons fst (remove-tautologies-and-useless-false (rest orList)))))
@@ -967,11 +967,11 @@
 
 ;; simplify the expressions
 ;; (or e1 e2 .... eN)
-;; if eI is an antilogy then remove it 
+;; if eI is an antilogy then remove it
 ;;
 ;; (simplify-DNF (n-arity (dnf '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b)))))))
-;; -> '(or 
-;;         (and c (not a) (not b)) 
+;; -> '(or
+;;         (and c (not a) (not b))
 ;;         (and c b a)
 ;;         (and (not c) a (not b))
 ;;         (and (not c) (not a) b))
@@ -1002,7 +1002,7 @@
 
 ;; simplify the expressions
 ;; (and e1 e2 .... eN)
-;; if eI is a tautology then remove it 
+;; if eI is a tautology then remove it
 ;;
 ;; (simplify-CNF (n-arity (cnf '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b)))))))
 ;; -> '(and (or c a b) (or c (not b) (not a)) (or (not a) b (not c)) (or a (not b) (not c)))
@@ -1041,7 +1041,7 @@
 	 (oper (operator norm-form)) ;; define operator
 	 (arg-list-no-dup (map remove-duplicates-in-operation arg-lst)) ;; argument list without duplicate elements
 	 ;;(arg-list-no-dup-sorted (map sort-arguments-in-operation arg-list-no-dup));; argument list sorted REMOVE
-	 (expr-no-dup-sorted (cons oper arg-list-no-dup)));(cons oper arg-list-no-dup-sorted))) 
+	 (expr-no-dup-sorted (cons oper arg-list-no-dup)));(cons oper arg-list-no-dup-sorted)))
 
     (when debug-mode
       (dv expr-no-dup-sorted)
@@ -1051,7 +1051,7 @@
 	(simplify-CNF expr-no-dup-sorted)
 	(simplify-DNF expr-no-dup-sorted))))
 
-;; simplify logical expressions by searching antilogies and tautologies in sub-expressions 
+;; simplify logical expressions by searching antilogies and tautologies in sub-expressions
 ;; parameter : a normal form expression
 ;;
 ;; (simplify-logic (n-arity (cnf '(or (and c (not (or (and a (not b)) (and (not a) b)))) (and (not c) (or (and a (not b)) (and (not a) b)))))))
@@ -1059,8 +1059,8 @@
 ;;
 ;; (simplify-logic '(and b a b (not b))) -> #f
 ;;
-;; (simplify-logic '(and (or ci b) a (or a a))) -> '(and a (or b ci)) 
-;; 
+;; (simplify-logic '(and (or ci b) a (or a a))) -> '(and a (or b ci))
+;;
 ;;  (simplify-logic '(and (or (not ci) b) d (not d) (or a a))) -> #f
 ;;
 ;; (simplify-logic '(and (or (not ci) b) (or d  d)  d (or (not d) (not d)) (or a a))) -> #f
@@ -1070,10 +1070,10 @@
     (display "simplify-logic : ")
     (dv expr)
     )
-  (cond 
+  (cond
    ((null? expr) expr)
-   ((symbol? expr) expr) 
-   ((is-simple-form? expr) (simplify-SF expr)) 
+   ((symbol? expr) expr)
+   ((is-simple-form? expr) (simplify-SF expr))
    ;;(else (sort-arguments-in-operation (remove-duplicates-in-operation (simplify-*NF expr)))))) ;; REMOVE sort
    (else (remove-duplicates-in-operation (simplify-*NF expr)))))
 
@@ -1090,8 +1090,8 @@
        ;; (if (AND-op? oper) ;;(equal? oper 'and) ;; AND => search for antilogies
        ;; 	   (if (is-AND-antilogy? expr-no-dup-sorted) #f expr-no-dup-sorted)
        ;; 	   (if (is-OR-tautology? expr-no-dup-sorted) #t expr-no-dup-sorted)))) ;;  OR => search for tautologies
-	    
-   
+
+
        (if (AND-op? oper) ;;(equal? oper 'and) ;; AND => search for antilogies
 	   (if (is-AND-antilogy? expr-no-dup) #f expr-no-dup)
 	   (if (is-OR-tautology? expr-no-dup) #t expr-no-dup)))) ;;  OR => search for tautologies
@@ -1108,7 +1108,7 @@
 (define expression<?
   (λ (x y)
     (string<? (lower-literal-symbol x) (lower-literal-symbol y))))
- 
+
 
 (define expression-var-index<?
   (λ (x y)
@@ -1143,24 +1143,29 @@
 (def (var-index<? v1 v2)
 
      ;;(debug-var-index<?-name)
-     
-     {re <+ "^([A-Za-z]+)([0-9]+)$"}
+
+     ;; TODO: modify v1 and v2 to translate subscript symbols and numbers in normal ones
+
+     {re <+ "^([A-Za-z]+)([-+₋₊]?[0123456789₀₁₂₃₄₅₆₇₈₉]+)$"}
+
+     ;; note that the one below works too in Guile but not in Racket (does not recognize subscript numbers)
+     ;; "^([A-Za-z]+)([-₋]?[0-9]+)$"} ;; "^([A-Za-z]+)([0-9]+)$"}
+
+     {v1m <+ (regexp-match re v1)}
 
      ;; when not a form like 'c1 we deal the normal way with string<?
-     {v1m <+ (regexp-match re v1)}
-     
      (unless v1m
        (return (string<? v1 v2)))
 
      {v2m <+ (regexp-match re v2)}
-     
+
      (unless v2m
        (return (string<? v1 v2)))
 
      (nodebug
       (dv v1m)
       (dv v2m))
-     
+
      {var1 <+ (second v1m)}
      {var2 <+ (second v2m)}
 
@@ -1172,11 +1177,18 @@
 
      (nodebug
       (dv str-equal))
-     
+
      (unless str-equal (return (string<? var1 var2)))
 
-     {index1 <+ (string->number (third v1m))}
-     {index2 <+ (string->number (third v2m))}
+     ;; possible subscript characters
+     {str-index-subscript1 <+ (third v1m)}
+     {str-index-subscript2 <+ (third v2m)}
+
+     {str-index1 <+ (string-subscript-number->string-number str-index-subscript1)}
+     {str-index2 <+ (string-subscript-number->string-number str-index-subscript2)}
+
+     {index1 <+ (string->number str-index1)}
+     {index2 <+ (string->number str-index2)}
 
      (nodebug
       (dv index1)
@@ -1188,11 +1200,11 @@
 (define (symbol-var-index<? symb1 symb2)
   (var-index<? (symbol->string symb1)
 	       (symbol->string symb2)))
-     
+
 
 (define expression->string
 	  (λ (expr2)
-	    (cond ((symbol? expr2) (symbol->string expr2)) 
+	    (cond ((symbol? expr2) (symbol->string expr2))
 		  ((boolean? expr2) (if expr2 "T" "F")) ;; #t -> "T", #f -> "F"
 		  (else (error "expression->string: do not know how to handle this expression" expr2)))))
 
@@ -1262,7 +1274,7 @@
 
 
 (define (expression-negation-tested<? a b)
-  
+
   (nodebug
    (display  "expression-negation-tested<? : ")
    (dv a)
@@ -1278,7 +1290,7 @@
 
 ;; DEPRECATED
 (define (literal-negation-tested<? a b)
-  
+
   (nodebug
    (display  "literal-negation-tested<? : ")
    (dv a)
@@ -1294,14 +1306,14 @@
   (let* ((ax 0)
 	 (bx 0)
 	 (a1 0)
-	 (b1 0) 
+	 (b1 0)
 	 ;;(a0 0)
 	 ;;(b0 0)
 	 (as (expression->string a)) ;;(symbol->string a))
 	 (bs (expression->string b))) ;;(symbol->string b)))
 
     (for-basic (i 1 (- (string-length as) 1))
-	 
+
 	 (case {as[i]} ;;(string-ref as i)
 
 	   ((#\x) (incf ax))
@@ -1314,15 +1326,15 @@
 	   ((#\1) (incf b1))
 	   ;;((#\0) (incf b0))
 	   ))
-    
+
     (cond ((> ax bx) #t)
 	  ((< ax bx) #f)
 	  (else ;; ax = bx
 	   (> a1 b1)))))
-		   
 
-			     
-    
+
+
+
 ;; sort operands in a logic expression
 ;; (sort-arguments-in-operation '(or c a b)) -> '(or a b c)
 ;; (sort-arguments-in-operation '(or c (not a) b)) -> '(or (not a) b c)
@@ -1332,12 +1344,12 @@
   (if (isOR-AND? expr)
 
       (let* ((args-list (args expr)) ;;'(or c a b) -> '(c a b)
-	    
+
 	     (sorted-args (sort-arguments args-list))
 	     (oper (operator expr))) ;; define operator : (or Ci a b) -> or
-	
+
 	(cons oper sorted-args))
-      
+
       expr)) ;; we have not a binary operator but a literal or negation of literal
 
 (define (sort-arguments-in-operation-var-index expr)
@@ -1345,12 +1357,12 @@
   (if (isOR-AND? expr)
 
       (let* ((args-list (args expr)) ;;'(or c a b) -> '(c a b)
-	    
+
 	     (sorted-args (sort-arguments-var-index args-list))
 	     (oper (operator expr))) ;; define operator : (or Ci a b) -> or
-	
+
 	(cons oper sorted-args))
-      
+
       expr)) ;; we have not a binary operator but a literal or negation of literal
 
 
@@ -1373,11 +1385,11 @@
 	 (nodebug (display "sort-expressions-in-operation : ")
 		(dv exprs-list))
 	 {sorted-exprs <+ (sort-expressions exprs-list)}
-	 (nodebug 
+	 (nodebug
 	  (dv sorted-exprs))
 	 {oper <+ (operator expr)} ;; define operator : (or Ci a b) -> or
 	 (cons oper sorted-exprs))
-      
+
       ;;(sort-arguments-in-operation expr))) ;; we have not an expression composed of expressions but a single expression
       expr))
 
@@ -1393,11 +1405,11 @@
 	 (nodebug (display "sort-expressions-in-operation-var-index : ")
 		(dv exprs-list))
 	 {sorted-exprs <+ (sort-expressions-var-index exprs-list)}
-	 (nodebug 
+	 (nodebug
 	  (dv sorted-exprs))
 	 {oper <+ (operator expr)} ;; define operator : (or Ci a b) -> or
 	 (cons oper sorted-exprs))
-      
+
       expr))
 
 
@@ -1413,7 +1425,7 @@
    (dv exprs-list))
 
   {exprs-with-args-sorted <+ (map sort-arguments-in-operation exprs-list)}
-  
+
   (sort exprs-with-args-sorted expression-literal-first-negation-tested<?)) ;; expression-negation-tested<?)) ;; expression<?))
 
 
@@ -1428,7 +1440,7 @@
    (dv exprs-list))
 
   {exprs-with-args-sorted <+ (map sort-arguments-in-operation-var-index exprs-list)}
-  
+
   (sort exprs-with-args-sorted expression-literal-first-negation-tested<?))
 
 
@@ -1451,9 +1463,9 @@
   {res <+ (sort args-list  expression<?)} ;;expression-var-index<?)};BUG ;  expression-negation-tested<?))
 
   ;;{cpt <- {cpt + 1}}
-  
+
   (nodebug
-   ;;{cpt <- {cpt + 1}} 
+   ;;{cpt <- {cpt + 1}}
    (dv cpt)
    (dv res))
   res)
@@ -1480,12 +1492,12 @@
 ;;   (if (isOR-AND? expr)
 
 ;;       (let* ((args-list (args expr)) ;;'(or Ci a b) -> '(Ci a b)
-	    
+
 ;; 	     (sorted-args (sort args-list expression-literal-first<?))
 ;; 	     (oper (operator expr))) ;; define operator : (or Ci a b) -> or
-	
+
 ;; 	(cons oper sorted-args))
-      
+
 ;;       expr)) ;; we have not a binary operator but a literal or negation of literal
 
 
@@ -1496,12 +1508,12 @@
   (if (isOR-AND? expr)
 
       (let* ((args-list (args expr)) ;;'(or Ci a b) -> '(Ci a b)
-	    
+
 	     (sorted-args (sort args-list expression-most-little-literal-first<?))
 	     (oper (operator expr))) ;; define operator : (or Ci a b) -> or
-	
+
 	(cons oper sorted-args))
-      
+
       expr)) ;; we have not a binary operator but a literal or negation of literal
 
 
@@ -1524,7 +1536,7 @@
 
 
 
-(define (distribute-or-over-and  expr1 expr2)  ;; expr1 et expr2 sont les arguments d'un 'or : ('or expr1 expr2)  
+(define (distribute-or-over-and  expr1 expr2)  ;; expr1 et expr2 sont les arguments d'un 'or : ('or expr1 expr2)
   ;; remember we have (expr1 or expr2) to distribute over the "and"
   (cond
    ((isAND? expr1)            ;; (expr1 expr2) <--> ( ('and p q) r )
@@ -1537,7 +1549,7 @@
 	  (q (arg1 expr2))
 	  (r (arg2 expr2)))
       `(and ,(distribute-or-over-and p q) ,(distribute-or-over-and p r)))) ;; p or (q and r) = (p or q) and (p or r)
-   (else `(or ,expr1 ,expr2)))) ;; else we create the expression ('or expr1 expr2) 
+   (else `(or ,expr1 ,expr2)))) ;; else we create the expression ('or expr1 expr2)
 
 
 
@@ -1550,7 +1562,7 @@
   (when debug-mode
     (display "phase3-cnf : ")
     (dv expr))
-  
+
   (cond
    ((isAND? expr)
     (let ((p (arg1 expr))
@@ -1618,37 +1630,37 @@
 	   (var-list (collect-variables disj-norm-form)) ;; variable list changed with collect-var :
 	   ;;(var-list (sort (remove-duplicates (collect-var disj-norm-form)) symbol-var-index<?))
 	   (and-terms (args disj-norm-form)) ;; conjunctives minterms
-	   ;; variable list of expanded minterms 
+	   ;; variable list of expanded minterms
 	   (expanded-var-terms
 	    (apply append (map
-			   
+
 			   (λ
 			       (min-term)
 			     (expand-minterm var-list min-term))
-			   
+
 			   and-terms)))
-	   
+
 	   ;; (sorted-expanded-var-terms ;; (map sort-arguments expanded-var-terms)) ;; possible BUG : use only if needed :
 	   ;;  (map sort-arguments-var-index expanded-var-terms)) ;; sorted variable list of expanded minterm
-	   
+
 	   ;;(uniq-expanded-var-terms (remove-duplicates-sorted expanded-var-terms)) ;;sorted-expanded-var-terms))
 	   (uniq-expanded-var-terms (remove-duplicates expanded-var-terms))
-	   
+
 	   (expanded-and-term
 	    (map
-	     
+
 	     (λ
 		 (literal-list)
 	       (if (singleton-set? literal-list)
 		   (first literal-list)
 		   (cons 'and literal-list)))
-	     
+
 	     uniq-expanded-var-terms))
-	   
+
 	   (maximal-disj-norm-form (cons 'or expanded-and-term)))
 
       {maximal-disj-norm-form-sorted <+ (sort-expressions-in-operation-var-index maximal-disj-norm-form)}
-      
+
       (nodebug
 	(display "maximal-dnf:")
 	(dv disj-norm-form)
@@ -1721,7 +1733,7 @@
 ;;
 (define (minimal-dnf expr)
 
-  ;;(no-debug-region 
+  ;;(no-debug-region
   (declare min-expr-sorted
 	   essential-prime-implicants
 	   formula-find-with-Quine-Mc-Cluskey
@@ -1734,31 +1746,31 @@
   (nodebug
    (display "minimal-dnf : ")
    (dv collected-vars))
-  
+
   ;;{var-list <+ (sort (remove-duplicates collected-vars) symbol-var-index<?)} ;; variable list , previously was : (collect-variables expr)
   ;; changed in maximal-dnf too
   {var-list <+  (collect-variables expr)}
-  
+
   (nodebug
    (dv var-list))
-  
+
   {disj-norm-form <+ (dnf-n-arity-simp expr)} ;; disjunctive form
 
   (nodebug
    (display "minimal-dnf : ")
    (dv disj-norm-form))
-	
+
   {infix-disj-norm-form <+ (dnf-infix-symb disj-norm-form)} ;; infix only used for display, not for computation
 
-  
+
   (if (not (pre-check-Quine-Mc-Cluskey disj-norm-form))
-      
+
       (sort-arguments-in-operation disj-norm-form) ;; sorting here !
-      
+
       (begin
-	
+
 	(set! essential-prime-implicants (Quine-Mc-Cluskey disj-norm-form var-list))
-	
+
 	(set! formula-find-with-Quine-Mc-Cluskey (essential-prime-implicants-list->formula essential-prime-implicants var-list))
 
 	(nodebug
@@ -1770,7 +1782,7 @@
 	 )
 
 	(set! min-expr formula-find-with-Quine-Mc-Cluskey)
-	
+
 	(when (not feepi) ;; if Quine Mc Cluskey method did not worked completely to a minimal function
 
 	      ;; we have to minimize again
@@ -1782,7 +1794,7 @@
 	      (set! petrick-expr (Petrick non-essential-prime-implicants var-list))
 	      ;;(dv petrick-expr)
 	      ;;(dv min-expr)
-	      
+
 	      (set! min-expr
 		    (if (is-simple-form? min-expr)
 			(if (is-simple-form? petrick-expr)
@@ -1791,17 +1803,17 @@
 			(if (is-simple-form? petrick-expr)
 			    `(,(operator min-expr) ,@(args min-expr) ,petrick-expr) ;; operator must be an OR
 			    `(,(operator min-expr) ,@(args min-expr) ,@(args petrick-expr)))))) ;; operator must be an OR - end when
-	  
+
 	{min-expr-sorted <- (sort-expressions-in-operation-var-index min-expr)} ;;(sort-expressions-in-operation min-expr)} ;; compare-list-args require presorted var (warning)
 
 	(nodebug
 	 (display-nl "minimal-dnf")
 	 (dv min-expr)
 	 (dv min-expr-sorted))
-	
+
 	min-expr-sorted)));;)
-		
-  
+
+
 
 
 ;; (essential-prime-implicants-list->formula '((0 0 0 0) (x 1 x 1) (1 x 1 0)) '(a b c d))
@@ -1823,7 +1835,7 @@
 ;; the hash table for minterms, better to be a top-level definition,it's nightmare otherwise...
 
 (define minterms-ht (make-hash-table)) ;; SRFI 69
-;;(define minterms-ht (make-hashtable)) ;; Bigloo 
+;;(define minterms-ht (make-hashtable)) ;; Bigloo
 
 
 
@@ -1856,7 +1868,7 @@
 ;; diagram of calls:
 ;; funct-unify-minterms-set-of-sets-rec-tail --> funct-unify-minterms-set-1-unit  --> product-set-with-set-imperative
 ;;                                                                                    function-unify-minterms-list --> function-unify-two-minterms-and-tag
-;;                                           <-- 
+;;                                           <--
 
 ;; funct-unify-minterms-set-1-unit  --> product-set-with-set-imperative
 ;;                                      function-unify-minterms-list --> function-unify-two-minterms-and-tag --> unify-two-minterms
@@ -1873,11 +1885,11 @@
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit : begin"))
-  
+
   (nodebug
    (dvs set1)
    (dvs set2))
-  
+
   {function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
 
   ;; note : sorting is useless
@@ -1893,7 +1905,7 @@
    {minterms-set-first <+ (first minterms-set)}
    (dv minterms-set-length)
    (dv minterms-set-first))
-  
+
   {unified-minterms-set-1 <+ (map function-unify-minterms-list minterms-set)}
   (nodebug
    (display-nl "after (map function-unify-minterms-list minterms-set)"))
@@ -1910,13 +1922,13 @@
   (nodebug
    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
-  
+
   (nodebug
    (dvs unified-minterms-set))
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit : end"))
-      
+
   unified-minterms-set)
 
 
@@ -1951,7 +1963,7 @@
 
 
 ;; funct-unify-minterms-set-of-sets-rec-tail --> funct-unify-minterms-set-1-unit
-;;                                           <--   
+;;                                           <--
 
 ;; argument: a set of sets of minterms
 ;; this function advance of a level in unify minterms set of sets
@@ -1974,12 +1986,12 @@
 
 ;; see the tail recursive version after
 (define (funct-unify-minterms-set-of-sets-rec-backup sos)
-  
+
   (nodebug
    (display-nl "funct-unify-minterms-set-of-sets-rec")
    ;;(dvsos sos)
    )
-   
+
   (debug-region-name "region inside funct-unify-minterms-set-of-sets-rec"
   (if (singleton-set? sos)
 
@@ -1988,7 +2000,7 @@
 	  (display-nl "funct-unify-minterms-set-of-sets-rec :: singleton-set? ")
 	  (dvsos sos)
 	  )
-	 
+
 	 '() ) ;; return '()
 
       ;; at least 2 elements in set of sets
@@ -2008,15 +2020,15 @@
 
 	 ;; this was not original code! here we do first the computation from set 2 to set n and after set 1 and set 2! so no tail recursion optimisation
 	 {unified-minterms-set2-to-setn <+ (funct-unify-minterms-set-of-sets-rec mt-set2-to-mt-setn)} ;; in any case we continue with sets from 2 to n
-	 
+
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
-	     
+
 	     (& {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
-		
+
 		(if (null? unified-mt-set1-and-mt-set2)
 		    unified-minterms-set2-to-setn ;; the result will be the continuation with sets from 2 to n
 		    (insert unified-mt-set1-and-mt-set2 unified-minterms-set2-to-setn))) ;; end &
-	     
+
 	     unified-minterms-set2-to-setn))))) ;; continue with sets from 2 to n
        ;; this procedure returns a set of unified minterms of the current level and
        ;; and when there is no more minterms set to unify this procedure returns '() and perheaps
@@ -2025,7 +2037,7 @@
 
 ;; a tail recursive version
 (define (funct-unify-minterms-set-of-sets-rec-tail sos acc) ;; with accumulator
-    
+
   ;;(debug-region-name "region inside funct-unify-minterms-set-of-sets-rec-tail"
   (nodebug
    (display-nl "funct-unify-minterms-set-of-sets-rec-tail : begin"))
@@ -2036,9 +2048,9 @@
 	  (display-nl "funct-unify-minterms-set-of-sets-rec :: singleton-set? ")
 	  (dvsos sos)
 	  )
-	 
+
 	 (reverse acc) )
-      
+
       ;; at least 2 elements in set of sets
       (& {mt-set1 <+ (car sos)} ;; minterm set 1
 	 {mt-set2 <+ (cadr sos)} ;; minterm set 2
@@ -2046,7 +2058,7 @@
 	 {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
 	 {weight-mt-set2 <+ (floor-bin-minterm-weight (car mt-set2))}
 	 {delta-weight <+ {weight-mt-set2 - weight-mt-set1}}
-	 
+
 	 (nodebug
 	  (dvs mt-set1)
 	  (newline)
@@ -2055,7 +2067,7 @@
 	  (dv delta-weight))
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
-	     
+
 	     (& {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
@@ -2067,14 +2079,14 @@
 	     ($ (nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
 		(funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc)))))) ;; continue with sets from 2 to n
-  
+
        ;; this procedure returns a set of unified minterms of the current level and
        ;; and when there is no more minterms set to unify this procedure returns '() and perheaps
        ;; sort of '(()) or '(() () ...)
 
 ;; a tail recursive version
 (define (funct-unify-minterms-set-of-sets-rec sos)
-  
+
   (nodebug
    (display-nl "funct-unify-minterms-set-of-sets-rec")
    {lgt-sos <+ (length-sos sos)}
@@ -2086,10 +2098,10 @@
   ;; now call the tail recursive version
   (funct-unify-minterms-set-of-sets-rec-tail sos '()))
 
-  
+
 ;; funct-unify-minterms-set-of-sets-rec-wrap --> funct-unify-minterms-set-of-sets-rec
 
-;; it's a wrap of previous function to return empty set 
+;; it's a wrap of previous function to return empty set
 ;; > (funct-unify-minterms-set-of-sets-rec-wrap '(((1 x x 0)) ((x 1 x 1) (1 1 x x))))
 ;; '()
 ;; > (funct-unify-minterms-set-of-sets-rec-wrap '(((x 1 x 1))))
@@ -2120,7 +2132,7 @@
 ;; 	'()
 ;; 	rv)))
 
-	  
+
 
 ;; recursive-unify-minterms-set-of-sets --> put-elements-of-set-of-sets-in-minterms-ht
 ;;                                          funct-unify-minterms-set-of-sets-rec
@@ -2179,16 +2191,16 @@
 
 ;;   (debug
 ;;    (display-nl "recursive-unify-minterms-set-of-sets : "))
-   
+
 ;;   (debug
 ;; 	(newline)
 ;; 	;;(display "recursive-unify-minterms-set-of-sets : ")
 ;; 	(dv sos)
 ;; 	(dvsos sos)
 ;; 	)
-  
+
 ;;   (if (set-of-multiple-empty-sets? sos)
-      
+
 ;;       (hash-table-keys minterms-ht)
 ;;       ;;(hashtable-key-list minterms-ht) ;; Bigloo
 
@@ -2206,16 +2218,16 @@
 
   (nodebug
    (display-nl "recursive-unify-minterms-set-of-sets : "))
-   
+
   (nodebug
 	(newline)
 	;;(display "recursive-unify-minterms-set-of-sets : ")
 	(dv sos)
 	(dvsos sos)
 	)
-  
+
   (if {(null? sos) or (set-of-multiple-empty-sets? sos)}
-      
+
       (hash-table-keys minterms-ht)
       ;;(hashtable-key-list minterms-ht) ;; Bigloo
 
@@ -2385,18 +2397,18 @@
 ;;
 ;;
 (define (function-unify-two-minterms-and-tag mt1 mt2)
-  
+
   (nodebug
    (display-nl "function-unify-two-minterms-and-tag : begin"))
-  
-  {res ⥆ (unify-two-minterms mt1 mt2)} ;; (unify-two-minterms-rec mt1 mt2)} 
+
+  {res ⥆ (unify-two-minterms mt1 mt2)} ;; (unify-two-minterms-rec mt1 mt2)}
   (when res
     {minterms-ht[mt1] <- #t}
     {minterms-ht[mt2] <- #t})
 
   (nodebug
    (display-nl "function-unify-two-minterms-and-tag : end"))
-  
+
   res) ;; result
 
 
@@ -2421,7 +2433,7 @@
   ;;(debug-mode-off)
   (when debug-mode
 	(display "init-hash-table-with-set-and-value") (newline))
-  
+
   ;;{ht ← (make-hash-table)} ;; attention semble ne pas marcher
   ;;(hash-clear! ht) ;; Guile built-in, will not work with SRFI 69 !
   (map (λ (e) {ht[e] <- val}) s)
@@ -2453,7 +2465,7 @@
 ;; #(0 0 0 0 0 0 0 0 0 0 0)
 ;; #(0 0 0 0 0 0 0 0 0 0 0)
 
-;; iepi = 
+;; iepi =
 ;; #(() (0 0 0 0) (0 0 0 1) (0 0 1 0) (1 0 0 0) (0 1 0 1) (0 1 1 0) (1 0 0 1) (1 0 1 0) (0 1 1 1) (1 1 1 0))
 ;; #((0 x 0 1)      *           *                     )
 ;; #((0 1 x 1)                  *               *     )
@@ -2463,7 +2475,7 @@
 ;; #((x 0 x 0)  *       *   *               *         )
 
 (define (identify-essential-prime-implicants  prime-implicants minterms)
-  
+
   ;;(lgt-pi (length prime-implicants))
   ;;(lgt-mt (length minterms))
   ;; identifying essential prime implicant array
@@ -2471,7 +2483,7 @@
   ;; first row : prime-implicants
   ;;(iepi (make-array-2d (+ lgt-mt 1) (+ lgt-pi 1) 0)) ;; two dimensions array
   ;;(array-iepi (λ (x y) (vector-ref (vector-ref iepi y) x)))
-  
+
   {vct-prime-implicants ⥆ (list->vector prime-implicants)}
   {essential-prime-implicants-list ⥆ '()}
   {cpt-mt ⥆ 0} ;; counter of minterms
@@ -2479,16 +2491,16 @@
   {star-in-column ⥆ #f} ;; at the beginning
 
   {feepi ← #f} ;; at the beginning
-    
+
   ;;(debug-mode-off)
   (when debug-mode
     (display-nl "identify-essential-prime-implicants ::")
     (dv prime-implicants)
     (dv minterms))
-  
+
   {lgt-pi ← (length prime-implicants)}
   {lgt-mt ← (length minterms)}
-  
+
   ;; identifying essential prime implicant array
   ;; first line : minterms
   ;; first row : prime-implicants
@@ -2504,16 +2516,16 @@
     )
 
   ;; construction of the array
-  ;; set the left column containing prime implicants 
+  ;; set the left column containing prime implicants
   (for-basic (y 0 {lgt-pi - 1})
-      
+
        {iepi[0 {y + 1}] ← vct-prime-implicants[y]})
 
   ;; identify prime implicants
   (for-basic (x 1 lgt-mt)
-       
+
        {cpt-mt ← 0}
-       
+
        (for-basic (y 1 lgt-pi)
 
 	    (if (compare-minterm-and-implicant {iepi[0 y]}
@@ -2525,11 +2537,11 @@
 			{y-pos-epi ← y}) ;; position of essential prime implicant
 		  ;;{iepi[x y] ← " * "})
 		  {iepi[x y] ← 1})
-		
+
 		;; else
 		;;{iepi[x y] ← "   "})) ;; end for y
 		{iepi[x y] ← 3}))
-       
+
        (when (= 1 cpt-mt) ;; essential prime implicant
 	     ;;{iepi[x y-pos-epi] ← "(*)"}
 	     {iepi[x y-pos-epi] ← 2}
@@ -2543,46 +2555,46 @@
 	(newline)
 	(dv-2d iepi))
 
-  
-  
+
+
   {essential-prime-implicants-list ← (remove-duplicates essential-prime-implicants-list)}
 
   {feepi ← #t}
-  
+
   ;; check if function is expressed by essential implicants
   (for-basic/break break-x (x 1 lgt-mt) ;; loop over minterms
-	     
+
 	     (for-basic/break break-y (y 1 lgt-pi) ;; loop over prime implicants
 
 			;; check wether prime implicant is an essential one?
 			(when (member {iepi[0 y]} essential-prime-implicants-list)
-			  
+
 			      (nodebug
 			       (de {iepi[0 y]})
 			       (de {iepi[x y]}))
-			  
+
 			      ;; is the essential prime implicant expressing this minterms?
 			      ;; (when (or (string=?  {iepi[x y]} "(*)")
 			      ;; 		(string=?  {iepi[x y]} " * "))
 			      (when (or (= {iepi[x y]} 2)
 					(= {iepi[x y]} 1))
-				    
+
 				    (when debug-mode
 					  (display-nl "star-in-column"))
-				    
+
 				    {star-in-column ← #t}
-				    
+
 				    (break-y)))) ;; that's enought! we know the minterm is expressed.
 
 	     ;; end for/break break-y
-	     
+
 	     (unless star-in-column
 		     {feepi ← #f} ;; function not expressed by prime implicants
 		     ;; add minterm to non expressed minterms list
 		     {non-expressed-minterms ← (insert {iepi[x 0]} non-expressed-minterms)}
 		     ;;(break-x) ;; removed break-x as we have to check all the minterms now
 		     )
-	     
+
 	     {star-in-column ← #f})  ;; set it for the next loop
   ;; end for/break break-x
 
@@ -2599,7 +2611,7 @@
 ;; (compare-2-bits-symbolically 0 1) -> #f
 ;; (compare-2-bits-symbolically 0 'x) -> #t
 (define (compare-2-bits-symbolically a b)
-  (or (equal? a 'x) (equal? a b) (equal? b 'x))) 
+  (or (equal? a 'x) (equal? a b) (equal? b 'x)))
 
 ;; (compare-minterm-and-implicant '(1 0 0 1) '(1 x 0 1)) -> #t
 ;; (compare-minterm-and-implicant '(1 0 1 1) '(1 x 0 1)) -> #f
@@ -2607,7 +2619,7 @@
 ;; (compare-minterm-and-implicant '(1 x 0 1)  '(1 0 1 1) ) -> #f
 (define (compare-minterm-and-implicant mt im)
   (andmap compare-2-bits-symbolically mt im))
-   
+
 
 ;; Quine-Mc Cluskey method for minimizing function
 ;;
@@ -2620,10 +2632,10 @@
 
      (nodebug
       (display-nl "Quine-Mc-Cluskey:"))
-     
+
      {and-terms ⥆ (args disj-norm-form)} ;; conjunctives minterms
-     ;; variable list of expanded minterms 
-     {expanded-var-terms  ⥆ ($ 
+     ;; variable list of expanded minterms
+     {expanded-var-terms  ⥆ ($
 				(when debug-mode
 				  (dv and-terms)) ;; dv:display value
 				(apply append
@@ -2641,7 +2653,7 @@
      {sorted-minterms-list <+ (sort sorted-expanded-var-terms compare-list-args<?)} ;; sort expanded minterms list
 
      {uniq-sorted-minterms <+ (remove-duplicates-sorted sorted-minterms-list)}
-     
+
      (nodebug
       ;; dv : display value
       (dv disj-norm-form)
@@ -2651,7 +2663,7 @@
       (dv sorted-expanded-var-terms)
       (dv sorted-minterms-list)
       (dv uniq-sorted-minterms))
-     
+
      {binary-minterms ⥆ (map var->binary uniq-sorted-minterms)} ;; minterms in binary form
      {sorted-binary-minterms ⥆ (sort binary-minterms minterm-binary-weight-number<?)} ;; sorted binary minterms
      {uniq-sorted-binary-minterms ⥆ (remove-duplicates-sorted sorted-binary-minterms)}  ;; uniq? because there could be the same many times
@@ -2661,7 +2673,7 @@
       ;; (dv binary-minterms)
       ;; (dv sorted-binary-minterms)
       (dv uniq-sorted-binary-minterms))
-     
+
      {set-of-sets-of-minterms ⥆ (order-by-weight-minterms uniq-sorted-binary-minterms)} ;; set of sets of minterms ordered by weight
      ;; (begin
      ;;   (de (order-by-weight-basic uniq-sorted-binary-minterms)) ;; set of sets of minterms ordered by weight
@@ -2670,7 +2682,7 @@
 
      (nodebug
       (dvsos set-of-sets-of-minterms))
-     
+
      {unified-minterms ⥆ ($
 			     (when debug-mode (display-nl "Quine-Mc-Cluskey:"))
 			     (init-hash-table-with-set-and-value minterms-ht minterms #f)
@@ -2682,7 +2694,7 @@
       (display-nl "Quine-Mc-Cluskey:")
       (dv unified-minterms)
       (newline))
-	 
+
      {essential-prime-implicants ⥆ ($ {prime-implicants-lst ← (prime-implicants minterms-ht)}
 				      (identify-essential-prime-implicants prime-implicants-lst minterms))}
 
@@ -2697,12 +2709,12 @@
       (dv feepi))
 
      (hash-table-clear! minterms-ht) ;; to avoid GC Warning: Repeated allocation of very large block (appr. size 144117760): May lead to memory leak and poor performance (from Boehm garbage collector)
-   
+
      essential-prime-implicants)
 
 
 (define prime-implicants-lst '())
-  
+
 
 (def (Petrick non-essential-prime-implicants var-list)
 
@@ -2711,35 +2723,35 @@
   (declare mt conj-expr prim-imp col disj-expr disj-expr-sorted mt-var missing-term)
 
   ;;(display-nl "Entering Petrick...")
-  
+
   (for-basic (x 1 lgt-mt) ;; loop over minterms
-       
+
        {mt ← iepi[x 0]}
-       
+
        (when (member mt non-expressed-minterms) ;; non expressed minterm
-	 
+
 	 {col ← '()}
-	 
+
 	 (for-basic (y 1 lgt-pi) ;; loop over prime implicants
-	      
+
 	      {prim-imp ← iepi[0 y]} ;; prime implicant
-	      
+
 	      ;; check wether prime implicant is a non essential one?
 	      (when (member prim-imp non-essential-prime-implicants)
-		
+
 		    ;; is the non essential prime implicant expressing this minterms?
 		    ;; (when (string=? {iepi[x y]} " * ")
 		    (when (= {iepi[x y]} 1)
 			  (insert-set! (minterm->var prim-imp) col))))
-	 
+
 	 ;; end for y
-	 
+
 	 (if (singleton-set? col)
 	     {col ← (car col)}  ;; ( V ) -> V
 	     (insert-set! 'or col))  ;; (V1 V2 ...) -> (or V1 V2 ...)
-	 
+
 	 (insert-set! col conj-expr)))
-  
+
   ;; end for x
 
   (if (singleton-set? conj-expr)
@@ -2750,14 +2762,14 @@
 
   ;; find the disjunctive form
   {disj-expr ← (dnf-n-arity-simp conj-expr)}
-  
+
   ;;(dv disj-expr)
 
   ;; sorting terms
   ;; sort by x < 1 < 0
   {disj-expr-sorted ← (sort-arguments-in-operation-most-little-literal-first disj-expr)}
   ;;(dv disj-expr-sorted)
-  
+
   ;; get the shortest minterm
   (if (isOR-AND? disj-expr-sorted)
       {mt-var ← (first (args disj-expr-sorted))}
@@ -2776,7 +2788,7 @@
   ;;(dv missing-term)
 
   missing-term
-      
+
 )
 
 
@@ -2785,7 +2797,7 @@
 ;; scheme@(guile-user)> (unify-two-minterms-rec '(1 0 1 0 0 1 0 1 0 1) '(1 0 1 0 1 1 0 1 0 1))
 ;; $2 = (1 0 1 0 x 1 0 1 0 1)
 ;; (define (unify-two-minterms-rec mt1 mt2)
-  
+
 ;;   {err <+ #f}
 
 ;;   (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
@@ -2795,11 +2807,11 @@
 
 ;;        (if {{(null? mt1) and (not (null? mt2))} or {(not (null? mt1)) and (null? mt2)}}
 ;; 	   (return-rec #f))
-	 
-       
+
+
 ;;        {fst-mt1 <+ (first mt1)}
 ;;        {fst-mt2 <+ (first mt2)}
-       
+
 ;;        (if (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
 ;; 						  (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))
 ;;        (if err (return-rec #f))
@@ -2807,16 +2819,16 @@
 ;;        {err <- #t}
 ;;        (cons 'x
 ;; 	     (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2))))
-  
+
 ;;   (unify-two-lists-tolerant-one-mismatch mt1 mt2))
-	  
+
 
 
 
 
 ;; test case procedure
 (def (logic-test)
-     
+
      (declare expr res-expr res-expr-exact)
 
      ;; test 1
@@ -2892,7 +2904,7 @@
 	  (display-nl "test 5 ******* DIFFER *******")
 	  (return #f)))
      (newline)
-     
+
      ;; test 6
      (display-nl "test 6")
      {expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}}}
@@ -2922,10 +2934,24 @@
 	  (display-nl "test 7 ******* DIFFER *******")
 	  (return #f)))
      (newline)
-     
-     
+
+     ;; test 8
+     (display-nl "test 8")
+     {expr <- '(or (and B₃ (or B₂ (and (not B₁₂) B₃))) (and B₄ (or B₂ (and (not B₁₂) B₃))))}
+     (display expr)
+     (display " = ")
+     {res-expr <- (minimal-dnf expr)}
+     (display-nl res-expr)
+     {res-expr-exact <- '(or (and B₂ B₃) (and B₂ B₄) (and B₃ (not B₁₂)))} ;;'(or (and B2 B3) (and B2 B4) (and (not B12) B3))}
+     (if (equal? res-expr res-expr-exact)
+	 (display-nl "EXACT")
+	 ($
+	  (display-nl "test 8 ******* DIFFER *******")
+	  (return #f)))
+     (newline)
+
      #t)
-     
+
 
 
 
@@ -2935,52 +2961,52 @@
 (define* (par-map-vector proc input
                          #:optional
                          (max-thread (current-processor-count)))
-  
-  (if (< (vector-length input) max-thread) 
-      
+
+  (if (< (vector-length input) max-thread)
+
       (list->vector (map proc (vector->list input))) ;; less data than threads or CPUs
-      
+
       (let* ((block-size (quotient (vector-length input) max-thread))
 	     (rest (remainder (vector-length input) max-thread))
 	     (output (make-vector (vector-length input) #f)))
-	
+
 	(when (not (zero? block-size))
 
 	  (let ((mtx (make-mutex))
 		(cnd (make-condition-variable))
 		(n 0))
-	    
+
 	    (fold
 
 	     (lambda (scale output)
-	       
+
 	       (begin-thread
-		
+
 		(let lp ((i 0))
 		  (when (< i block-size)
 		    (let ((i (+ i (* scale block-size))))
 		      (vector-set! output i (proc (vector-ref input i))))
 		    (lp (1+ i))))
-		
+
 		(with-mutex mtx
 			    (set! n (1+ n))
 			    (signal-condition-variable cnd)))
 	       output)
-	     
+
 	     output
 	     (iota max-thread))
-	    
+
 	    (with-mutex mtx
 			(while (not (< n max-thread))
 			       (wait-condition-variable cnd mtx)))))
-	  
+
 	  (let ((base (- (vector-length input) rest)))
 	    (let lp ((i 0))
 	      (when (< i rest)
 	  	(let ((i (+ i base)))
 	  	  (vector-set! output i (proc (vector-ref input i))))
 	  	(lp (1+ i)))))
-	  
+
 	  output)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -3098,7 +3124,7 @@ the REDUCE-INIT argument."
 (define (proc-unify-minterms-seg-and-tag seg)
 
   {function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
-   
+
   {start <+ (segment-start seg)}
   {end <+ (segment-end seg)}
   (for ({i <+ start} {i <= end} {i <- {i + 1}})
@@ -3116,21 +3142,21 @@ the REDUCE-INIT argument."
   ;; scheme@(guile-user)> (unify-two-minterms-rec '(1 0 1 0 0 1 0 1 0 1) '(1 0 1 0 1 1 0 1 0 1))
   ;; $2 = (1 0 1 0 x 1 0 1 0 1)
   (define (unify-two-minterms-rec mt1 mt2)
-    
+
     {err <+ #f}
 
     (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
-	 
+
 	 (if {(null? mt1) and (null? mt2)}
 	     (return '()))
-	 
+
 	 (if {{(null? mt1) and (not (null? mt2))} or {(not (null? mt1)) and (null? mt2)}}
 	     (return-rec #f))
-	 
-	 
+
+
 	 {fst-mt1 <+ (first mt1)}
 	 {fst-mt2 <+ (first mt2)}
-	 
+
 	 (if (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
 						    (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))
 	 (if err (return-rec #f))
@@ -3138,7 +3164,7 @@ the REDUCE-INIT argument."
 	 {err <- #t}
 	 (cons 'x
 	       (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2))))
-    
+
     (unify-two-lists-tolerant-one-mismatch mt1 mt2))
 
   (define (unify-two-minterms mt1 mt2)
@@ -3147,18 +3173,18 @@ the REDUCE-INIT argument."
      (display-nl "unify-two-minterms : ")
      (dv mt1)
      (dv mt2))
-    
+
     (function-map-with-escaping-by-kontinuation2  (macro-function-compare-2-bits-with-continuation) mt1 mt2))
 
 
   (define (function-map-with-escaping-by-kontinuation2 clozure list1 . more-lists)
   (call/cc (lambda (kontinuation)
 	     (let ((lists (cons list1 more-lists))
-		   (funct-continu ;; this function have the kontinuation in his environment 
+		   (funct-continu ;; this function have the kontinuation in his environment
 		    (lambda (arg1 . more-args)
 		      (let ((args (cons arg1 more-args)))
 			(apply clozure kontinuation args))))) ;; a tester: (apply clozure (cons conti args))
-		     
+
 	       (apply map funct-continu lists)))))
 
   ;; compare two list of bits until we got more than one difference
@@ -3173,13 +3199,13 @@ the REDUCE-INIT argument."
 						(when (> cnt 1) (continuation #f)) ;; escaping with the continuation
 						'x)))))))
 
-  
+
   (nodebug
    (display "proc-unify-minterms-seg : ")
    (dv seg))
-  
-  {function-unify-minterms-list <+ (λ (L) (apply unify-two-minterms L))} ;; (apply unify-two-minterms-rec L))} ;; 
-   
+
+  {function-unify-minterms-list <+ (λ (L) (apply unify-two-minterms L))} ;; (apply unify-two-minterms-rec L))} ;;
+
   {start <+ (segment-start seg)}
   {end <+ (segment-end seg)}
   (for ({i <+ start} {i <= end} {i <- {i + 1}})
@@ -3195,14 +3221,14 @@ the REDUCE-INIT argument."
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-thread : begin"))
-  
+
   (nodebug
    {set1-length <+ (length set1)}
    {set2-length <+ (length set2)}
    (dv set1-length)
    (dv set2-length)
    (display-nl "before Cartesian product set"))
-  
+
   (nodebug
    (dvs set1)
    (dvs set2))
@@ -3232,12 +3258,12 @@ the REDUCE-INIT argument."
    (dv minterms-vector-length))
 
   ;; warning : // gives almost no better result
-  ;; it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists 
+  ;; it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists
   {nb-procs <+ 4} ;;(current-processor-count) ;; 4};; C12 :1'25" with processor-count
 
   (when {minterms-vector-length < 500000} ;;5000000} ;; 1'21" C12 with 16 threads
 	{nb-procs <- 1})
-  
+
   {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
 
   (nodebug
@@ -3251,7 +3277,7 @@ the REDUCE-INIT argument."
 
        (nodebug
 	(display-nl "before //"))
-       
+
        ;; run the parallel code
        {threads <+ (map (λ (seg)
 			  ;;(display "initialising thread ")
@@ -3265,14 +3291,14 @@ the REDUCE-INIT argument."
 
        (nodebug
 	(display-nl "waiting for threads to finish..."))
-  
+
        ;; wait for threads to finish
        (map (λ (thread)
 	      ;;(display "waiting thread ")
 	      ;;(dv thread)
 	      (join-thread thread)) ;;(+ start-time max-sleep)))
 	    threads)
-       
+
        (nodebug
 	(display-nl "after //"))))
 
@@ -3284,12 +3310,12 @@ the REDUCE-INIT argument."
   ;; (unless {nb-procs = 1}
   ;; 	  (vector-for-each tag-minterms unified-minterms-vector-1))
   ;; tag the minterms in the hash table
-  
+
   {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
-  
+
   (nodebug
    (dvs unified-minterms-set-1))
-  
+
   {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   (nodebug
    {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
@@ -3299,13 +3325,13 @@ the REDUCE-INIT argument."
   (nodebug
    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
-  
+
   (nodebug
    (dvs unified-minterms-set))
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-thread : end"))
-      
+
   unified-minterms-set)
 
 
@@ -3315,14 +3341,14 @@ the REDUCE-INIT argument."
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-thread : begin"))
-  
+
   (nodebug
    {set1-length <+ (length set1)}
    {set2-length <+ (length set2)}
    (dv set1-length)
    (dv set2-length)
    (display-nl "before Cartesian product set"))
-  
+
   (nodebug
    (dvs set1)
    (dvs set2))
@@ -3349,9 +3375,9 @@ the REDUCE-INIT argument."
   {minterms-vector-length <+ (vector-length minterms-vector)}
 
   ;; warning : // gives almost no better result, for this reason i use it on 1 CPU ,if you change to greater number of CPUs it slow down the code !
-  ;; but has it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists 
+  ;; but has it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists
   {nb-procs <+ (current-processor-count)} ;;{(current-processor-count) - 1}} ;;1} ;;  -1 leaves on CPU for system
-  
+
   {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
 
   (nodebug
@@ -3369,7 +3395,7 @@ the REDUCE-INIT argument."
 
   (nodebug
    (display-nl "waiting for threads to finish..."))
-  
+
   ;; wait for threads to finish
   (map (λ (thread) (join-thread thread)) ;;(+ start-time max-sleep)))
        threads)
@@ -3382,14 +3408,14 @@ the REDUCE-INIT argument."
    (dv unified-minterms-vector-1-length)
    (newline))
 
-  
+
   (vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
-  
+
   {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
-  
+
   (nodebug
    (dvs unified-minterms-set-1))
-  
+
   {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   (nodebug
    {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
@@ -3399,13 +3425,13 @@ the REDUCE-INIT argument."
   (nodebug
    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
-  
+
   (nodebug
    (dvs unified-minterms-set))
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-thread : end"))
-      
+
   unified-minterms-set)
 
 
@@ -3416,14 +3442,14 @@ the REDUCE-INIT argument."
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-future : begin"))
-  
+
   (nodebug
    {set1-length <+ (length set1)}
    {set2-length <+ (length set2)}
    (dv set1-length)
    (dv set2-length)
    (display-nl "before Cartesian product set"))
-  
+
   (nodebug
    (dvs set1)
    (dvs set2))
@@ -3453,14 +3479,14 @@ the REDUCE-INIT argument."
    (dv minterms-vector-length))
 
   ;; warning : // gives almost no better result, for this reason i use it often on 1 CPU ,if you change to greater number of CPUs it can slow down the code !
-  ;; but has it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists 
+  ;; but has it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists
   {nb-procs <+ 3} ;;(current-processor-count)} ;;{(current-processor-count) - 1}} ;;1} ;;  -1 leaves on CPU for system
-  ;; C12: 8'48" intel linux 
+  ;; C12: 8'48" intel linux
 
   ;; (when {minterms-vector-length < 500000} ;;5000000}
   ;; 	{nb-procs <- 1})
-  
-  
+
+
   {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
 
   (nodebug
@@ -3474,9 +3500,9 @@ the REDUCE-INIT argument."
 
        (nodebug
 	(display-nl "before //"))
-       
+
        (run-in-parallel segmts proc-unify-minterms-seg-and-tag) ;; proc-unify-minterms-seg) ;; run the parallel code
-       
+
        (nodebug
 	(display-nl "after //"))))
 
@@ -3485,14 +3511,14 @@ the REDUCE-INIT argument."
    (dv unified-minterms-vector-1-length)
    (newline))
 
-  
+
   ;;(vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
-  
+
   {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
-  
+
   (nodebug
    (dvs unified-minterms-set-1))
-  
+
   {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   (nodebug
    {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
@@ -3502,13 +3528,13 @@ the REDUCE-INIT argument."
   (nodebug
    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
-  
+
   (nodebug
    (dvs unified-minterms-set))
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-future : end"))
-      
+
   unified-minterms-set)
 
 
@@ -3516,14 +3542,14 @@ the REDUCE-INIT argument."
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-par-for-each : begin"))
-  
+
   (nodebug
    {set1-length <+ (length set1)}
    {set2-length <+ (length set2)}
    (dv set1-length)
    (dv set2-length)
    (display-nl "before Cartesian product set"))
-  
+
   (nodebug
    (dvs set1)
    (dvs set2))
@@ -3550,9 +3576,9 @@ the REDUCE-INIT argument."
   {minterms-vector-length <+ (vector-length minterms-vector)}
 
   ;; warning : // gives almost no better result, for this reason i use it on 1 CPU ,if you change to greater number of CPUs it slow down the code !
-  ;; but has it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists 
+  ;; but has it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists
   {nb-procs <+ 2} ;;32} ;;(current-processor-count)} ;;{(current-processor-count) - 1}} ;;1} ;;  -1 leaves on CPU for system
-  
+
   {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
 
   (nodebug
@@ -3562,7 +3588,7 @@ the REDUCE-INIT argument."
 
   (nodebug
    (display-nl "before //"))
-  
+
   (par-for-each  proc-unify-minterms-seg-and-tag segmts) ;; proc-unify-minterms-seg segmts) ;; run the parallel code
 
   (nodebug
@@ -3573,14 +3599,14 @@ the REDUCE-INIT argument."
    (dv unified-minterms-vector-1-length)
    (newline))
 
-  
+
   ;;(vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
-  
+
   {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
-  
+
   (nodebug
    (dvs unified-minterms-set-1))
-  
+
   {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   (nodebug
    {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
@@ -3590,26 +3616,26 @@ the REDUCE-INIT argument."
   (nodebug
    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
-  
+
   (nodebug
    (dvs unified-minterms-set))
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-par-for-each : end"))
-      
+
   unified-minterms-set)
 
 (define (funct-unify-minterms-set-1-unit-vector-1cpu set1 set2)
 
   ;; (nodebug
   ;;  (display-nl "funct-unify-minterms-set-1-unit-vector-1cpu : begin"))
-  
+
   ;; (nodebug
   ;;  (dvs set1)
   ;;  (dvs set2))
 
   ;;{function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
-  
+
   ;; note : sorting is useless
 
   {minterms-set <+ (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list      MODIF
@@ -3633,11 +3659,11 @@ the REDUCE-INIT argument."
   ;; (nodebug
   ;;  (dv minterms-vector-length))
 
-  {nb-procs <+ 1} ;; (processor-count)} ;; 
+  {nb-procs <+ 1} ;; (processor-count)} ;;
 
   ;; (nodebug
   ;;  (dv nb-procs))
-  
+
   {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segment (only one !)
 
   ;; (nodebug
@@ -3647,20 +3673,20 @@ the REDUCE-INIT argument."
 
   ;; (nodebug
   ;;  (display-nl "before proc-unify-minterms-seg-and-tag"))
-  
+
   (proc-unify-minterms-seg-and-tag (first segmts))
 
   ;; (nodebug
   ;;  (display-nl "after proc-unify-minterms-seg-and-tag")
   ;;  (newline))
-  
+
   ;;(vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
-  
+
   {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
-  
+
   ;; (nodebug
   ;;  (dvs unified-minterms-set-1))
-  
+
   {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   ;; (nodebug
   ;;  {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
@@ -3670,13 +3696,13 @@ the REDUCE-INIT argument."
   ;; (nodebug
   ;;  {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
   ;;  (dv unified-minterms-set-uniq-length))
-  
+
   ;; (nodebug
   ;;  (dvs unified-minterms-set))
 
   ;; (nodebug
   ;;  (display-nl "funct-unify-minterms-set-1-unit-future : end"))
-      
+
   unified-minterms-set)
 
 
@@ -3686,11 +3712,11 @@ the REDUCE-INIT argument."
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-para : begin"))
-  
+
   (nodebug
    (dvs set1)
    (dvs set2))
-  
+
   {function-unify-minterms-list <+ (λ (L) (apply unify-two-minterms L))}
 
   ;; note : sorting is useless
@@ -3710,21 +3736,21 @@ the REDUCE-INIT argument."
 
   (nodebug
    (dv minterms-vector))
-  
+
   {unified-minterms-vector-1 <- (par-map-vector function-unify-minterms-list minterms-vector)} ;; // code
 
   (nodebug
    (display-nl "after (par-map-vector function-unify-minterms-list minterms-vector)"))
 
   (vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
-  
+
   {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
-  
-  
+
+
 
   (nodebug
    (dvs unified-minterms-set-1))
-  
+
   {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   (nodebug
    {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
@@ -3734,13 +3760,13 @@ the REDUCE-INIT argument."
   (nodebug
    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
-  
+
   (nodebug
    (dvs unified-minterms-set))
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-para : end"))
-      
+
   unified-minterms-set)
 
 
@@ -3759,19 +3785,19 @@ the REDUCE-INIT argument."
     {minterms-ht[mt1] <- #t}
     {minterms-ht[mt2] <- #t}
     umt)
-  
+
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-par-map : begin"))
-  
+
   (nodebug
    (dvs set1)
    (dvs set2))
-  
+
   {function-unify-minterms-list <+ (λ (L)
 				     {res <+ (apply unify-two-minterms L)}
 				     (if res
 					 (list res L)
-					 res))} ;; return (unified-minterm (minterm1 minterm2)) or #f 
+					 res))} ;; return (unified-minterm (minterm1 minterm2)) or #f
 
   ;; note : sorting is useless
   {minterms-set <+ (product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set-imperative set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
@@ -3786,7 +3812,7 @@ the REDUCE-INIT argument."
    {minterms-set-first <+ (first minterms-set)}
    (dv minterms-set-length)
    (dv minterms-set-first))
-  
+
   {unified-minterms-set-1 <+ (par-map function-unify-minterms-list minterms-set)} ;; // code
   (nodebug
    (display-nl "after (par-map function-unify-minterms-list minterms-set)"))
@@ -3800,17 +3826,16 @@ the REDUCE-INIT argument."
    (dv unified-minterms-set-length))
 
   {unified-minterms-set-3 <+ (map extract-unified-minterm-and-tag-minterms unified-minterms-set-2)} ;;  tag minterms and construct a list of unified minterms
-  
+
   {unified-minterms-set <+ (remove-duplicates-sorted unified-minterms-set-3)} ;; uniq
   (nodebug
    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
-  
+
   (nodebug
    (dvs unified-minterms-set))
 
   (nodebug
    (display-nl "funct-unify-minterms-set-1-unit-par-map : end"))
-      
-  unified-minterms-set)
 
+  unified-minterms-set)

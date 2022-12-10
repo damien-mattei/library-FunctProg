@@ -235,7 +235,7 @@
 ;;  (padding #b10110) -> "0000000000010110"
 (define (padding x)
   ;;(~r x #:base 2 #:min-width 24 #:pad-string "0"))
-  (format #f "~24,'0,':b" x))
+  (format "~24,'0,':b" x))
 
 ;; display binary numbers with padding
 ;;  (padding-spc #b10110) -> "                   10110"
@@ -244,7 +244,7 @@
 ;;
 (define (padding-spc x)
   ;;(~r x #:base 2 #:min-width 24 #:pad-string " "))
-   (format #f "~24,' ,':b" x))
+   (format "~24,' ,':b" x))
 
 (define (display-binary-pad x)
   (display (padding-spc x)))
