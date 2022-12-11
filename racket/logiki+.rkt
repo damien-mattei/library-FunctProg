@@ -3314,6 +3314,7 @@ the REDUCE-INIT argument."
   {minterms-vector-length <+ (vector-length minterms-vector)}
 
   {nb-procs <+ 1}  ;; 32} ;; (processor-count)} ;; 32 : 1'25" for C12 on mac os M1 , 1' 42" on intel linux
+  ;; 47" for C12 in Terminal mode
 
   (nodebug
    (dv nb-procs))
