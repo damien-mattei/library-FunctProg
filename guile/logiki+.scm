@@ -2652,7 +2652,7 @@
 
      {sorted-minterms-list <+ (sort sorted-expanded-var-terms compare-list-args<?)} ;; sort expanded minterms list
 
-     {uniq-sorted-minterms <+ (remove-duplicates-sorted sorted-minterms-list)}
+     {uniq-sorted-minterms <+ (uniq sorted-minterms-list)};; (remove-duplicates-sorted sorted-minterms-list)}
 
      (nodebug
       ;; dv : display value
@@ -2666,7 +2666,7 @@
 
      {binary-minterms ⥆ (map var->binary uniq-sorted-minterms)} ;; minterms in binary form
      {sorted-binary-minterms ⥆ (sort binary-minterms minterm-binary-weight-number<?)} ;; sorted binary minterms
-     {uniq-sorted-binary-minterms ⥆ (remove-duplicates-sorted sorted-binary-minterms)}  ;; uniq? because there could be the same many times
+     {uniq-sorted-binary-minterms ⥆ (uniq sorted-binary-minterms)} ;;(remove-duplicates-sorted sorted-binary-minterms)}  ;; uniq? because there could be the same many times
      {minterms ⥆ uniq-sorted-binary-minterms}
 
      (nodebug
@@ -2958,56 +2958,56 @@
 ;; Parallelisation
 
 ;; code from Olivier Dion
-(define* (par-map-vector proc input
-                         #:optional
-                         (max-thread (current-processor-count)))
+;; (define* (par-map-vector proc input
+;;                          #:optional
+;;                          (max-thread (current-processor-count)))
 
-  (if (< (vector-length input) max-thread)
+;;   (if (< (vector-length input) max-thread)
 
-      (list->vector (map proc (vector->list input))) ;; less data than threads or CPUs
+;;       (list->vector (map proc (vector->list input))) ;; less data than threads or CPUs
 
-      (let* ((block-size (quotient (vector-length input) max-thread))
-	     (rest (remainder (vector-length input) max-thread))
-	     (output (make-vector (vector-length input) #f)))
+;;       (let* ((block-size (quotient (vector-length input) max-thread))
+;; 	     (rest (remainder (vector-length input) max-thread))
+;; 	     (output (make-vector (vector-length input) #f)))
 
-	(when (not (zero? block-size))
+;; 	(when (not (zero? block-size))
 
-	  (let ((mtx (make-mutex))
-		(cnd (make-condition-variable))
-		(n 0))
+;; 	  (let ((mtx (make-mutex))
+;; 		(cnd (make-condition-variable))
+;; 		(n 0))
 
-	    (fold
+;; 	    (fold
 
-	     (lambda (scale output)
+;; 	     (lambda (scale output)
 
-	       (begin-thread
+;; 	       (begin-thread
 
-		(let lp ((i 0))
-		  (when (< i block-size)
-		    (let ((i (+ i (* scale block-size))))
-		      (vector-set! output i (proc (vector-ref input i))))
-		    (lp (1+ i))))
+;; 		(let lp ((i 0))
+;; 		  (when (< i block-size)
+;; 		    (let ((i (+ i (* scale block-size))))
+;; 		      (vector-set! output i (proc (vector-ref input i))))
+;; 		    (lp (1+ i))))
 
-		(with-mutex mtx
-			    (set! n (1+ n))
-			    (signal-condition-variable cnd)))
-	       output)
+;; 		(with-mutex mtx
+;; 			    (set! n (1+ n))
+;; 			    (signal-condition-variable cnd)))
+;; 	       output)
 
-	     output
-	     (iota max-thread))
+;; 	     output
+;; 	     (iota max-thread))
 
-	    (with-mutex mtx
-			(while (not (< n max-thread))
-			       (wait-condition-variable cnd mtx)))))
+;; 	    (with-mutex mtx
+;; 			(while (not (< n max-thread))
+;; 			       (wait-condition-variable cnd mtx)))))
 
-	  (let ((base (- (vector-length input) rest)))
-	    (let lp ((i 0))
-	      (when (< i rest)
-	  	(let ((i (+ i base)))
-	  	  (vector-set! output i (proc (vector-ref input i))))
-	  	(lp (1+ i)))))
+;; 	  (let ((base (- (vector-length input) rest)))
+;; 	    (let lp ((i 0))
+;; 	      (when (< i rest)
+;; 	  	(let ((i (+ i base)))
+;; 	  	  (vector-set! output i (proc (vector-ref input i))))
+;; 	  	(lp (1+ i)))))
 
-	  output)))
+;; 	  output)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -3480,7 +3480,7 @@ the REDUCE-INIT argument."
 
   ;; warning : // gives almost no better result, for this reason i use it often on 1 CPU ,if you change to greater number of CPUs it can slow down the code !
   ;; but has it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists
-  {nb-procs <+ 3} ;;(current-processor-count)} ;;{(current-processor-count) - 1}} ;;1} ;;  -1 leaves on CPU for system
+  {nb-procs <+ 1} ;;3} ;;(current-processor-count)} ;;{(current-processor-count) - 1}} ;;1} ;;  -1 leaves one CPU for system
   ;; C12: 8'48" intel linux
 
   ;; (when {minterms-vector-length < 500000} ;;5000000}
@@ -3504,7 +3504,9 @@ the REDUCE-INIT argument."
        (run-in-parallel segmts proc-unify-minterms-seg-and-tag) ;; proc-unify-minterms-seg) ;; run the parallel code
 
        (nodebug
-	(display-nl "after //"))))
+	(display-nl "after //"))
+
+       ))					
 
   (nodebug
    {unified-minterms-vector-1-length <+ (vector-length unified-minterms-vector-1)}
@@ -3519,16 +3521,20 @@ the REDUCE-INIT argument."
   (nodebug
    (dvs unified-minterms-set-1))
 
-  {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
-  (nodebug
-   {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
-   (dv unified-minterms-set-2-length))
+  ;; 8'21" MacOS Ventura M1
+  ;; {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  ;; (nodebug
+  ;;  {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+  ;;  (dv unified-minterms-set-2-length))
 
-  {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
-  (nodebug
-   {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
-   (dv unified-minterms-set-uniq-length))
+  ;; {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  ;; (nodebug
+  ;;  {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+  ;;  (dv unified-minterms-set-uniq-length))
 
+  ;; 7'08" MacOS Ventura M1
+  {unified-minterms-set <+ (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)}
+  
   (nodebug
    (dvs unified-minterms-set))
 
@@ -3708,66 +3714,66 @@ the REDUCE-INIT argument."
 
 
 ;; par-map-vector version
-(define (funct-unify-minterms-set-1-unit-para set1 set2)
+;; (define (funct-unify-minterms-set-1-unit-para set1 set2)
 
-  (nodebug
-   (display-nl "funct-unify-minterms-set-1-unit-para : begin"))
+;;   (nodebug
+;;    (display-nl "funct-unify-minterms-set-1-unit-para : begin"))
 
-  (nodebug
-   (dvs set1)
-   (dvs set2))
+;;   (nodebug
+;;    (dvs set1)
+;;    (dvs set2))
 
-  {function-unify-minterms-list <+ (λ (L) (apply unify-two-minterms L))}
+;;   {function-unify-minterms-list <+ (λ (L) (apply unify-two-minterms L))}
 
-  ;; note : sorting is useless
-  {minterms-set <+ (product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set-imperative set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
+;;   ;; note : sorting is useless
+;;   {minterms-set <+ (product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set-imperative set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
 
-  (nodebug
-   (dvs minterms-set))
+;;   (nodebug
+;;    (dvs minterms-set))
 
-  (nodebug
-   (display-nl "before (par-map-vector function-unify-minterms-list minterms-vector)")
-   {minterms-set-length <+ (length minterms-set)}
-   {minterms-set-first <+ (first minterms-set)}
-   (dv minterms-set-length)
-   (dv minterms-set-first))
+;;   (nodebug
+;;    (display-nl "before (par-map-vector function-unify-minterms-list minterms-vector)")
+;;    {minterms-set-length <+ (length minterms-set)}
+;;    {minterms-set-first <+ (first minterms-set)}
+;;    (dv minterms-set-length)
+;;    (dv minterms-set-first))
 
-  {minterms-vector <- (list->vector minterms-set)}
+;;   {minterms-vector <- (list->vector minterms-set)}
 
-  (nodebug
-   (dv minterms-vector))
+;;   (nodebug
+;;    (dv minterms-vector))
 
-  {unified-minterms-vector-1 <- (par-map-vector function-unify-minterms-list minterms-vector)} ;; // code
+;;   {unified-minterms-vector-1 <- (par-map-vector function-unify-minterms-list minterms-vector)} ;; // code
 
-  (nodebug
-   (display-nl "after (par-map-vector function-unify-minterms-list minterms-vector)"))
+;;   (nodebug
+;;    (display-nl "after (par-map-vector function-unify-minterms-list minterms-vector)"))
 
-  (vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
+;;   (vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
 
-  {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
+;;   {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
 
 
 
-  (nodebug
-   (dvs unified-minterms-set-1))
+;;   (nodebug
+;;    (dvs unified-minterms-set-1))
 
-  {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
-  (nodebug
-   {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
-   (dv unified-minterms-set-2-length))
+;;   {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+;;   (nodebug
+;;    {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+;;    (dv unified-minterms-set-2-length))
 
-  {unified-minterms-set <+ (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq
-  (nodebug
-   {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
-   (dv unified-minterms-set-uniq-length))
+;;   {unified-minterms-set <+ (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq
+;;   (nodebug
+;;    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+;;    (dv unified-minterms-set-uniq-length))
 
-  (nodebug
-   (dvs unified-minterms-set))
+;;   (nodebug
+;;    (dvs unified-minterms-set))
 
-  (nodebug
-   (display-nl "funct-unify-minterms-set-1-unit-para : end"))
+;;   (nodebug
+;;    (display-nl "funct-unify-minterms-set-1-unit-para : end"))
 
-  unified-minterms-set)
+;;   unified-minterms-set)
 
 
 
@@ -3827,7 +3833,7 @@ the REDUCE-INIT argument."
 
   {unified-minterms-set-3 <+ (map extract-unified-minterm-and-tag-minterms unified-minterms-set-2)} ;;  tag minterms and construct a list of unified minterms
 
-  {unified-minterms-set <+ (remove-duplicates-sorted unified-minterms-set-3)} ;; uniq
+  {unified-minterms-set <+ (uniq unified-minterms-set-3)} ;; (remove-duplicates-sorted unified-minterms-set-3)} ;; uniq
   (nodebug
    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))

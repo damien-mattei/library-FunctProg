@@ -10,6 +10,8 @@
 
 (require srfi/43) ;; vector library
 
+(require "transducers.rkt")
+
 (require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
 ;;(require Scheme-PLUS-for-Racket/Scheme+)
@@ -2645,7 +2647,7 @@
 
      {sorted-minterms-list <+ (sort sorted-expanded-var-terms compare-list-args<?)} ;; sort expanded minterms list
 
-     {uniq-sorted-minterms <+ (remove-duplicates-sorted sorted-minterms-list)}
+     {uniq-sorted-minterms <+ (uniq sorted-minterms-list)} ;; (remove-duplicates-sorted sorted-minterms-list)}
 
      (nodebug
       ;; dv : display value
@@ -2659,7 +2661,7 @@
 
      {binary-minterms ⥆ (map var->binary uniq-sorted-minterms)} ;; minterms in binary form
      {sorted-binary-minterms ⥆ (sort binary-minterms minterm-binary-weight-number<?)} ;; sorted binary minterms
-     {uniq-sorted-binary-minterms ⥆ (remove-duplicates-sorted sorted-binary-minterms)}  ;; uniq? because there could be the same many times
+     {uniq-sorted-binary-minterms ⥆ (uniq sorted-binary-minterms)} ;;(remove-duplicates-sorted sorted-binary-minterms)}  ;; uniq? because there could be the same many times
      {minterms ⥆ uniq-sorted-binary-minterms}
 
      (nodebug
@@ -3314,7 +3316,7 @@ the REDUCE-INIT argument."
   {minterms-vector-length <+ (vector-length minterms-vector)}
 
   {nb-procs <+ 1}  ;; 32} ;; (processor-count)} ;; 32 : 1'25" for C12 on mac os M1 , 1' 42" on intel linux
-  ;; 47" for C12 in Terminal mode
+  ;; 47" for C12 in Terminal mode with MacOS Ventura M1 and 31" with transducers
 
   (nodebug
    (dv nb-procs))
@@ -3326,14 +3328,20 @@ the REDUCE-INIT argument."
 
   {unified-minterms-vector-1 <- (make-vector minterms-vector-length #f)}
 
-  (nodebug
-   (display-nl "before //"))
+  (if {nb-procs = 1}
+      (proc-unify-minterms-seg-and-tag (first segmts)) ;;(proc-unify-minterms-seg (first segmts))
+      (&
+
+       (nodebug
+	(display-nl "before //"))
+       
+       (run-in-parallel segmts  proc-unify-minterms-seg-and-tag) ;;proc-unify-minterms-seg) ;;proc-unify-minterms-seg-inner-definitions) ;; run the parallel code
+       
+       (nodebug
+	(display-nl "after //"))
+
+       ))
   
-  (run-in-parallel segmts  proc-unify-minterms-seg-and-tag) ;;proc-unify-minterms-seg) ;;proc-unify-minterms-seg-inner-definitions) ;; run the parallel code
-
-  (nodebug
-   (display-nl "after //"))
-
   ;;(vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
   
   {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
@@ -3342,15 +3350,17 @@ the REDUCE-INIT argument."
   (nodebug
    (dvs unified-minterms-set-1))
   
-  {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
-  (nodebug
-   {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
-   (dv unified-minterms-set-2-length))
+  ;; {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  ;; (nodebug
+  ;;  {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+  ;;  (dv unified-minterms-set-2-length))
 
-  {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;; (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
-  (nodebug
-   {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
-   (dv unified-minterms-set-uniq-length))
+  ;; {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;; (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  ;; (nodebug
+  ;;  {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+  ;;  (dv unified-minterms-set-uniq-length))
+
+  {unified-minterms-set <+ (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)}
   
   (nodebug
    (dvs unified-minterms-set))

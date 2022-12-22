@@ -23,18 +23,45 @@
 
 (define empty '())
 
-;; insert an element in a list (at the begin) if the element is not already included in the list
+;; insert an element in a list (at the end) if the element is not already included in the list (note: but element could be already many times in the list! and so in the result!)
+;; (insertNoDups 'k '(a bc d e f a x y z d e t g))
+;; '(a bc d e f a x y z d e t g k)
+;; (insertNoDups 'k '(a bc d e f a x y k z d e t g))
+;; '(a bc d e f a x y k z d e t g)
+;; > (insertNoDups 'k '(a bc d e f a x y k z d e k t g))
+;; '(a bc d e f a x y k z d e k t g)
+
+;; (define (insertNoDups element lst)
+;;   (cond
+;;    ((empty? lst) (cons element lst))
+;;    ((equal? element (first lst)) lst)
+;;    (else (cons (first lst) (insertNoDups element (rest lst))))))
+
+;; (define (insertNoDups element lst)
+;;   (if (member element lst)
+;;       lst
+;;       (reverse (cons element (reverse lst))))) ;; keep order
+
+
+;; insert an element in a list (at the begin) if the element is not already included in the list (note: but element could be already many times in the list! and so in the result!))
+;; (insertNoDups 'k '(a bc d e f a x y z d e t g))
+;; '(k a bc d e f a x y z d e t g)
+;;  (insertNoDups 'k '(a bc d e f a x y k z d e t g))
+;; '(a bc d e f a x y k z d e t g)
+;; > (insertNoDups 'k '(a bc d e f a x y k z d e k t g))
+;; '(a bc d e f a x y k z d e k t g)
+
 (define (insertNoDups element lst)
-  (cond
-   ((empty? lst) (cons element lst))
-   ((equal? element (first lst)) lst)
-   (else (cons (first lst) (insertNoDups element (rest lst))))))
+  (if (member element lst)
+      lst
+      (cons element lst)))
+
 
 ;; (remove-duplicates '(a bc d e f a x y z d e t g)) -> '(g t e d z y x a f bc)
 (define (remove-duplicates lst)
   (cond
    ((empty? lst) empty)
-   (else (insertNoDups (first lst) (remove-duplicates (rest lst))))))
+   (else (insertNoDups (first lst) (remove-duplicates (rest lst)))))) ;; insert in a list that has NO MORE duplicates !
 
 
 (define (singleton-list? lst)
@@ -50,10 +77,14 @@
 
 ;; remove duplicates but keep the list sorted
 ;;  (remove-duplicates-sorted '(A A B C D D E F G)) -> '(A B C D E F G)
-(define (remove-duplicates-sorted sorted-lst)
-  (reverse (remove-duplicates sorted-lst)))
+;; DEPRECATED because same as uniq
+;; (define (remove-duplicates-sorted sorted-lst)
+;;   (reverse (remove-duplicates sorted-lst)))
 
-;; like 'uniq' UNIX command but on List 
+
+;; like 'uniq' UNIX command but on List (suppose list is already sorted or at least identical elements are clustered)
+;; (uniq '(A A B C D D E F G))
+;;'(A B C D E F G)
 (define (uniq L)
   (cond
    ((null? L) '())
