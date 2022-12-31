@@ -10,7 +10,8 @@
 
 (require srfi/43) ;; vector library
 
-(require "transducers.rkt")
+;;(require "transducers.rkt")
+;;(require srfi-171/transducers)
 
 (require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
@@ -59,7 +60,7 @@
 ;;
 ;;
 ;;
-;; version 9.0 for Racket
+;; version 9.1 for Racket
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -3125,8 +3126,8 @@ the REDUCE-INIT argument."
 ;; call sequentially in post processing after the // region
 (define (tag-minterms i umt)
   (when umt
-	{mt1 <+ (first {minterms-vector[i]})}
-	{mt2 <+ (second {minterms-vector[i]})}
+	{mt1 <+ (first minterms-vector[i])}
+	{mt2 <+ (second minterms-vector[i])}
 	{minterms-ht[mt1] <- #t}
 	{minterms-ht[mt2] <- #t}))
 
@@ -3139,7 +3140,7 @@ the REDUCE-INIT argument."
   {start <+ (segment-start seg)}
   {end <+ (segment-end seg)}
   (for ({i <+ start} {i <= end} {i <- {i + 1}})
-       {mtL <+ {minterms-vector[i]}}
+       {mtL <+ minterms-vector[i]}
        ;; (nodebug
        ;; 	(dv mtL))
        {unified-minterms-vector-1[i] <- (function-unify-minterms-list mtL)}
@@ -3155,7 +3156,7 @@ the REDUCE-INIT argument."
   {start <+ (segment-start seg)}
   {end <+ (segment-end seg)}
   (for ({i <+ start} {i <= end} {i <- {i + 1}})
-       {mtL <+ {minterms-vector[i]}}
+       {mtL <+ minterms-vector[i]}
        ;; (nodebug
        ;; 	(dv mtL))
        {unified-minterms-vector-1[i] <- (function-unify-minterms-list mtL)}
@@ -3316,7 +3317,7 @@ the REDUCE-INIT argument."
   {minterms-vector-length <+ (vector-length minterms-vector)}
 
   {nb-procs <+ 1}  ;; 32} ;; (processor-count)} ;; 32 : 1'25" for C12 on mac os M1 , 1' 42" on intel linux
-  ;; 47" for C12 in Terminal mode with MacOS Ventura M1 and 31" with transducers
+  ;; 32" for C12 in Terminal mode with MacOS Ventura M1 and 31" with transducers
 
   (nodebug
    (dv nb-procs))
@@ -3350,17 +3351,21 @@ the REDUCE-INIT argument."
   (nodebug
    (dvs unified-minterms-set-1))
   
-  ;; {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  ;;{unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   ;; (nodebug
   ;;  {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
   ;;  (dv unified-minterms-set-2-length))
 
-  ;; {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;; (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  ;;{unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;; (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  ;; C12 in Terminal mode with MacOS Ventura M1 and 32"
+  
   ;; (nodebug
   ;;  {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
   ;;  (dv unified-minterms-set-uniq-length))
 
-  {unified-minterms-set <+ (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)}
+  {unified-minterms-set <+ (remove-duplicates (filter (λ (x) x) unified-minterms-set-1))} ;; C12 in Terminal mode with MacOS Ventura M1 and 32"
+  
+  ;;{unified-minterms-set <+ (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)} ;; C12 in Terminal mode with MacOS Ventura M1 and 31"
   
   (nodebug
    (dvs unified-minterms-set))
