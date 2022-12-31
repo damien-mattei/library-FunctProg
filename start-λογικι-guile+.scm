@@ -67,6 +67,8 @@
 	     ;;((rnrs) :version (6)) ;; contains hash tables too
 	     (srfi srfi-43) ;; vector library
 	     (srfi srfi-171) ;; transducers
+	     (system foreign)
+	     (system foreign-library)
 	     )
 
 (include "rest.scm")
