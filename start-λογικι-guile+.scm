@@ -2,7 +2,7 @@
 
 ;; Damien Mattei
 
-;; november 2022
+;; december 2022
 
 ;; (load "start-λογικι-guile+.scm")
 
@@ -57,6 +57,7 @@
 (use-modules (Scheme+)
 	     (ice-9 futures)
 	     ;;(ice-9 format)
+	     (ice-9 threads)
 	     ;;(ice-9 hash-table) ;; built-in Hash Table
 	     (srfi srfi-1) ;; for 'first' procedure
 	     (srfi srfi-28) ;; Basic Format Strings
@@ -64,6 +65,8 @@
 	     ;;(srfi srfi-28) ;; for format and escape ~
 	     (srfi srfi-69) ;; SRFI 69 Hash Table
 	     ;;((rnrs) :version (6)) ;; contains hash tables too
+	     (srfi srfi-43) ;; vector library
+	     (srfi srfi-171) ;; transducers
 	     )
 
 (include "rest.scm")
