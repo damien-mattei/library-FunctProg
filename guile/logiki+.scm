@@ -2068,7 +2068,10 @@
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 
-	     (& {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-openMP  mt-set1 mt-set2)}  ;; (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     ;; 6'50 for C12 openmp on M1 , 7'40" with future 
+	     ;; 5'46 C11 Intel® Xeon® Processor E5-2620 v3 openmp,2'24" C11 with future
+	     
+	     (& {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-openMP  mt-set1 mt-set2)}    ;; (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-openMP-no-tag  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-parallel  mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
@@ -2829,6 +2832,8 @@
 ;; test case procedure
 (def (logic-test)
 
+     (display-cpus-info)
+     
      (declare expr res-expr res-expr-exact)
 
      ;; test 1
@@ -3121,11 +3126,25 @@ the REDUCE-INIT argument."
 	{minterms-ht[mt2] <- #t}))
 
 
+
+
 {function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
 
 ;; this function will be called from openMP in language C
 (define (function-unify-minterms-vectors i)
   {unified-minterms-vector-1[i] <- (function-unify-minterms-list minterms-vector[i])})
+
+
+
+
+
+{function-unify-minterms-list-no-tag <+ (λ (L) (apply unify-two-minterms L))}
+
+;; this function will be called from openMP in language C
+(define (function-unify-minterms-vectors-no-tag i)
+  {unified-minterms-vector-1[i] <- (function-unify-minterms-list-no-tag minterms-vector[i])})
+
+
 
 
 ;; proc to be called with futures
@@ -3554,14 +3573,26 @@ the REDUCE-INIT argument."
   unified-minterms-set)
 
 
-(define openmp (foreign-library-function "libguile-openMP" "openmp" #:return-type int #:arg-types (list int int '*)))
 
 
+(define openmp (foreign-library-function "./libguile-openMP" "openmp" #:return-type int #:arg-types (list int int '*)))
+
+
+(define libomp (dynamic-link "libomp")) ;;  note: require a link : ln -s /opt/homebrew/opt/libomp/lib/libomp.dylib libomp.dylib
+
+(define omp-get-max-threads
+  (pointer->procedure int
+                      (dynamic-func "omp_get_max_threads" libomp)
+                      '()))
+
+(define (display-cpus-info)
+  {ncpus <+ (omp-get-max-threads)}
+  (display "Found ") (display ncpus) (display " CPUs availables for OpenMP.") (newline))
 
 (define (funct-unify-minterms-set-1-unit-openMP set1 set2)
 
   (nodebug
-   (display-nl "funct-unify-minterms-set-1-unit-future : begin"))
+   (display-nl "funct-unify-minterms-set-1-unit-openMP : begin"))
 
   (nodebug
    {set1-length <+ (length set1)}
@@ -3612,9 +3643,6 @@ the REDUCE-INIT argument."
    (dv unified-minterms-vector-1-length)
    (newline))
 
-
-  ;;(vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
-
   {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
 
   (nodebug
@@ -3634,7 +3662,7 @@ the REDUCE-INIT argument."
   ;;  (dv unified-minterms-set-uniq-length))
 
   {unified-minterms-set <+ (remove-duplicates (filter (λ (x) x) unified-minterms-set-1))} 
-  ;; 28" C11 Guile 3.0.8 , 4' 17" for C12 30% speed up with openMP
+  ;; 28" C11 Guile 3.0.8 , 4' 17" for C12 30% speed up with openMP 3'39" record 6'27" worse openMP no tag
   
   ;; 7'08" ,8'15" MacOS Ventura M1 for C12 and 56" for C11 with guile 3.0.7
   ;; C11 42" guile 3.0.8 6',6' 23" for C12
@@ -3644,9 +3672,195 @@ the REDUCE-INIT argument."
    (dvs unified-minterms-set))
 
   (nodebug
-   (display-nl "funct-unify-minterms-set-1-unit-future : end"))
+   (display-nl "funct-unify-minterms-set-1-unit-openMP : end"))
 
   unified-minterms-set)
+
+
+(define (funct-unify-minterms-set-1-unit-openMP-no-tag set1 set2)
+
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-openMP-no-tag : begin"))
+
+  (nodebug
+   {set1-length <+ (length set1)}
+   {set2-length <+ (length set2)}
+   (dv set1-length)
+   (dv set2-length)
+   (display-nl "before Cartesian product set"))
+
+  (nodebug
+   (dvs set1)
+   (dvs set2))
+
+  ;; note : sorting is useless
+
+  {minterms-set <+ (product-set-with-set-imperative set1 set2)}  ;; set multiplication : create list of pair of minterms - pair is a 2 element list
+
+  (nodebug
+   (dvs minterms-set))
+
+  (nodebug
+   (display-nl "after Cartesian product set")
+   {minterms-set-length <+ (length minterms-set)}
+   ;;{minterms-set-first <+ (first minterms-set)}
+   (dv minterms-set-length))
+   ;;(dv minterms-set-first))
+
+  {minterms-vector <- (list->vector minterms-set)} ;; vector of pair (mathematic) of minterms - pair (mathematic) is a 2 element list, not a pair (Lisp)
+
+  (nodebug
+   (dv minterms-vector))
+
+  {minterms-vector-length <+ (vector-length minterms-vector)}
+
+  (nodebug
+   (dv minterms-vector-length))
+
+  {segmt <+ (cons 0 {minterms-vector-length - 1})}
+
+  {unified-minterms-vector-1 <- (make-vector minterms-vector-length #f)}			
+
+  {start <+ (car segmt)}
+  {stop <+ (cdr segmt)}
+
+
+  
+  (openmp start stop (string->pointer "function-unify-minterms-vectors-no-tag"))  ;; call openMP C functions
+
+
+  
+  (nodebug
+   {unified-minterms-vector-1-length <+ (vector-length unified-minterms-vector-1)}
+   (dv unified-minterms-vector-1-length)
+   (newline))
+
+
+  (vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
+
+  
+  {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
+
+  (nodebug
+   (dvs unified-minterms-set-1))
+
+  
+  ;; 8'04" MacOS Ventura M1 for C12 ,50" for C11 guile 3.0.7
+  ;; C11 45" guile 3.0.8 ,C12 :6' 37"
+  ;;{unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  ;; (nodebug
+  ;;  {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+  ;;  (dv unified-minterms-set-2-length))
+
+  ;;{unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  ;; (nodebug
+  ;;  {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+  ;;  (dv unified-minterms-set-uniq-length))
+
+  {unified-minterms-set <+ (remove-duplicates (filter (λ (x) x) unified-minterms-set-1))} 
+  ;; 28" C11 Guile 3.0.8 , 4' 17" for C12 30% speed up with openMP 3'39" record
+  
+  ;; 7'08" ,8'15" MacOS Ventura M1 for C12 and 56" for C11 with guile 3.0.7
+  ;; C11 42" guile 3.0.8 6',6' 23" for C12
+  ;;{unified-minterms-set <+ (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)}
+  
+  (nodebug
+   (dvs unified-minterms-set))
+
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-openMP : end"))
+
+  unified-minterms-set)
+
+
+
+
+(define (funct-unify-minterms-set-1-unit-parallel set1 set2)
+
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-parallel : begin"))
+
+  (nodebug
+   {set1-length <+ (length set1)}
+   {set2-length <+ (length set2)}
+   (dv set1-length)
+   (dv set2-length)
+   (display-nl "before Cartesian product set"))
+
+  (nodebug
+   (dvs set1)
+   (dvs set2))
+
+  ;; note : sorting is useless
+
+  {minterms-set <+ (product-set-with-set-imperative set1 set2)}  ;; set multiplication : create list of pair of minterms - pair is a 2 element list
+
+  (nodebug
+   (dvs minterms-set))
+
+  (nodebug
+   (display-nl "after Cartesian product set")
+   {minterms-set-length <+ (length minterms-set)}
+   ;;{minterms-set-first <+ (first minterms-set)}
+   (dv minterms-set-length))
+   ;;(dv minterms-set-first))
+
+  {minterms-vector <- (list->vector minterms-set)} ;; vector of pair (mathematic) of minterms - pair (mathematic) is a 2 element list, not a pair (Lisp)
+
+  (nodebug
+   (dv minterms-vector))
+
+  {minterms-vector-length <+ (vector-length minterms-vector)}
+
+  (nodebug
+   (dv minterms-vector-length))
+
+
+  
+  ;; // computation function
+  {function-unify-minterms-list-index <+ (lambda (i L) (function-unify-minterms-list L))} ;; because vector-map add index parameter to arguments of function 
+
+  ;; // computation
+  ;;{unified-minterms-vector-1 <+ (vector-map function-unify-minterms-list-index minterms-vector)}
+  {unified-minterms-vector-1 <+ (parallel-vector-map function-unify-minterms-list-index minterms-vector)}
+
+  
+  
+  {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
+
+  (nodebug
+   (dvs unified-minterms-set-1))
+
+  
+  ;; 8'04" MacOS Ventura M1 for C12 ,50" for C11 guile 3.0.7
+  ;; C11 45" guile 3.0.8 ,C12 :6' 37"
+  ;;{unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  ;; (nodebug
+  ;;  {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+  ;;  (dv unified-minterms-set-2-length))
+
+  ;;{unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  ;; (nodebug
+  ;;  {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+  ;;  (dv unified-minterms-set-uniq-length))
+
+  {unified-minterms-set <+ (remove-duplicates (filter (λ (x) x) unified-minterms-set-1))} 
+  ;; 28" C11 Guile 3.0.8 , 4' 40" for C12 30% speed up with openMP
+  
+  ;; 7'08" ,8'15" MacOS Ventura M1 for C12 and 56" for C11 with guile 3.0.7
+  ;; C11 42" guile 3.0.8 6',6' 23" for C12
+  ;;{unified-minterms-set <+ (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)}
+  
+  (nodebug
+   (dvs unified-minterms-set))
+
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-parallel : end"))
+
+  unified-minterms-set)
+
+
+
 
 
 

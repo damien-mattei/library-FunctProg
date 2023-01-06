@@ -4,6 +4,14 @@
 #include <omp.h>
 #include <stdio.h>
 
+
+// Linux
+
+// gcc `pkg-config --cflags guile-3.0` `pkg-config --libs guile-3.0` -L/usr/lib/llvm-14/lib/ -fopenmp -shared -o libguile-openMP.so -fPIC  -lguile-3.0 -lomp guile-openMP.c
+
+
+// Mac OS
+
 // gcc `pkg-config --cflags guile-3.0` -I/opt/homebrew/opt/libomp/include  -L/opt/homebrew/opt/libomp/lib -Xclang -fopenmp -shared -o libguile-openMP.so -fPIC  -lguile-3.0 -lomp guile-openMP.c
 
 // or:
@@ -21,9 +29,11 @@
 
 // export OMP_NUM_THREADS=8
 
-// this main() in a library was only for testing openMP with Mac OS Xcode
+// this main() in a library was only for testing openMP with Mac OS Xcode and Linux for use uncomment main() and comment openmp() functions
 
 // clang `pkg-config --cflags guile-3.0` -I/opt/homebrew/opt/libomp/include  -L/opt/homebrew/opt/libomp/lib -Xclang -fopenmp -o libguile-openMP.so -fPIC  -lguile-3.0 -lomp guile-openMP.c
+
+// gcc `pkg-config --cflags guile-3.0` `pkg-config --libs guile-3.0` -L/usr/lib/llvm-14/lib/ -fopenmp    -lguile-3.0 -lomp guile-openMP.c
 
 /* int main() { */
   

@@ -2,7 +2,7 @@
 
 ;; Damien Mattei
 
-;; december 2022
+;; January 2023
 
 ;; (load "start-λογικι-guile+.scm")
 
@@ -69,6 +69,8 @@
 	     (srfi srfi-171) ;; transducers
 	     (system foreign)
 	     (system foreign-library)
+	     ((rnrs sorting) #:select (vector-sort))
+	     ;;(parallel vector) ;; In procedure dlsym: Error resolving "timerfd_create": "dlsym(RTLD_DEFAULT, timerfd_create): symbol not found" with Mac OS
 	     )
 
 (include "rest.scm")
