@@ -2068,10 +2068,12 @@
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 
-	     ;; 6'50 for C12 openmp on M1 , 7'40" with future 
-	     ;; 5'46 C11 Intel® Xeon® Processor E5-2620 v3 openmp,2'24" C11 with future
-	     
-	     (& {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-openMP  mt-set1 mt-set2)}    ;; (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-openMP-no-tag  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-parallel  mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     ;; 6'50, 6' 39" 9'43" for C12 openmp on M1 , 7'40",10'57" 10'49" with future ( but compiler changed: JIT disabled)
+	     ;; C11 1'10" C12 9' 57",9' 50" openmp on M1  1'18" for C11 with future
+	     ;; 5'46 C11 Intel® Xeon® Processor E5-2620 v3 openmp,2'24", 2'09" C11 with future and 11' 29" for C12
+	     ;; mac mini 3'25" for C10 with openmp, 12" for C11 with future 2'15" for C11 with future
+	     ;; 2' 59" without JIT for C10
+	     (& {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;; (funct-unify-minterms-set-1-unit-openMP  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-openMP-no-tag  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-parallel  mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
@@ -3573,12 +3575,64 @@ the REDUCE-INIT argument."
   unified-minterms-set)
 
 
+;; only for speed tests
+{vtstlen <+ 2642245}
+{vtst <+ (make-vector vtstlen 0)}
 
+{fct <+ (lambda (x) {x * x * x})}
+(define (fctapply i) {vtst[i] <- fct(vtst[i])}) ;; neoteric expression of {vtst[i] <- (fct vtst[i])}
+
+
+(define (speed-test)
+
+  ;; init data
+  (display-nl "speed-test : Initialising data.")
+  (for ({i <+ 0} {i < vtstlen} {i <- {i + 1}})
+       {vtst[i] <- i})
+
+  ;; compute
+  (display-nl "speed-test : testing Scheme alone : start")
+  (for ({i <+ 0} {i < vtstlen} {i <- {i + 1}})
+       (fctapply i))
+  (display-nl "speed-test : testing Scheme alone : end")
+
+  (newline)
+  
+  ;; display a few results
+  (for ({i <+ 0} {i < 10} {i <- {i + 1}})
+       (display-nl {vtst[i]}))
+  (display-nl ".....")
+  (for ({i <+ {vtstlen - 10}} {i < vtstlen} {i <- {i + 1}})
+       (display-nl {vtst[i]}))
+
+  ;; init data
+  (display-nl "speed-test : Initialising data.")
+  (for ({i <+ 0} {i < vtstlen} {i <- {i + 1}})
+       {vtst[i] <- i})
+
+  ;; compute
+  (display-nl "speed-test : testing Scheme with OpenMP : start")
+  (openmp 0 {vtstlen - 1} (string->pointer "fctapply"))
+  (display-nl "speed-test : testing Scheme with OpenMP : end")
+
+  (newline)
+
+  ;; display a few results
+  (for ({i <+ 0} {i < 10} {i <- {i + 1}})
+       (display-nl {vtst[i]}))
+  (display-nl ".....")
+  (for ({i <+ {vtstlen - 10}} {i < vtstlen} {i <- {i + 1}})
+       (display-nl {vtst[i]}))
+  
+  )
+  
 
 (define openmp (foreign-library-function "./libguile-openMP" "openmp" #:return-type int #:arg-types (list int int '*)))
 
 
 (define libomp (dynamic-link "libomp")) ;;  note: require a link : ln -s /opt/homebrew/opt/libomp/lib/libomp.dylib libomp.dylib
+;; export LTDL_LIBRARY_PATH=. under linux with a link as above
+;; or better solution: export LTDL_LIBRARY_PATH=/usr/lib/llvm-14/lib
 
 (define omp-get-max-threads
   (pointer->procedure int

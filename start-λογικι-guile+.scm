@@ -4,6 +4,9 @@
 
 ;; January 2023
 
+;; export LTDL_LIBRARY_PATH=/usr/lib/llvm-14/lib # for OpenMP under Linux
+;; export LTDL_LIBRARY_PATH=/opt/homebrew/opt/libomp/lib # for OpenMP under MacOS
+
 ;; (load "start-λογικι-guile+.scm")
 
 ;; examples:
