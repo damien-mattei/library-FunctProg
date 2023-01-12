@@ -2069,10 +2069,13 @@
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 
 	     ;; 6'50, 6' 39" 9'43" for C12 openmp on M1 , 7'40",10'57" 10'49" with future ( but compiler changed: JIT disabled)
-	     ;; C11 1'10" C12 9' 57",9' 50" openmp on M1  1'18" for C11 with future
+	     ;; C11 1'10"  C12 9' 57",9' 50" openmp on M1  1'18"  for C11 with future
 	     ;; 5'46 C11 Intel® Xeon® Processor E5-2620 v3 openmp,2'24", 2'09" C11 with future and 11' 29" for C12
 	     ;; mac mini 3'25" for C10 with openmp, 12" for C11 with future 2'15" for C11 with future
 	     ;; 2' 59" without JIT for C10
+	     ;; GNU Guile 3.0.8.99-f3ea8 ./configure --enable-mini-gmp (fail to compile unless)
+	     ;; M1:1'02" for C11 with future 8'02" for C12
+	     ;;  48" C11 openmp 7'19" C12
 	     (& {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;; (funct-unify-minterms-set-1-unit-openMP  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-openMP-no-tag  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-parallel  mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
@@ -3580,8 +3583,10 @@ the REDUCE-INIT argument."
 {vtst <+ (make-vector vtstlen 0)}
 
 {fct <+ (lambda (x) {x * x * x})}
+
 (define (fctapply i) {vtst[i] <- fct(vtst[i])}) ;; neoteric expression of {vtst[i] <- (fct vtst[i])}
 
+(define (fctpluscollatzapply i) {vtst[i] <- fctpluscollatz(vtst[i])})
 
 (define (speed-test)
 
@@ -3593,7 +3598,7 @@ the REDUCE-INIT argument."
   ;; compute
   (display-nl "speed-test : testing Scheme alone : start")
   (for ({i <+ 0} {i < vtstlen} {i <- {i + 1}})
-       (fctapply i))
+       (fctpluscollatzapply i));;(fctapply i))
   (display-nl "speed-test : testing Scheme alone : end")
 
   (newline)
@@ -3612,7 +3617,7 @@ the REDUCE-INIT argument."
 
   ;; compute
   (display-nl "speed-test : testing Scheme with OpenMP : start")
-  (openmp 0 {vtstlen - 1} (string->pointer "fctapply"))
+  (openmp 0 {vtstlen - 1} (string->pointer "fctpluscollatzapply"));;"fctapply"))
   (display-nl "speed-test : testing Scheme with OpenMP : end")
 
   (newline)
@@ -3625,7 +3630,21 @@ the REDUCE-INIT argument."
        (display-nl {vtst[i]}))
   
   )
-  
+
+
+(define (collatz n)
+  (cond ({n = 1} 1)
+	({(modulo n 2) = 0} {n / 2})
+	(else {{3 * n} + 1})))
+
+
+(define (fctpluscollatz x)
+  (declare c)
+  (if {x = 0}
+      {c <- 0}
+      {c <- collatz(x)})
+  {{x * x * x} + c})
+
 
 (define openmp (foreign-library-function "./libguile-openMP" "openmp" #:return-type int #:arg-types (list int int '*)))
 
