@@ -2070,13 +2070,14 @@
 
 	     ;; 6'50, 6' 39" 9'43" for C12 openmp on M1 , 7'40",10'57" 10'49" with future ( but compiler changed: JIT disabled)
 	     ;; C11 1'10"  C12 9' 57",9' 50" openmp on M1  1'18"  for C11 with future
-	     ;; 5'46 C11 Intel® Xeon® Processor E5-2620 v3 openmp,2'24", 2'09" C11 with future and 11' 29" for C12
-	     ;; mac mini 3'25" for C10 with openmp, 12" for C11 with future 2'15" for C11 with future
+	     ;; 5'46 3' 38" C11 Intel® Xeon® Processor E5-2620 v3 openmp,2'24", 2'09" C11 with future and 11' 29" for C12
+	     ;; forfunct 1' 30" C11 Intel® Xeon® Processor E5-2620 v3 1'18" openmp
+	     ;; mac mini 3'25" for C10 with openmp, 2'15" for C11 with future
 	     ;; 2' 59" without JIT for C10
 	     ;; GNU Guile 3.0.8.99-f3ea8 ./configure --enable-mini-gmp (fail to compile unless)
 	     ;; M1:1'02" for C11 with future 8'02" for C12
-	     ;;  48" C11 openmp 7'19" C12
-	     (& {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;; (funct-unify-minterms-set-1-unit-openMP  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-openMP-no-tag  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-parallel  mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     ;;  48" 53" C11 openmp 7'19" 7'25" C12
+	     (& {unified-mt-set1-and-mt-set2 <+   (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-forfunct  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-openMP  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-openMP-no-tag mt-set1 mt-set2)}   ;;;;(funct-unify-minterms-set-1-unit-parallel  mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
@@ -2802,34 +2803,6 @@
 
 
 
-;; scheme@(guile-user)> (unify-two-minterms-rec '(1 0 1 0 0 1 0 1 0 1) '(1 0 1 0 1 1 0 1 0 1))
-;; $2 = (1 0 1 0 x 1 0 1 0 1)
-;; (define (unify-two-minterms-rec mt1 mt2)
-
-;;   {err <+ #f}
-
-;;   (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
-
-;;        (if {(null? mt1) and (null? mt2)}
-;; 	   (return '()))
-
-;;        (if {{(null? mt1) and (not (null? mt2))} or {(not (null? mt1)) and (null? mt2)}}
-;; 	   (return-rec #f))
-
-
-;;        {fst-mt1 <+ (first mt1)}
-;;        {fst-mt2 <+ (first mt2)}
-
-;;        (if (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
-;; 						  (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))
-;;        (if err (return-rec #f))
-
-;;        {err <- #t}
-;;        (cons 'x
-;; 	     (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2))))
-
-;;   (unify-two-lists-tolerant-one-mismatch mt1 mt2))
-
 
 
 
@@ -3143,7 +3116,7 @@ the REDUCE-INIT argument."
 
 
 
-{function-unify-minterms-list-no-tag <+ (λ (L) (apply unify-two-minterms L))}
+{function-unify-minterms-list-no-tag <+ (λ (L) (apply unify-two-minterms-iter L))} ;; unify-two-minterms L))} ;; unify-two-minterms-rec L))}
 
 ;; this function will be called from openMP in language C
 (define (function-unify-minterms-vectors-no-tag i)
@@ -3460,8 +3433,9 @@ the REDUCE-INIT argument."
   unified-minterms-set)
 
 
+{chronoIndex <+ 0}
 
-
+{totalComputationTime <+ 0}
 
 (define (funct-unify-minterms-set-1-unit-future set1 set2)
 
@@ -3520,13 +3494,35 @@ the REDUCE-INIT argument."
   {unified-minterms-vector-1 <- (make-vector minterms-vector-length #f)}
 
   (if {nb-procs = 1}
-      (proc-unify-minterms-seg-and-tag (first segmts)) ;;(proc-unify-minterms-seg (first segmts))
+      (&
+       (display "Chrono START number: ") (display chronoIndex) (display " ")
+       (display "minterms-vector-length = ") (display minterms-vector-length) (display ". ")
+       {t1 <+ (gettimeofday)}
+       
+       (proc-unify-minterms-seg-and-tag (first segmts)) ;;(proc-unify-minterms-seg (first segmts))
+
+       {t2 <+ (gettimeofday)}
+       {elapsedTime <+ {{{car(t2) - car(t1)} * 1000.0} + {{cdr(t2) - cdr(t1)} / 1000.0}}}
+       {totalComputationTime <- {totalComputationTime + elapsedTime}}
+       (display "chrono STOP : elapsedTime = ") (display elapsedTime) (display " ms.") (display "totalComputationTime =")
+       (display totalComputationTime) (newline)
+       (incf chronoIndex))
+       
       (&
 
        (nodebug
 	(display-nl "before //"))
-
+       
+       (display "Chrono START number: ") (display chronoIndex) (display " ") 
+       {t1 <+ (gettimeofday)}
+       
        (run-in-parallel segmts proc-unify-minterms-seg-and-tag) ;; proc-unify-minterms-seg) ;; run the parallel code
+
+
+       {t2 <+ (gettimeofday)}
+       {elapsedTime <+ {{{car(t2) - car(t1)} * 1000.0} + {{cdr(t2) - cdr(t1)} / 1000.0}}}
+       (display "chrono STOP : elapsedTime = ") (display elapsedTime) (display " ms.") (newline)
+       (incf chronoIndex)
 
        (nodebug
 	(display-nl "after //"))
@@ -3597,9 +3593,15 @@ the REDUCE-INIT argument."
 
   ;; compute
   (display-nl "speed-test : testing Scheme alone : start")
+  {t1 <+ (gettimeofday)}
+  
   (for ({i <+ 0} {i < vtstlen} {i <- {i + 1}})
        (fctpluscollatzapply i));;(fctapply i))
+
+  {t2 <+ (gettimeofday)}
+  {elapsedTime <+ {{{car(t2) - car(t1)} * 1000.0} + {{cdr(t2) - cdr(t1)} / 1000.0}}}
   (display-nl "speed-test : testing Scheme alone : end")
+  (display "speed-test : elapsedTime = ") (display elapsedTime) (display " ms.") (newline)
 
   (newline)
   
@@ -3619,6 +3621,26 @@ the REDUCE-INIT argument."
   (display-nl "speed-test : testing Scheme with OpenMP : start")
   (openmp 0 {vtstlen - 1} (string->pointer "fctpluscollatzapply"));;"fctapply"))
   (display-nl "speed-test : testing Scheme with OpenMP : end")
+
+  (newline)
+
+  ;; display a few results
+  (for ({i <+ 0} {i < 10} {i <- {i + 1}})
+       (display-nl {vtst[i]}))
+  (display-nl ".....")
+  (for ({i <+ {vtstlen - 10}} {i < vtstlen} {i <- {i + 1}})
+       (display-nl {vtst[i]}))
+
+
+  ;; init data
+  (display-nl "speed-test : Initialising data.")
+  (for ({i <+ 0} {i < vtstlen} {i <- {i + 1}})
+       {vtst[i] <- i})
+
+  ;; compute
+  (display-nl "speed-test : testing Scheme with For Funct : start")
+  (forfunct 0 {vtstlen - 1} (string->pointer "fctpluscollatzapply"));;"fctapply"))
+  (display-nl "speed-test : testing Scheme with For Funct : end")
 
   (newline)
 
@@ -3649,6 +3671,8 @@ the REDUCE-INIT argument."
 (define openmp (foreign-library-function "./libguile-openMP" "openmp" #:return-type int #:arg-types (list int int '*)))
 
 
+(define forfunct (foreign-library-function "./libguile-openMP" "forfunct" #:return-type int #:arg-types (list int int '*)))
+
 (define libomp (dynamic-link "libomp")) ;;  note: require a link : ln -s /opt/homebrew/opt/libomp/lib/libomp.dylib libomp.dylib
 ;; export LTDL_LIBRARY_PATH=. under linux with a link as above
 ;; or better solution: export LTDL_LIBRARY_PATH=/usr/lib/llvm-14/lib
@@ -3661,6 +3685,8 @@ the REDUCE-INIT argument."
 (define (display-cpus-info)
   {ncpus <+ (omp-get-max-threads)}
   (display "Found ") (display ncpus) (display " CPUs availables for OpenMP.") (newline))
+
+
 
 (define (funct-unify-minterms-set-1-unit-openMP set1 set2)
 
@@ -3708,9 +3734,25 @@ the REDUCE-INIT argument."
 
   {start <+ (car segmt)}
   {stop <+ (cdr segmt)}
+
+  (display "Chrono START number: ") (display chronoIndex) (display " ")
+  (display "minterms-vector-length = ") (display minterms-vector-length) (display ". ")
+  {t1 <+ (gettimeofday)}
   
-  (openmp start stop (string->pointer "function-unify-minterms-vectors"))  ;; call openMP C functions
-  
+  ;; (if {minterms-vector-length < 500000}
+
+  ;;     (proc-unify-minterms-seg-and-tag segmt)
+      
+      (openmp start stop (string->pointer "function-unify-minterms-vectors"));)  ;; call openMP C functions
+
+
+  {t2 <+ (gettimeofday)}
+  {elapsedTime <+ {{{car(t2) - car(t1)} * 1000.0} + {{cdr(t2) - cdr(t1)} / 1000.0}}}
+  {totalComputationTime <- {totalComputationTime + elapsedTime}}
+  (display "chrono STOP : elapsedTime = ") (display elapsedTime) (display " ms.") (display "Open MP totalComputationTime =")
+  (display totalComputationTime) (newline)
+  (incf chronoIndex)
+
   (nodebug
    {unified-minterms-vector-1-length <+ (vector-length unified-minterms-vector-1)}
    (dv unified-minterms-vector-1-length)
@@ -3748,6 +3790,10 @@ the REDUCE-INIT argument."
    (display-nl "funct-unify-minterms-set-1-unit-openMP : end"))
 
   unified-minterms-set)
+
+
+
+
 
 
 (define (funct-unify-minterms-set-1-unit-openMP-no-tag set1 set2)
@@ -3797,9 +3843,11 @@ the REDUCE-INIT argument."
   {start <+ (car segmt)}
   {stop <+ (cdr segmt)}
 
+  ;; (if {minterms-vector-length < 500000}
 
-  
-  (openmp start stop (string->pointer "function-unify-minterms-vectors-no-tag"))  ;; call openMP C functions
+  ;;     (proc-unify-minterms-seg segmt)
+        
+      (openmp start stop (string->pointer "function-unify-minterms-vectors-no-tag"));)  ;; call openMP C functions
 
 
   
@@ -3934,7 +3982,108 @@ the REDUCE-INIT argument."
 
 
 
+(define (funct-unify-minterms-set-1-unit-forfunct set1 set2)
 
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-forfunct : begin"))
+
+  (nodebug
+   {set1-length <+ (length set1)}
+   {set2-length <+ (length set2)}
+   (dv set1-length)
+   (dv set2-length)
+   (display-nl "before Cartesian product set"))
+
+  (nodebug
+   (dvs set1)
+   (dvs set2))
+
+  ;; note : sorting is useless
+
+  {minterms-set <+ (product-set-with-set-imperative set1 set2)}  ;; set multiplication : create list of pair of minterms - pair is a 2 element list
+
+  (nodebug
+   (dvs minterms-set))
+
+  (nodebug
+   (display-nl "after Cartesian product set")
+   {minterms-set-length <+ (length minterms-set)}
+   ;;{minterms-set-first <+ (first minterms-set)}
+   (dv minterms-set-length))
+   ;;(dv minterms-set-first))
+
+  {minterms-vector <- (list->vector minterms-set)} ;; vector of pair (mathematic) of minterms - pair (mathematic) is a 2 element list, not a pair (Lisp)
+
+  (nodebug
+   (dv minterms-vector))
+
+  {minterms-vector-length <+ (vector-length minterms-vector)}
+
+  (nodebug
+   (dv minterms-vector-length))
+
+  {segmt <+ (cons 0 {minterms-vector-length - 1})}
+
+  {unified-minterms-vector-1 <- (make-vector minterms-vector-length #f)}			
+
+  {start <+ (car segmt)}
+  {stop <+ (cdr segmt)}
+
+  (display "Chrono START number: ") (display chronoIndex) (display " ")
+  (display "minterms-vector-length = ") (display minterms-vector-length) (display ". ")
+  {t1 <+ (gettimeofday)}
+  
+  ;; (if {minterms-vector-length < 500000}
+
+  ;;     (proc-unify-minterms-seg-and-tag segmt)
+      
+      (forfunct start stop (string->pointer "function-unify-minterms-vectors"));)  ;; call forfunct C functions
+
+
+  {t2 <+ (gettimeofday)}
+  {elapsedTime <+ {{{car(t2) - car(t1)} * 1000.0} + {{cdr(t2) - cdr(t1)} / 1000.0}}}
+  {totalComputationTime <- {totalComputationTime + elapsedTime}} ;; C12 intel xeon >30'
+  (display "chrono STOP : elapsedTime = ") (display elapsedTime) (display " ms.") (display "For Funct totalComputationTime =")
+  (display totalComputationTime) (newline)
+  (incf chronoIndex)
+
+  (nodebug
+   {unified-minterms-vector-1-length <+ (vector-length unified-minterms-vector-1)}
+   (dv unified-minterms-vector-1-length)
+   (newline))
+
+  {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
+
+  (nodebug
+   (dvs unified-minterms-set-1))
+
+  
+  ;; 8'04" MacOS Ventura M1 for C12 ,50" for C11 guile 3.0.7
+  ;; C11 45" guile 3.0.8 ,C12 :6' 37"
+  ;;{unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  ;; (nodebug
+  ;;  {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+  ;;  (dv unified-minterms-set-2-length))
+
+  ;;{unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  ;; (nodebug
+  ;;  {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+  ;;  (dv unified-minterms-set-uniq-length))
+
+  {unified-minterms-set <+ (remove-duplicates (filter (λ (x) x) unified-minterms-set-1))} 
+  ;; 28" C11 Guile 3.0.8 , 4' 17" for C12 30% speed up with openMP 3'39" record 6'27" worse openMP no tag
+  
+  ;; 7'08" ,8'15" MacOS Ventura M1 for C12 and 56" for C11 with guile 3.0.7
+  ;; C11 42" guile 3.0.8 6',6' 23" for C12
+  ;;{unified-minterms-set <+ (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)}
+  
+  (nodebug
+   (dvs unified-minterms-set))
+
+  (nodebug
+   (display-nl "funct-unify-minterms-set-1-unit-forfunct : end"))
+
+  unified-minterms-set)
 
 
 

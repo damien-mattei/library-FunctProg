@@ -246,7 +246,63 @@
    (dv mt2))
   
   (function-map-with-escaping-by-kontinuation2  (macro-function-compare-2-bits-with-continuation) mt1 mt2))
+
+
+
+;; (apply unify-two-minterms-iter '((1 0 1 0 0 1 0 1 0 1) (1 0 1 0 1 1 0 1 0 1))) -> '(1 0 1 0 x 1 0 1 0 1)
+;; (unify-two-minterms-iter '(1 0 1 0 0 1 0 1 0 1) '(1 0 1 0 1 1 0 1 0 1)) -> '(1 0 1 0 x 1 0 1 0 1)
+;; (unify-two-minterms-iter '(1 0 1 0 0 1 0 1 0 1) '(1 1 1 0 1 0 0 1 0 1)) -> #f
+(def (unify-two-minterms-iter mt1 mt2)
+
+  (if (null? mt1) (return '()))
+     
+  {vmt1 <+ (list->vector mt1)}
+  {vmt2 <+ (list->vector mt2)}
+  {lvmt <+ (vector-length vmt1)}
+  {vmt <+ (make-vector lvmt 'x)}
+
+  {err <+ #f}
   
+  (for ({k <+ 0} {k < lvmt} {k <- {k + 1}})
+       (if {vmt1[k] equal? vmt2[k]}
+	   {vmt[k] <- vmt1[k]}
+	   (if err
+	       (return #f)
+	       {err <- #t})))
+
+  (vector->list vmt))
+
+
+  
+
+;; scheme@(guile-user)> (unify-two-minterms-rec '(1 0 1 0 0 1 0 1 0 1) '(1 0 1 0 1 1 0 1 0 1))
+;; $2 = (1 0 1 0 x 1 0 1 0 1)
+(define (unify-two-minterms-rec mt1 mt2)
+
+  {err <+ #f}
+
+  (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
+
+       (if {(null? mt1) and (null? mt2)}
+	   (return '()))
+
+       (if {{(null? mt1) and (not (null? mt2))} or {(not (null? mt1)) and (null? mt2)}}
+	   (return-rec #f))
+
+
+       {fst-mt1 <+ (first mt1)}
+       {fst-mt2 <+ (first mt2)}
+
+       (if (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
+						  (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))
+       (if err (return-rec #f))
+
+       {err <- #t}
+       (cons 'x
+	     (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2))))
+
+  (unify-two-lists-tolerant-one-mismatch mt1 mt2))
+
 
 
 (define function-compare-2-bits-1-false-tolerant
