@@ -101,7 +101,7 @@
 (include "guile/operation+.scm")
 (include "display-formula.scm")
 (include "symbol.scm")
-(include "minterms.scm")
+(include "guile/minterms+.scm")
 (include "hash-table.scm")
 
 (include "guile/subscript+.scm")

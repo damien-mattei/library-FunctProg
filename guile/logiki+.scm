@@ -3495,18 +3495,19 @@ the REDUCE-INIT argument."
 
   (if {nb-procs = 1}
       (&
-       (display "Chrono START number: ") (display chronoIndex) (display " ")
-       (display "minterms-vector-length = ") (display minterms-vector-length) (display ". ")
-       {t1 <+ (gettimeofday)}
+       ;; (display "Chrono START number: ") (display chronoIndex) (display " ")
+       ;; (display "minterms-vector-length = ") (display minterms-vector-length) (display ". ")
+       ;; {t1 <+ (gettimeofday)}
        
        (proc-unify-minterms-seg-and-tag (first segmts)) ;;(proc-unify-minterms-seg (first segmts))
 
-       {t2 <+ (gettimeofday)}
-       {elapsedTime <+ {{{car(t2) - car(t1)} * 1000.0} + {{cdr(t2) - cdr(t1)} / 1000.0}}}
-       {totalComputationTime <- {totalComputationTime + elapsedTime}}
-       (display "chrono STOP : elapsedTime = ") (display elapsedTime) (display " ms.") (display "totalComputationTime =")
-       (display totalComputationTime) (newline)
-       (incf chronoIndex))
+       ;; {t2 <+ (gettimeofday)}
+       ;; {elapsedTime <+ {{{car(t2) - car(t1)} * 1000.0} + {{cdr(t2) - cdr(t1)} / 1000.0}}}
+       ;; {totalComputationTime <- {totalComputationTime + elapsedTime}}
+       ;; (display "chrono STOP : elapsedTime = ") (display elapsedTime) (display " ms.") (display "totalComputationTime =")
+       ;; (display totalComputationTime) (newline)
+       ;; (incf chronoIndex)
+       )
        
       (&
 

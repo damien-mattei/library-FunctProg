@@ -34,3 +34,16 @@
 
 ;; '((!b ^ !c) v (c ^ !d) v (!a ^ b ^ d))
 
+(define-namespace-anchor ankh)
+(define ns (namespace-anchor->namespace ankh))
+
+(display "start-... : ns =") (display ns) (newline)
+
+{x <+ 7}
+
+(display "start-... : x =") (display x) (newline)
+
+(eval 'x ns)
+
+
+;;{x <- 5 + 4}

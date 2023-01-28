@@ -6,7 +6,7 @@
 
 (require racket/future) ;; for //
 
-(require (for-syntax r6rs/private/base-for-syntax)) ;; for macro syntax (for ...
+(require (for-syntax r6rs/private/base-for-syntax)) ;; for macro syntax (for ... : identifier-syntax: undefined;
 
 (require srfi/43) ;; vector library
 
@@ -20,6 +20,7 @@
 (require "operation+.rkt")
 (require "set+.rkt")
 (require "subscript+.rkt")
+(require "minterms+.rkt")
 
 (include "../increment.scm")
 
@@ -39,7 +40,7 @@
 (include "../map.scm")
 
 (include "display-formula.scm")
-(include "../minterms.scm")
+
 (include "../hash-table.scm")
 
 
@@ -3162,6 +3163,60 @@ the REDUCE-INIT argument."
        {unified-minterms-vector-1[i] <- (function-unify-minterms-list mtL)}
        )
   )
+
+
+
+;; put below because of . period bug in SRFI 105 reader
+
+;; proc to be called with //
+(define (proc-unify-minterms-seg-inner-definitions seg)
+
+  (define (function-map-with-escaping-by-kontinuation2 clozure list1 . more-lists) ;; ERROR: . period not supported in curly infix reader
+    (call/cc (lambda (kontinuation)
+	       (let ((lists (cons list1 more-lists))
+		     (funct-continu ;; this function have the kontinuation in his environment 
+		      (lambda (arg1 . more-args)
+			(let ((args (cons arg1 more-args)))
+			  (apply clozure kontinuation args))))) ;; a tester: (apply clozure (cons conti args))
+		 
+		 (apply map funct-continu lists)))))
+
+  ;; compare two list of bits until we got more than one difference
+  (define-syntax macro-function-compare-2-bits-with-continuation ;; continuation version of macro-compare-2-bits
+    ;; i need a macro because of external function to the clozure
+    (syntax-rules ()
+      ((_) (let ((cnt 0)) ;; counter
+	     (lambda (continuation b1 b2) (if (equal? b1 b2)
+					      b1
+					      (begin
+						(set! cnt (add1 cnt))
+						(when (> cnt 1) (continuation #f)) ;; escaping with the continuation
+						'x)))))))
+
+  
+  (define (unify-two-minterms mt1 mt2)
+
+    (nodebug
+     (display-nl "unify-two-minterms : ")
+     (dv mt1)
+     (dv mt2))
+    
+    (function-map-with-escaping-by-kontinuation2  (macro-function-compare-2-bits-with-continuation) mt1 mt2))
+
+  
+  (nodebug
+   (display "proc-unify-minterms-seg : ")
+   (dv seg))
+  
+  (define function-unify-minterms-list (λ (L) (apply unify-two-minterms L))) ;; (apply unify-two-minterms-rec L))} ;; 
+   
+  (define start (segment-start seg))
+  (define end (segment-end seg))
+  (for ((define i start) (<= i end) (set! i (+ i 1)))
+       (define mtL (vector-ref minterms-vector i))
+       (nodebug
+	(dv mtL))
+       (vector-set! unified-minterms-vector-1 i (function-unify-minterms-list mtL))))
 
 
 
