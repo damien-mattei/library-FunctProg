@@ -2,7 +2,7 @@
 
 ;; Damien Mattei
 
-;; January 2023
+;; May 2023
 
 ;; export LTDL_LIBRARY_PATH=/usr/lib/llvm-14/lib # for OpenMP under Linux
 ;; export LTDL_LIBRARY_PATH=/opt/homebrew/opt/libomp/lib # for OpenMP under MacOS
@@ -69,9 +69,9 @@
 	     (srfi srfi-69) ;; SRFI 69 Hash Table
 	     ;;((rnrs) :version (6)) ;; contains hash tables too
 	     (srfi srfi-43) ;; vector library
-	     (srfi srfi-171) ;; transducers
-	     (system foreign)
-	     (system foreign-library)
+	     ;;(srfi srfi-171) ;; transducers
+	     ;;(system foreign) ;; for library loading
+	     ;;(system foreign-library)
 	     ((rnrs sorting) #:select (vector-sort))
 	     ;;(parallel vector) ;; In procedure dlsym: Error resolving "timerfd_create": "dlsym(RTLD_DEFAULT, timerfd_create): symbol not found" with Mac OS
 	     )
@@ -106,6 +106,8 @@
 
 (include "guile/subscript+.scm")
 (include "guile/regex+.scm")
-
+(include "../Scheme-PLUS-for-Guile/scheme-infix.scm")
 (include "guile/logiki+.scm")
+
+
 

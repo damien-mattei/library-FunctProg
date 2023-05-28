@@ -1,6 +1,41 @@
-#lang reader "SRFI-105.rkt"
+#lang reader "SRFI-105-toplevel.rkt"
 
-(provide (all-defined-out)) ;; export all bindings
+;;#lang reader "SRFI-105.rkt"
+
+;;#lang reader "SRFI-105-toplevel.rkt"
+
+
+;;(compile-enforce-module-constants #f)
+
+;; for infix operator precedence
+;; (define-namespace-anchor ankh)
+;; (define bsns (namespace-anchor->namespace ankh))
+;; (current-namespace bsns)
+
+; DrRacket does not like greek characters in filenames
+;(include "program-λογικι-2.8.scm")
+
+
+;; test
+;;(define λογικι #t)
+
+
+;; (infix-symb-min-dnf '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
+
+;; '((¬b ∧ ¬c) ∨ (c ∧ ¬d) ∨ (¬a ∧ b ∧ d))
+
+
+
+;; (infix-symb-min-dnf '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d)  (and (not a) b c (not d))  (and (not a) b c d)  (and a (not b) (not c) (not d)) (and a (not b) (not c) d)  (and a (not b) c (not d))   (and c (not d))))
+
+;; '((!b ^ !c) v (c ^ !d) v (!a ^ b ^ d))
+
+
+
+
+;;(provide (all-defined-out)) ;; export all bindings ,but we are no more at a module level because of racket/lang emulate REPL 
+
+
 
 (require srfi/69) ;; Basic hash tables
 
@@ -15,6 +50,7 @@
 
 (require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
+
 ;;(require Scheme-PLUS-for-Racket/Scheme+)
 
 (require "operation+.rkt")
@@ -22,7 +58,11 @@
 (require "subscript+.rkt")
 (require "minterms+.rkt")
 
+
+
 (include "../increment.scm")
+
+
 
 (include "display-racket-scheme.scm")
 
@@ -44,6 +84,15 @@
 (include "../hash-table.scm")
 
 
+
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/included-files/scheme-infix.rkt")
+
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/included-files/overload.scm")
+
+
+
+
+
 ;;
 ;;                    λογικι+
 ;;
@@ -52,16 +101,16 @@
 ;;
 ;; a program to compute logic symbolically
 ;;
-;; Copyright (C) 2014-2022  Damien MATTEI
+;; Copyright (C) 2014-2023  Damien MATTEI
 ;;
 ;;
 ;; e-mail: damien.mattei@gmail.com 
-;;         (damien.mattei@univ-cotedazur.fr, damien.mattei@unice.fr, damien.mattei@oca.eu)
+;;         (damien.mattei@cnrs.fr, damien.mattei@univ-cotedazur.fr, damien.mattei@unice.fr)
 ;; 
 ;;
 ;;
 ;;
-;; version 9.1 for Racket
+;; version 10 for Racket
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -289,7 +338,7 @@
    ((boolean? expr) expr)
    ((isNOT? expr) `(not ,(elim-equivalence (arg expr))))
    ((isIMPLIC? expr) `(=> ,(elim-equivalence (arg1 expr)) ,(elim-equivalence (arg2 expr))))
-   ((isEQUIV? expr) (& ;; a <=> b ----> (a => b) and (b => a)
+   ((isEQUIV? expr) ($> ;; a <=> b ----> (a => b) and (b => a)
 		     {a <+ (arg1 expr)}
 		     {b <+ (arg2 expr)}
 		     {ae <+ (elim-equivalence a)}
@@ -328,7 +377,7 @@
       ((symbol? expr) expr)
       ((boolean? expr) expr)
       ((isNOT? expr) `(not ,(elim-exclusive-or (arg expr))))
-      ((isXOR? expr) (&
+      ((isXOR? expr) ($>
 		      {a1 <+ (arg1 expr)}
 		      {a2 <+ (arg2 expr)}
 		      {ea1 <+ (elim-exclusive-or a1)}
@@ -1233,7 +1282,7 @@
 	((null? L2) #f)
 	(else (if (equal? (first L1) (first L2))
 		  (compare-list-args<? (rest L1) (rest L2))
-		  (& ;; something is not equal (not ...) ?
+		  ($> ;; something is not equal (not ...) ?
 		   {fl1 <+ (first L1)}
 		   {fl2 <+ (first L2)}
 		   {lit1 <+ (expression->string (get-first-literal fl1))}
@@ -1378,7 +1427,7 @@
 
   (if (isOR-AND? expr)
 
-      (& {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
+      ($> {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
 	 (nodebug (display "sort-expressions-in-operation : ")
 		(dv exprs-list))
 	 {sorted-exprs <+ (sort-expressions exprs-list)}
@@ -1398,7 +1447,7 @@
 
   (if (isOR-AND? expr)
 
-      (& {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
+      ($> {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
 	 (nodebug (display "sort-expressions-in-operation-var-index : ")
 		(dv exprs-list))
 	 {sorted-exprs <+ (sort-expressions-var-index exprs-list)}
@@ -2001,7 +2050,7 @@
 	 '() ) ;; return '()
 
       ;; at least 2 elements in set of sets
-      (& {mt-set1 <+ (car sos)} ;; minterm set 1
+      ($> {mt-set1 <+ (car sos)} ;; minterm set 1
 	 {mt-set2 <+ (cadr sos)} ;; minterm set 2
 	 {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
 	 {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
@@ -2020,7 +2069,7 @@
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 
-	     (& {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
+	     ($> {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
 
 		(if (null? unified-mt-set1-and-mt-set2)
 		    unified-minterms-set2-to-setn ;; the result will be the continuation with sets from 2 to n
@@ -2035,6 +2084,11 @@
 ;; a tail recursive version
 (define (funct-unify-minterms-set-of-sets-rec-tail sos acc) ;; with accumulator
 
+  ;;(newline)
+  ;;(display "(funct-unify-minterms-set-of-sets-rec-tail :")
+  {zorglub <+ 1}
+  {zorglub <- zorglub + 3 * 5 + 2}
+  
   ;;(debug-region-name "region inside funct-unify-minterms-set-of-sets-rec-tail"
   (nodebug
    (display-nl "funct-unify-minterms-set-of-sets-rec-tail : begin"))
@@ -2049,7 +2103,7 @@
 	 (reverse acc) )
 
       ;; at least 2 elements in set of sets
-      (& {mt-set1 <+ (car sos)} ;; minterm set 1
+      ($> {mt-set1 <+ (car sos)} ;; minterm set 1
 	 {mt-set2 <+ (cadr sos)} ;; minterm set 2
 	 {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
 	 {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
@@ -2065,7 +2119,7 @@
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 
-	     (& {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     ($> {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
@@ -3140,7 +3194,7 @@ the REDUCE-INIT argument."
    
   {start <+ (segment-start seg)}
   {end <+ (segment-end seg)}
-  (for ({i <+ start} {i <= end} {i <- {i + 1}})
+  (for ({i <+ start} {i <= end} {i <- i + 1})
        {mtL <+ minterms-vector[i]}
        ;; (nodebug
        ;; 	(dv mtL))
@@ -3156,7 +3210,7 @@ the REDUCE-INIT argument."
    
   {start <+ (segment-start seg)}
   {end <+ (segment-end seg)}
-  (for ({i <+ start} {i <= end} {i <- {i + 1}})
+  (for ({i <+ start} {i <= end} {i <- i + 1})
        {mtL <+ minterms-vector[i]}
        ;; (nodebug
        ;; 	(dv mtL))
@@ -3278,7 +3332,7 @@ the REDUCE-INIT argument."
 
   (if {nb-procs = 1}
       (proc-unify-minterms-seg-and-tag (first segmts)) ;;(proc-unify-minterms-seg (first segmts))
-      (&
+      ($>
 
        (nodebug
 	(display-nl "before //"))
@@ -3386,7 +3440,7 @@ the REDUCE-INIT argument."
 
   (if {nb-procs = 1}
       (proc-unify-minterms-seg-and-tag (first segmts)) ;;(proc-unify-minterms-seg (first segmts))
-      (&
+      ($>
 
        (nodebug
 	(display-nl "before //"))
@@ -3646,3 +3700,48 @@ the REDUCE-INIT argument."
       
 ;;   unified-minterms-set)
 
+
+
+
+;; overload tests
+
+(define (add-pair p1 p2) (cons (+ (car p1) (car p2)) (+ (cdr p1) (cdr p2))))
+(overload + add-pair (pair? pair?) 'operator)
+
+(display "before add-vect-vect") (newline)
+(define (add-vect-vect v1 v2) (map + v1 v2))
+(display "before overload") (newline)
+(overload + add-vect-vect (list? list?) 'operator)
+
+(display "before mult-num-vect") (newline)
+(define (mult-num-vect k v) (map (λ (x) (* k x)) v))
+(overload * mult-num-vect (number? list?) 'operator)
+
+;;(display "before plus") (newline)
+
+
+{ztest <+ 1}
+{3 * 5 + ztest}
+{ztest <- 3 * 5 + ztest}
+
+(define (foo) ;; ko
+  ;;(declare x)
+  (define x 23)
+  (display "before define mult-num-vect") (newline)
+  (define (mult-num-vect k v) (map (λ (x) (* k x)) v))
+  (display "before (overload * mult-num-vect ...") (newline)
+  (overload * mult-num-vect (number? list?) 'operator)
+  {t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
+  {x <- 1 + x + 4 * 5}
+  t)
+
+{t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
+(display t) (newline)
+
+
+(define (bar)
+  {t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}})
+
+(define (bar2)
+  {x <+ 7}
+  {x <- 1 + x + 4 * 5})

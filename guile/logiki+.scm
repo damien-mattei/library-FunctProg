@@ -7,16 +7,16 @@
 ;;
 ;; a program to compute logic symbolically
 ;;
-;; Copyright (C) 2014-2022  Damien MATTEI
+;; Copyright (C) 2014-2023  Damien MATTEI
 ;;
 ;;
 ;; e-mail: damien.mattei@gmail.com
-;;         ( damien.mattei@univ-cotedazur.fr, damien.mattei@unice.fr, damien.mattei@oca.eu , damien.mattei@cnrs.fr )
+;;         ( damien.mattei@univ-cotedazur.fr, damien.mattei@unice.fr , damien.mattei@cnrs.fr )
 ;;
 ;;
 ;;
 ;;
-;; version 9.1 for Guile
+;; version 10 for Guile
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -292,7 +292,7 @@
    ((boolean? expr) expr)
    ((isNOT? expr) `(not ,(elim-equivalence (arg expr))))
    ((isIMPLIC? expr) `(=> ,(elim-equivalence (arg1 expr)) ,(elim-equivalence (arg2 expr))))
-   ((isEQUIV? expr) (& ;; a <=> b ----> (a => b) and (b => a)
+   ((isEQUIV? expr) ($> ;; a <=> b ----> (a => b) and (b => a)
 		     {a <+ (arg1 expr)}
 		     {b <+ (arg2 expr)}
 		     {ae <+ (elim-equivalence a)}
@@ -331,7 +331,7 @@
       ((symbol? expr) expr)
       ((boolean? expr) expr)
       ((isNOT? expr) `(not ,(elim-exclusive-or (arg expr))))
-      ((isXOR? expr) (&
+      ((isXOR? expr) ($>
 		      {a1 <+ (arg1 expr)}
 		      {a2 <+ (arg2 expr)}
 		      {ea1 <+ (elim-exclusive-or a1)}
@@ -1236,7 +1236,7 @@
 	((null? L2) #f)
 	(else (if (equal? (first L1) (first L2))
 		  (compare-list-args<? (rest L1) (rest L2))
-		  (& ;; something is not equal (not ...) ?
+		  ($> ;; something is not equal (not ...) ?
 		   {fl1 <+ (first L1)}
 		   {fl2 <+ (first L2)}
 		   {lit1 <+ (expression->string (get-first-literal fl1))}
@@ -1381,15 +1381,15 @@
 
   (if (isOR-AND? expr)
 
-      (& {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
-	 (nodebug (display "sort-expressions-in-operation : ")
-		(dv exprs-list))
-	 {sorted-exprs <+ (sort-expressions exprs-list)}
-	 (nodebug
-	  (dv sorted-exprs))
-	 {oper <+ (operator expr)} ;; define operator : (or Ci a b) -> or
-	 (cons oper sorted-exprs))
-
+      ($> {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
+	  (nodebug (display "sort-expressions-in-operation : ")
+		   (dv exprs-list))
+	  {sorted-exprs <+ (sort-expressions exprs-list)}
+	  (nodebug
+	   (dv sorted-exprs))
+	  {oper <+ (operator expr)} ;; define operator : (or Ci a b) -> or
+	  (cons oper sorted-exprs))
+      
       ;;(sort-arguments-in-operation expr))) ;; we have not an expression composed of expressions but a single expression
       expr))
 
@@ -1401,14 +1401,14 @@
 
   (if (isOR-AND? expr)
 
-      (& {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
-	 (nodebug (display "sort-expressions-in-operation-var-index : ")
+      ($> {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
+	  (nodebug (display "sort-expressions-in-operation-var-index : ")
 		(dv exprs-list))
-	 {sorted-exprs <+ (sort-expressions-var-index exprs-list)}
-	 (nodebug
-	  (dv sorted-exprs))
-	 {oper <+ (operator expr)} ;; define operator : (or Ci a b) -> or
-	 (cons oper sorted-exprs))
+	  {sorted-exprs <+ (sort-expressions-var-index exprs-list)}
+	  (nodebug
+	   (dv sorted-exprs))
+	  {oper <+ (operator expr)} ;; define operator : (or Ci a b) -> or
+	  (cons oper sorted-exprs))
 
       expr))
 
@@ -2004,40 +2004,42 @@
 	 '() ) ;; return '()
 
       ;; at least 2 elements in set of sets
-      (& {mt-set1 <+ (car sos)} ;; minterm set 1
-	 {mt-set2 <+ (cadr sos)} ;; minterm set 2
-	 {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
-	 {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
-	 {weight-mt-set2 <+ (floor-bin-minterm-weight (car mt-set2))}
-	 {delta-weight <+ {weight-mt-set2 - weight-mt-set1}}
+      ($> {mt-set1 <+ (car sos)} ;; minterm set 1
+	  {mt-set2 <+ (cadr sos)} ;; minterm set 2
+	  {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
+	  {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
+	  {weight-mt-set2 <+ (floor-bin-minterm-weight (car mt-set2))}
+	  {delta-weight <+ {weight-mt-set2 - weight-mt-set1}}
+	  
+	  (nodebug
+	   (dvs mt-set1)
+	   (newline)
+	   (dvs mt-set2)
+	   (newline)
+	   (dv delta-weight))
+	  
+	  ;; this was not original code! here we do first the computation from set 2 to set n and after set 1 and set 2! so no tail recursion optimisation
+	  {unified-minterms-set2-to-setn <+ (funct-unify-minterms-set-of-sets-rec mt-set2-to-mt-setn)} ;; in any case we continue with sets from 2 to n
 
-	 (nodebug
-	  (dvs mt-set1)
-	  (newline)
-	  (dvs mt-set2)
-	  (newline)
-	  (dv delta-weight))
+	  (if {delta-weight = 1} ;; if minterms set are neighbours
 
-	 ;; this was not original code! here we do first the computation from set 2 to set n and after set 1 and set 2! so no tail recursion optimisation
-	 {unified-minterms-set2-to-setn <+ (funct-unify-minterms-set-of-sets-rec mt-set2-to-mt-setn)} ;; in any case we continue with sets from 2 to n
+	      ($> {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
 
-	 (if {delta-weight = 1} ;; if minterms set are neighbours
-
-	     (& {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
-
-		(if (null? unified-mt-set1-and-mt-set2)
-		    unified-minterms-set2-to-setn ;; the result will be the continuation with sets from 2 to n
-		    (insert unified-mt-set1-and-mt-set2 unified-minterms-set2-to-setn))) ;; end &
-
-	     unified-minterms-set2-to-setn))))) ;; continue with sets from 2 to n
-       ;; this procedure returns a set of unified minterms of the current level and
-       ;; and when there is no more minterms set to unify this procedure returns '() and perheaps
-       ;; sort of '(()) or '(() () ...)
+		  (if (null? unified-mt-set1-and-mt-set2)
+		      unified-minterms-set2-to-setn ;; the result will be the continuation with sets from 2 to n
+		      (insert unified-mt-set1-and-mt-set2 unified-minterms-set2-to-setn))) ;; end &
+	      
+	      unified-minterms-set2-to-setn))))) ;; continue with sets from 2 to n
+;; this procedure returns a set of unified minterms of the current level and
+;; and when there is no more minterms set to unify this procedure returns '() and perheaps
+;; sort of '(()) or '(() () ...)
 
 
 ;; a tail recursive version
 (define (funct-unify-minterms-set-of-sets-rec-tail sos acc) ;; with accumulator
 
+  {zorglub <+ 1}
+  {zorglub <- zorglub + 3 * 5 + 2}
   ;;(debug-region-name "region inside funct-unify-minterms-set-of-sets-rec-tail"
   (nodebug
    (display-nl "funct-unify-minterms-set-of-sets-rec-tail : begin"))
@@ -2052,12 +2054,12 @@
 	 (reverse acc) )
 
       ;; at least 2 elements in set of sets
-      (& {mt-set1 <+ (car sos)} ;; minterm set 1
-	 {mt-set2 <+ (cadr sos)} ;; minterm set 2
-	 {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
-	 {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
-	 {weight-mt-set2 <+ (floor-bin-minterm-weight (car mt-set2))}
-	 {delta-weight <+ {weight-mt-set2 - weight-mt-set1}}
+      ($> {mt-set1 <+ (car sos)} ;; minterm set 1
+	  {mt-set2 <+ (cadr sos)} ;; minterm set 2
+	  {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
+	  {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
+	  {weight-mt-set2 <+ (floor-bin-minterm-weight (car mt-set2))}
+	  {delta-weight <+ {weight-mt-set2 - weight-mt-set1}}
 
 	 (nodebug
 	  (dvs mt-set1)
@@ -2068,16 +2070,7 @@
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 
-	     ;; 6'50, 6' 39" 9'43" for C12 openmp on M1 , 7'40",10'57" 10'49" with future ( but compiler changed: JIT disabled)
-	     ;; C11 1'10"  C12 9' 57",9' 50" openmp on M1  1'18"  for C11 with future
-	     ;; 5'46 3' 38" C11 Intel® Xeon® Processor E5-2620 v3 openmp,2'24", 2'09" C11 with future and 11' 29" for C12
-	     ;; forfunct 1' 30" C11 Intel® Xeon® Processor E5-2620 v3 1'18" openmp
-	     ;; mac mini 3'25" for C10 with openmp, 2'15" for C11 with future
-	     ;; 2' 59" without JIT for C10
-	     ;; GNU Guile 3.0.8.99-f3ea8 ./configure --enable-mini-gmp (fail to compile unless)
-	     ;; M1:1'02" for C11 with future 8'02" for C12
-	     ;;  48" 53" C11 openmp 7'19" 7'25" C12
-	     (& {unified-mt-set1-and-mt-set2 <+   (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-forfunct  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-openMP  mt-set1 mt-set2)}    ;;(funct-unify-minterms-set-1-unit-openMP-no-tag mt-set1 mt-set2)}   ;;;;(funct-unify-minterms-set-1-unit-parallel  mt-set1 mt-set2)}  ;;  (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     ($> {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
@@ -2661,7 +2654,7 @@
 
      {sorted-minterms-list <+ (sort sorted-expanded-var-terms compare-list-args<?)} ;; sort expanded minterms list
 
-     {uniq-sorted-minterms <+ (uniq sorted-minterms-list)};; (remove-duplicates-sorted sorted-minterms-list)}
+     {uniq-sorted-minterms <+ (uniq sorted-minterms-list)} ;; (remove-duplicates-sorted sorted-minterms-list)}
 
      (nodebug
       ;; dv : display value
@@ -2803,6 +2796,34 @@
 
 
 
+;; scheme@(guile-user)> (unify-two-minterms-rec '(1 0 1 0 0 1 0 1 0 1) '(1 0 1 0 1 1 0 1 0 1))
+;; $2 = (1 0 1 0 x 1 0 1 0 1)
+;; (define (unify-two-minterms-rec mt1 mt2)
+
+;;   {err <+ #f}
+
+;;   (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
+
+;;        (if {(null? mt1) and (null? mt2)}
+;; 	   (return '()))
+
+;;        (if {{(null? mt1) and (not (null? mt2))} or {(not (null? mt1)) and (null? mt2)}}
+;; 	   (return-rec #f))
+
+
+;;        {fst-mt1 <+ (first mt1)}
+;;        {fst-mt2 <+ (first mt2)}
+
+;;        (if (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
+;; 						  (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))
+;;        (if err (return-rec #f))
+
+;;        {err <- #t}
+;;        (cons 'x
+;; 	     (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2))))
+
+;;   (unify-two-lists-tolerant-one-mismatch mt1 mt2))
+
 
 
 
@@ -2810,8 +2831,6 @@
 ;; test case procedure
 (def (logic-test)
 
-     (display-cpus-info)
-     
      (declare expr res-expr res-expr-exact)
 
      ;; test 1
@@ -2934,6 +2953,7 @@
      (newline)
 
      #t)
+
 
 
 
@@ -3130,7 +3150,7 @@ the REDUCE-INIT argument."
 
   {start <+ (segment-start seg)}
   {end <+ (segment-end seg)}
-  (for ({i <+ start} {i <= end} {i <- {i + 1}})
+  (for ({i <+ start} {i <= end} {i <- i + 1})
        (function-unify-minterms-vectors i)))
 
 
@@ -3206,7 +3226,7 @@ the REDUCE-INIT argument."
 
   {start <+ (segment-start seg)}
   {end <+ (segment-end seg)}
-  (for ({i <+ start} {i <= end} {i <- {i + 1}})
+  (for ({i <+ start} {i <= end} {i <- i + 1})
        {mtL <+ minterms-vector[i]}
        (nodebug
 	(dv mtL))
@@ -3271,7 +3291,7 @@ the REDUCE-INIT argument."
 
   (if {nb-procs = 1}
       (proc-unify-minterms-seg-and-tag (first segmts)) ;;(proc-unify-minterms-seg (first segmts))
-      (&
+      ($>
 
        (nodebug
 	(display-nl "before //"))
@@ -3494,7 +3514,7 @@ the REDUCE-INIT argument."
   {unified-minterms-vector-1 <- (make-vector minterms-vector-length #f)}
 
   (if {nb-procs = 1}
-      (&
+      ($>
        ;; (display "Chrono START number: ") (display chronoIndex) (display " ")
        ;; (display "minterms-vector-length = ") (display minterms-vector-length) (display ". ")
        ;; {t1 <+ (gettimeofday)}
@@ -3509,7 +3529,7 @@ the REDUCE-INIT argument."
        ;; (incf chronoIndex)
        )
        
-      (&
+      ($>
 
        (nodebug
 	(display-nl "before //"))
@@ -3559,12 +3579,12 @@ the REDUCE-INIT argument."
   ;;  {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
   ;;  (dv unified-minterms-set-uniq-length))
 
-  ;;{unified-minterms-set <+ (remove-duplicates (filter (λ (x) x) unified-minterms-set-1))} ;; 59" for C11, 8'05" for C12 with guile 3.0.7
+  {unified-minterms-set <+ (remove-duplicates (filter (λ (x) x) unified-minterms-set-1))} ;; 59" for C11, 8'05" for C12 with guile 3.0.7
   ;; 31" C11 Guile 3.0.8 , 6' 17" for C12
   
   ;; 7'08" ,8'15" MacOS Ventura M1 for C12 and 56" for C11 with guile 3.0.7
   ;; C11 42" guile 3.0.8 6',6' 23" for C12
-  {unified-minterms-set <+ (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)}
+  ;;{unified-minterms-set <+ (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)}
   
   (nodebug
    (dvs unified-minterms-set))
@@ -3589,14 +3609,14 @@ the REDUCE-INIT argument."
 
   ;; init data
   (display-nl "speed-test : Initialising data.")
-  (for ({i <+ 0} {i < vtstlen} {i <- {i + 1}})
+  (for ({i <+ 0} {i < vtstlen} {i <- i + 1})
        {vtst[i] <- i})
 
   ;; compute
   (display-nl "speed-test : testing Scheme alone : start")
   {t1 <+ (gettimeofday)}
   
-  (for ({i <+ 0} {i < vtstlen} {i <- {i + 1}})
+  (for ({i <+ 0} {i < vtstlen} {i <- i + 1})
        (fctpluscollatzapply i));;(fctapply i))
 
   {t2 <+ (gettimeofday)}
@@ -3607,15 +3627,15 @@ the REDUCE-INIT argument."
   (newline)
   
   ;; display a few results
-  (for ({i <+ 0} {i < 10} {i <- {i + 1}})
+  (for ({i <+ 0} {i < 10} {i <- i + 1})
        (display-nl {vtst[i]}))
   (display-nl ".....")
-  (for ({i <+ {vtstlen - 10}} {i < vtstlen} {i <- {i + 1}})
+  (for ({i <+ {vtstlen - 10}} {i < vtstlen} {i <- i + 1})
        (display-nl {vtst[i]}))
 
   ;; init data
   (display-nl "speed-test : Initialising data.")
-  (for ({i <+ 0} {i < vtstlen} {i <- {i + 1}})
+  (for ({i <+ 0} {i < vtstlen} {i <- i + 1})
        {vtst[i] <- i})
 
   ;; compute
@@ -3626,16 +3646,16 @@ the REDUCE-INIT argument."
   (newline)
 
   ;; display a few results
-  (for ({i <+ 0} {i < 10} {i <- {i + 1}})
+  (for ({i <+ 0} {i < 10} {i <- i + 1})
        (display-nl {vtst[i]}))
   (display-nl ".....")
-  (for ({i <+ {vtstlen - 10}} {i < vtstlen} {i <- {i + 1}})
+  (for ({i <+ {vtstlen - 10}} {i < vtstlen} {i <- i + 1})
        (display-nl {vtst[i]}))
 
 
   ;; init data
   (display-nl "speed-test : Initialising data.")
-  (for ({i <+ 0} {i < vtstlen} {i <- {i + 1}})
+  (for ({i <+ 0} {i < vtstlen} {i <- i + 1})
        {vtst[i] <- i})
 
   ;; compute
@@ -3646,10 +3666,10 @@ the REDUCE-INIT argument."
   (newline)
 
   ;; display a few results
-  (for ({i <+ 0} {i < 10} {i <- {i + 1}})
+  (for ({i <+ 0} {i < 10} {i <- i + 1})
        (display-nl {vtst[i]}))
   (display-nl ".....")
-  (for ({i <+ {vtstlen - 10}} {i < vtstlen} {i <- {i + 1}})
+  (for ({i <+ {vtstlen - 10}} {i < vtstlen} {i <- i + 1})
        (display-nl {vtst[i]}))
   
   )
@@ -3658,7 +3678,7 @@ the REDUCE-INIT argument."
 (define (collatz n)
   (cond ({n = 1} 1)
 	({(modulo n 2) = 0} {n / 2})
-	(else {{3 * n} + 1})))
+	(else {3 * n + 1})))
 
 
 (define (fctpluscollatz x)
@@ -3666,26 +3686,26 @@ the REDUCE-INIT argument."
   (if {x = 0}
       {c <- 0}
       {c <- collatz(x)})
-  {{x * x * x} + c})
+  {x * x * x + c})
 
 
-(define openmp (foreign-library-function "./libguile-openMP" "openmp" #:return-type int #:arg-types (list int int '*)))
+;; (define openmp (foreign-library-function "./libguile-openMP" "openmp" #:return-type int #:arg-types (list int int '*)))
 
 
-(define forfunct (foreign-library-function "./libguile-openMP" "forfunct" #:return-type int #:arg-types (list int int '*)))
+;; (define forfunct (foreign-library-function "./libguile-openMP" "forfunct" #:return-type int #:arg-types (list int int '*)))
 
-(define libomp (dynamic-link "libomp")) ;;  note: require a link : ln -s /opt/homebrew/opt/libomp/lib/libomp.dylib libomp.dylib
-;; export LTDL_LIBRARY_PATH=. under linux with a link as above
-;; or better solution: export LTDL_LIBRARY_PATH=/usr/lib/llvm-14/lib
+;; (define libomp (dynamic-link "libomp")) ;;  note: require a link : ln -s /opt/homebrew/opt/libomp/lib/libomp.dylib libomp.dylib
+;; ;; export LTDL_LIBRARY_PATH=. under linux with a link as above
+;; ;; or better solution: export LTDL_LIBRARY_PATH=/usr/lib/llvm-14/lib
 
-(define omp-get-max-threads
-  (pointer->procedure int
-                      (dynamic-func "omp_get_max_threads" libomp)
-                      '()))
+;; (define omp-get-max-threads
+;;   (pointer->procedure int
+;;                       (dynamic-func "omp_get_max_threads" libomp)
+;;                       '()))
 
-(define (display-cpus-info)
-  {ncpus <+ (omp-get-max-threads)}
-  (display "Found ") (display ncpus) (display " CPUs availables for OpenMP.") (newline))
+;; (define (display-cpus-info)
+;;   {ncpus <+ (omp-get-max-threads)}
+;;   (display "Found ") (display ncpus) (display " CPUs availables for OpenMP.") (newline))
 
 
 
@@ -4391,3 +4411,47 @@ the REDUCE-INIT argument."
    (display-nl "funct-unify-minterms-set-1-unit-par-map : end"))
 
   unified-minterms-set)
+
+
+;; overload tests
+
+(define (add-pair p1 p2) (cons (+ (car p1) (car p2)) (+ (cdr p1) (cdr p2))))
+(overload + add-pair (pair? pair?) 'operator)
+
+(display "before add-vect-vect") (newline)
+(define (add-vect-vect v1 v2) (map + v1 v2))
+(display "before overload") (newline)
+(overload + add-vect-vect (list? list?) 'operator)
+
+(display "before mult-num-vect") (newline)
+(define (mult-num-vect k v) (map (λ (x) (* k x)) v))
+(overload * mult-num-vect (number? list?) 'operator)
+
+;;(display "before plus") (newline)
+
+
+{ztest <+ 1}
+{3 * 5 + ztest}
+{ztest <- 3 * 5 + ztest}
+
+(define (foo) ;; ko
+  ;;(declare x)
+  (define x 23)
+  (display "before define mult-num-vect") (newline)
+  (define (mult-num-vect k v) (map (λ (x) (* k x)) v))
+  (display "before (overload * mult-num-vect ...") (newline)
+  (overload * mult-num-vect (number? list?) 'operator)
+  {t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
+  {x <- 1 + x + 4 * 5}
+  t)
+
+{t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
+(display t) (newline)
+
+
+(define (bar)
+  {t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}})
+
+(define (bar2)
+  {x <+ 7}
+  {x <- 1 + x + 4 * 5})
