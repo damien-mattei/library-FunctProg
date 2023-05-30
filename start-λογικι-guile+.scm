@@ -106,7 +106,7 @@
 
 (include "guile/subscript+.scm")
 (include "guile/regex+.scm")
-(include "../Scheme-PLUS-for-Guile/scheme-infix.scm")
+(include "../Scheme-PLUS-for-Guile/included-files/scheme-infix.scm")
 (include "guile/logiki+.scm")
 
 

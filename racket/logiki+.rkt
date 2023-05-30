@@ -4,6 +4,8 @@
 
 ;;#lang reader "SRFI-105-toplevel.rkt"
 
+;; author: Damien MATTEI
+
 
 ;;(compile-enforce-module-constants #f)
 
@@ -110,7 +112,7 @@
 ;;
 ;;
 ;;
-;; version 10 for Racket
+;; version 11 for Racket
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -2527,18 +2529,11 @@
 
 (define (identify-essential-prime-implicants  prime-implicants minterms)
 
-  ;;(lgt-pi (length prime-implicants))
-  ;;(lgt-mt (length minterms))
-  ;; identifying essential prime implicant array
-  ;; first line : minterms
-  ;; first row : prime-implicants
-  ;;(iepi (make-array-2d (+ lgt-mt 1) (+ lgt-pi 1) 0)) ;; two dimensions array
-  ;;(array-iepi (λ (x y) (vector-ref (vector-ref iepi y) x)))
-
+ 
   {vct-prime-implicants ⥆ (list->vector prime-implicants)}
   {essential-prime-implicants-list ⥆ '()}
   {cpt-mt ⥆ 0} ;; counter of minterms
-  {y-pos-epi ⥆ 0} ;; position of essential prime implicant in colomn if there exists one
+  {x-pos-epi ⥆ 0} ;; position of essential prime implicant in colomn if there exists one
   {star-in-column ⥆ #f} ;; at the beginning
 
   {feepi ← #f} ;; at the beginning
@@ -2568,38 +2563,38 @@
 
   ;; construction of the array
   ;; set the left column containing prime implicants
-  (for-basic (y 0 {lgt-pi - 1})
+  (for-basic (x 0 {lgt-pi - 1})
 
-       {iepi[0 {y + 1}] ← vct-prime-implicants[y]})
+       {iepi[{x + 1} 0] ← vct-prime-implicants[x]})
 
   ;; identify prime implicants
-  (for-basic (x 1 lgt-mt)
+  (for-basic (y 1 lgt-mt)
 
        {cpt-mt ← 0}
 
-       (for-basic (y 1 lgt-pi)
+       (for-basic (x 1 lgt-pi)
 
-	    (if (compare-minterm-and-implicant {iepi[0 y]}
-					       {iepi[x 0]})
+	    (if (compare-minterm-and-implicant {iepi[x 0]}
+					       {iepi[0 y]})
 		;; then
 		($
 		  (incf cpt-mt)
 		  (when (= 1 cpt-mt)
-			{y-pos-epi ← y}) ;; position of essential prime implicant
+			{x-pos-epi ← x}) ;; position of essential prime implicant
 		  ;;{iepi[x y] ← " * "})
 		  {iepi[x y] ← 1})
 
 		;; else
-		;;{iepi[x y] ← "   "})) ;; end for y
+		;;{iepi[x y] ← "   "})) ;; end for x
 		{iepi[x y] ← 3}))
 
        (when (= 1 cpt-mt) ;; essential prime implicant
-	     ;;{iepi[x y-pos-epi] ← "(*)"}
-	     {iepi[x y-pos-epi] ← 2}
+	     ;;{iepi[x-pos-epi y] ← "(*)"}
+	     {iepi[x-pos-epi y] ← 2}
 	     ;; add essential prime implicant to list
-	     {essential-prime-implicants-list ← (cons {iepi[0 y-pos-epi]} essential-prime-implicants-list)})
+	     {essential-prime-implicants-list ← (cons {iepi[x-pos-epi 0]} essential-prime-implicants-list)})
 
-     ) ;; end for x
+     ) ;; end for y
 
 
   (when debug-mode
@@ -2613,15 +2608,15 @@
   {feepi ← #t}
 
   ;; check if function is expressed by essential implicants
-  (for-basic/break break-x (x 1 lgt-mt) ;; loop over minterms
+  (for-basic/break break-y (y 1 lgt-mt) ;; loop over minterms
 
-	     (for-basic/break break-y (y 1 lgt-pi) ;; loop over prime implicants
+	     (for-basic/break break-x (x 1 lgt-pi) ;; loop over prime implicants
 
 			;; check wether prime implicant is an essential one?
-			(when (member {iepi[0 y]} essential-prime-implicants-list)
+			(when (member {iepi[x 0]} essential-prime-implicants-list)
 
 			      (nodebug
-			       (de {iepi[0 y]})
+			       (de {iepi[x 0]})
 			       (de {iepi[x y]}))
 
 			      ;; is the essential prime implicant expressing this minterms?
@@ -2635,19 +2630,19 @@
 
 				    {star-in-column ← #t}
 
-				    (break-y)))) ;; that's enought! we know the minterm is expressed.
+				    (break-x)))) ;; that's enought! we know the minterm is expressed.
 
-	     ;; end for/break break-y
+	     ;; end for/break break-x
 
 	     (unless star-in-column
 		     {feepi ← #f} ;; function not expressed by prime implicants
 		     ;; add minterm to non expressed minterms list
-		     {non-expressed-minterms ← (insert {iepi[x 0]} non-expressed-minterms)}
-		     ;;(break-x) ;; removed break-x as we have to check all the minterms now
+		     {non-expressed-minterms ← (insert {iepi[0 y]} non-expressed-minterms)}
+		     ;;(break-y) ;; removed break-y as we have to check all the minterms now
 		     )
 
 	     {star-in-column ← #f})  ;; set it for the next loop
-  ;; end for/break break-x
+  ;; end for/break break-y
 
   essential-prime-implicants-list)
 
@@ -2775,17 +2770,17 @@
 
   ;;(display-nl "Entering Petrick...")
 
-  (for-basic (x 1 lgt-mt) ;; loop over minterms
+  (for-basic (y 1 lgt-mt) ;; loop over minterms
 
-       {mt ← iepi[x 0]}
+       {mt ← iepi[0 y]}
 
        (when (member mt non-expressed-minterms) ;; non expressed minterm
 
 	 {col ← '()}
 
-	 (for-basic (y 1 lgt-pi) ;; loop over prime implicants
+	 (for-basic (x 1 lgt-pi) ;; loop over prime implicants
 
-	      {prim-imp ← iepi[0 y]} ;; prime implicant
+	      {prim-imp ← iepi[x 0]} ;; prime implicant
 
 	      ;; check wether prime implicant is a non essential one?
 	      (when (member prim-imp non-essential-prime-implicants)
@@ -2795,7 +2790,7 @@
 		    (when (= {iepi[x y]} 1)
 			  (insert-set! (minterm->var prim-imp) col))))
 
-	 ;; end for y
+	 ;; end for x
 
 	 (if (singleton-set? col)
 	     {col ← (car col)}  ;; ( V ) -> V
@@ -2803,7 +2798,7 @@
 
 	 (insert-set! col conj-expr)))
 
-  ;; end for x
+  ;; end for y
 
   (if (singleton-set? conj-expr)
       {conj-expr ← (car conj-expr)}  ;; ( conj-expr ) -> conj-expr
