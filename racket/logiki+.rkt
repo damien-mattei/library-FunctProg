@@ -1,6 +1,4 @@
-#lang reader "SRFI-105-toplevel.rkt"
-
-;;#lang reader "SRFI-105.rkt"
+#lang reader "SRFI-105.rkt"
 
 ;;#lang reader "SRFI-105-toplevel.rkt"
 
@@ -35,7 +33,7 @@
 
 
 
-;;(provide (all-defined-out)) ;; export all bindings ,but we are no more at a module level because of racket/lang emulate REPL 
+(provide (all-defined-out)) ;; export all bindings ,when we are at a module level not at toplevel because of racket/lang emulate REPL 
 
 
 
@@ -89,7 +87,7 @@
 
 (include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/included-files/scheme-infix.rkt")
 
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/included-files/overload.scm")
+;;(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/included-files/overload.scm")
 
 
 
@@ -3697,46 +3695,3 @@ the REDUCE-INIT argument."
 
 
 
-
-;; overload tests
-
-(define (add-pair p1 p2) (cons (+ (car p1) (car p2)) (+ (cdr p1) (cdr p2))))
-(overload + add-pair (pair? pair?) 'operator)
-
-(display "before add-vect-vect") (newline)
-(define (add-vect-vect v1 v2) (map + v1 v2))
-(display "before overload") (newline)
-(overload + add-vect-vect (list? list?) 'operator)
-
-(display "before mult-num-vect") (newline)
-(define (mult-num-vect k v) (map (λ (x) (* k x)) v))
-(overload * mult-num-vect (number? list?) 'operator)
-
-;;(display "before plus") (newline)
-
-
-{ztest <+ 1}
-{3 * 5 + ztest}
-{ztest <- 3 * 5 + ztest}
-
-(define (foo) ;; ko
-  ;;(declare x)
-  (define x 23)
-  (display "before define mult-num-vect") (newline)
-  (define (mult-num-vect k v) (map (λ (x) (* k x)) v))
-  (display "before (overload * mult-num-vect ...") (newline)
-  (overload * mult-num-vect (number? list?) 'operator)
-  {t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
-  {x <- 1 + x + 4 * 5}
-  t)
-
-{t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
-(display t) (newline)
-
-
-(define (bar)
-  {t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}})
-
-(define (bar2)
-  {x <+ 7}
-  {x <- 1 + x + 4 * 5})
