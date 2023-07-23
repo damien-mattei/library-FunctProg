@@ -40,7 +40,7 @@
 
      (unless vr (return vr)) ;; assuming #f
 
-     (when {(vector-length vr) <> 4} (return #f)) ;; unsupported inputs
+     (when {(vector-length vr) ≠ 4} (return #f)) ;; unsupported inputs
      
      {start <+ (car {vr[2]})}
      {end <+ (cdr {vr[2]})}

@@ -1,5 +1,8 @@
 ;; arrays
 
+
+;; DEPRECATED version ,use the one of Scheme+ directories
+
 ;; This file is part of Scheme+
 
 ;; Copyright 2021-2022 Damien MATTEI

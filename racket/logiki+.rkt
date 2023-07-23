@@ -66,7 +66,7 @@
 
 (include "display-racket-scheme.scm")
 
-(include "../for_next_step.scm")
+(include "../for_next_step.scm") ;; for macro syntax (for ... : identifier-syntax: undefined; use: (require (for-syntax r6rs/private/base-for-syntax))
 
 (include "../debug.scm")
 
@@ -338,7 +338,7 @@
    ((boolean? expr) expr)
    ((isNOT? expr) `(not ,(elim-equivalence (arg expr))))
    ((isIMPLIC? expr) `(=> ,(elim-equivalence (arg1 expr)) ,(elim-equivalence (arg2 expr))))
-   ((isEQUIV? expr) ($> ;; a <=> b ----> (a => b) and (b => a)
+   ((isEQUIV? expr) ($+> ;; a <=> b ----> (a => b) and (b => a)
 		     {a <+ (arg1 expr)}
 		     {b <+ (arg2 expr)}
 		     {ae <+ (elim-equivalence a)}
@@ -377,7 +377,7 @@
       ((symbol? expr) expr)
       ((boolean? expr) expr)
       ((isNOT? expr) `(not ,(elim-exclusive-or (arg expr))))
-      ((isXOR? expr) ($>
+      ((isXOR? expr) ($+>
 		      {a1 <+ (arg1 expr)}
 		      {a2 <+ (arg2 expr)}
 		      {ea1 <+ (elim-exclusive-or a1)}
@@ -1282,7 +1282,7 @@
 	((null? L2) #f)
 	(else (if (equal? (first L1) (first L2))
 		  (compare-list-args<? (rest L1) (rest L2))
-		  ($> ;; something is not equal (not ...) ?
+		  ($+> ;; something is not equal (not ...) ?
 		   {fl1 <+ (first L1)}
 		   {fl2 <+ (first L2)}
 		   {lit1 <+ (expression->string (get-first-literal fl1))}
@@ -1427,7 +1427,7 @@
 
   (if (isOR-AND? expr)
 
-      ($> {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
+      ($+> {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
 	 (nodebug (display "sort-expressions-in-operation : ")
 		(dv exprs-list))
 	 {sorted-exprs <+ (sort-expressions exprs-list)}
@@ -1447,7 +1447,7 @@
 
   (if (isOR-AND? expr)
 
-      ($> {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
+      ($+> {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
 	 (nodebug (display "sort-expressions-in-operation-var-index : ")
 		(dv exprs-list))
 	 {sorted-exprs <+ (sort-expressions-var-index exprs-list)}
@@ -2042,7 +2042,7 @@
   (if (singleton-set? sos)
 
       ;; singleton
-      ($ (nodebug ;; debug
+      ($> (nodebug ;; debug
 	  (display-nl "funct-unify-minterms-set-of-sets-rec :: singleton-set? ")
 	  (dvsos sos)
 	  )
@@ -2050,7 +2050,7 @@
 	 '() ) ;; return '()
 
       ;; at least 2 elements in set of sets
-      ($> {mt-set1 <+ (car sos)} ;; minterm set 1
+      ($+> {mt-set1 <+ (car sos)} ;; minterm set 1
 	 {mt-set2 <+ (cadr sos)} ;; minterm set 2
 	 {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
 	 {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
@@ -2069,7 +2069,7 @@
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 
-	     ($> {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
+	     ($+> {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
 
 		(if (null? unified-mt-set1-and-mt-set2)
 		    unified-minterms-set2-to-setn ;; the result will be the continuation with sets from 2 to n
@@ -2095,7 +2095,7 @@
   (if (singleton-set? sos)
 
       ;; singleton
-      ($ (nodebug ;; debug
+      ($> (nodebug ;; debug
 	  (display-nl "funct-unify-minterms-set-of-sets-rec :: singleton-set? ")
 	  (dvsos sos)
 	  )
@@ -2103,7 +2103,7 @@
 	 (reverse acc) )
 
       ;; at least 2 elements in set of sets
-      ($> {mt-set1 <+ (car sos)} ;; minterm set 1
+      ($+> {mt-set1 <+ (car sos)} ;; minterm set 1
 	 {mt-set2 <+ (cadr sos)} ;; minterm set 2
 	 {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
 	 {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
@@ -2119,7 +2119,7 @@
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 
-	     ($> {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     ($+> {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		(nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
@@ -2127,7 +2127,7 @@
 		    (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc) ;; the result will be the continuation with sets from 2 to n
 		    (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn (insert unified-mt-set1-and-mt-set2 acc)))) ;; end &
 
-	     ($ (nodebug
+	     ($> (nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
 		(funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc)))))) ;; continue with sets from 2 to n
 
@@ -2575,7 +2575,7 @@
 	    (if (compare-minterm-and-implicant {iepi[x 0]}
 					       {iepi[0 y]})
 		;; then
-		($
+		($>
 		  (incf cpt-mt)
 		  (when (= 1 cpt-mt)
 			{x-pos-epi ← x}) ;; position of essential prime implicant
@@ -2679,7 +2679,7 @@
 
      {and-terms ⥆ (args disj-norm-form)} ;; conjunctives minterms
      ;; variable list of expanded minterms
-     {expanded-var-terms  ⥆ ($
+     {expanded-var-terms  ⥆ ($>
 				(when debug-mode
 				  (dv and-terms)) ;; dv:display value
 				(apply append
@@ -2727,7 +2727,7 @@
      (nodebug
       (dvsos set-of-sets-of-minterms))
 
-     {unified-minterms ⥆ ($
+     {unified-minterms ⥆ ($>
 			     (when debug-mode (display-nl "Quine-Mc-Cluskey:"))
 			     (init-hash-table-with-set-and-value minterms-ht minterms #f)
 			     (when debug-mode (dv minterms-ht))
@@ -2739,7 +2739,7 @@
       (dv unified-minterms)
       (newline))
 
-     {essential-prime-implicants ⥆ ($ {prime-implicants-lst ← (prime-implicants minterms-ht)}
+     {essential-prime-implicants ⥆ ($> {prime-implicants-lst ← (prime-implicants minterms-ht)}
 				      (identify-essential-prime-implicants prime-implicants-lst minterms))}
 
 
@@ -2885,7 +2885,7 @@
      {res-expr-exact <- '((¬a ∧ b ∧ d) ∨ (¬b ∧ ¬c) ∨ (c ∧ ¬d))}
      (if (equal? res-expr res-expr-exact)
 	 (display-nl "EXACT")
-	 ($
+	 ($>
 	  (display-nl "test 1 ******* DIFFER *******")
 	  (return #f)))
      (newline)
@@ -2899,7 +2899,7 @@
      (display-nl res-expr)
      (if (equal? res-expr res-expr-exact)
 	 (display-nl "EXACT")
-	 ($
+	 ($>
 	  (display-nl "test 2 ******* DIFFER *******")
 	  (return #f)))
      (newline)
@@ -2914,7 +2914,7 @@
      {res-expr-exact <- '((A ∧ B) ∨ (A ∧ C) ∨ (B ∧ C))}
      (if (equal? res-expr res-expr-exact)
 	 (display-nl "EXACT")
-	 ($
+	 ($>
 	  (display-nl "test 3 ******* DIFFER *******")
 	  (return #f)))
      (newline)
@@ -2929,7 +2929,7 @@
      {res-expr-exact <- '((B0 ∧ B1) ∨ (B0 ∧ C1) ∨ (B1 ∧ C1))}
      (if (equal? res-expr res-expr-exact)
 	 (display-nl "EXACT")
-	 ($
+	 ($>
 	  (display-nl "test 4 ******* DIFFER *******")
 	  (return #f)))
      (newline)
@@ -2944,7 +2944,7 @@
      {res-expr-exact <- '(or (and B2 B3) (and B2 B4) (and B3 (not B12)))} ;;'(or (and B2 B3) (and B2 B4) (and (not B12) B3))}
      (if (equal? res-expr res-expr-exact)
 	 (display-nl "EXACT")
-	 ($
+	 ($>
 	  (display-nl "test 5 ******* DIFFER *******")
 	  (return #f)))
      (newline)
@@ -2959,7 +2959,7 @@
      {res-expr-exact <- '((¬a ∨ ¬b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬d) ∧ (¬a ∨ ¬c ∨ ¬d) ∧ (b ∨ ¬c ∨ ¬d) ∧ (¬b ∨ c ∨ d))}
      (if (equal? res-expr res-expr-exact)
 	 (display-nl "EXACT")
-	 ($
+	 ($>
 	  (display-nl "test 6 ******* DIFFER *******")
 	  (return #f)))
      (newline)
@@ -2974,7 +2974,7 @@
      {res-expr-exact <- '(or (and A B C) (and A B (not C)) (and A (not B) C) (and (not A) B C))}
      (if (equal? res-expr res-expr-exact)
 	 (display-nl "EXACT")
-	 ($
+	 ($>
 	  (display-nl "test 7 ******* DIFFER *******")
 	  (return #f)))
      (newline)
@@ -2989,7 +2989,7 @@
      {res-expr-exact <- '(or (and B₂ B₃) (and B₂ B₄) (and B₃ (not B₁₂)))} ;;'(or (and B2 B3) (and B2 B4) (and (not B12) B3))}
      (if (equal? res-expr res-expr-exact)
 	 (display-nl "EXACT")
-	 ($
+	 ($>
 	  (display-nl "test 8 ******* DIFFER *******")
 	  (return #f)))
      (newline)
@@ -3325,7 +3325,7 @@ the REDUCE-INIT argument."
 
   (if {nb-procs = 1}
       (proc-unify-minterms-seg-and-tag (first segmts)) ;;(proc-unify-minterms-seg (first segmts))
-      ($>
+      ($+>
 
        (nodebug
 	(display-nl "before //"))
@@ -3433,7 +3433,7 @@ the REDUCE-INIT argument."
 
   (if {nb-procs = 1}
       (proc-unify-minterms-seg-and-tag (first segmts)) ;;(proc-unify-minterms-seg (first segmts))
-      ($>
+      ($+>
 
        (nodebug
 	(display-nl "before //"))

@@ -523,8 +523,8 @@
   ; Demo of reader
   ; --------------
 
-(define-namespace-anchor a)
-(define ns (namespace-anchor->namespace a))
+(define-namespace-anchor ankh-reader)
+(define ns-reader (namespace-anchor->namespace ankh-reader))
 
 
 
@@ -543,7 +543,7 @@
   (define (process-input)
     (let ((result (curly-infix-read)))
       (cond ((not (eof-object? result))
-	     (let ((rv (eval result ns)))
+	     (let ((rv (eval result ns-reader)))
 	       (write result) (display "\n")
 	       (write rv)
 	       (display "\n"))
