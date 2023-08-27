@@ -2,8 +2,9 @@
 
 ;; Damien Mattei
 
-;; May 2023
+;; 2023
 
+;; Warning: // tests give no speed up!
 ;; export LTDL_LIBRARY_PATH=/usr/lib/llvm-14/lib # for OpenMP under Linux
 ;; export LTDL_LIBRARY_PATH=/opt/homebrew/opt/libomp/lib # for OpenMP under MacOS
 
@@ -57,7 +58,7 @@
 
 
 
-(use-modules (Scheme+)
+(use-modules ;;(Scheme+)
 	     (ice-9 futures)
 	     ;;(ice-9 format)
 	     (ice-9 threads)
@@ -76,6 +77,8 @@
 	     ;;(parallel vector) ;; In procedure dlsym: Error resolving "timerfd_create": "dlsym(RTLD_DEFAULT, timerfd_create): symbol not found" with Mac OS
 	     )
 
+(include "../Scheme-PLUS-for-Guile/Scheme+.scm")
+
 (include "rest.scm")
 
 (include "increment.scm")
@@ -83,15 +86,118 @@
 (include "r7rs/escape-char-r7rs-scheme.scm")
 (include "r6rs/display-r6rs-scheme.scm")
 
-(include "for_next_step.scm")
-
-
 (include "debug.scm")
+
+
+
+
+;; overload tests
+
+(define-overload-existing-procedure length)
+
+(overload-existing-procedure length vector-length (vector?))
+(overload-existing-procedure length string-length (string?))
+
+;; scheme@(guile-user)> (length #(1 2 3 4))
+;; new-funct: #<procedure new-funct args>
+;; new-funct : pred-list = (#<procedure string? (_)>)
+;; new-funct : args = (#(1 2 3 4))
+;; new funct :calling:#<procedure new-funct args>
+;; new-funct: #<procedure new-funct args>
+;; new-funct : pred-list = (#<procedure vector? (_)>)
+;; new-funct : args = (#(1 2 3 4))
+;; new funct :calling:#<procedure vector-length (_)>
+;; 4
+;; scheme@(guile-user)> (length '(1 2 3))
+;; new-funct: #<procedure new-funct args>
+;; new-funct : pred-list = (#<procedure string? (_)>)
+;; new-funct : args = ((1 2 3))
+;; new funct :calling:#<procedure new-funct args>
+;; new-funct: #<procedure new-funct args>
+;; new-funct : pred-list = (#<procedure vector? (_)>)
+;; new-funct : args = ((1 2 3))
+;; new funct :calling:#<procedure length (_)>
+;; 3
+;; scheme@(guile-user)> (length "abcde")
+;; new-funct: #<procedure new-funct args>
+;; new-funct : pred-list = (#<procedure string? (_)>)
+;; new-funct : args = (abcde)
+;; new funct :calling:#<procedure string-length (_)>
+;; 5
+
+;; (length #(1 2 3 4))
+;; (length '(1 2 3))
+(length "abcde")
+
+(define-overload-procedure area)
+;; "Il semble que la terminologie de carré parfait puisse également s’expliquer par l’étymologie. Au
+;; 18ème siècle, un rectangle était en effet aussi appelé « quarré long » (voir l’Encyclopédie de Diderot
+;; et d’Alembert à l’article « rectangle »). Ainsi la Maison Carrée de Nîmes est de forme...
+;; rectangulaire. Voir également le dictionnaire de l’Académie française (4ème édition, 1764) à l’article
+;; Carré."
+(define (surf-carre-parfait x) (* x x))
+(define (surf-carre-long x y) (* x y))
+
+(overload-procedure area surf-carre-parfait (number?))
+(overload-procedure area surf-carre-long (number? number?))
+
+;; scheme@(guile-user)> (area 3.4)
+;; new-funct: #<procedure new-funct args>
+;; new-funct : pred-list = (#<procedure number? (_)> #<procedure number? (_)>)
+;; new-funct : args = (3.4)
+;; new funct :calling:#<procedure new-funct args>
+;; new-funct: #<procedure new-funct args>
+;; new-funct : pred-list = (#<procedure number? (_)>)
+;; new-funct : args = (3.4)
+;; new funct :calling:#<procedure surf-carre-parfait (x)>
+;; 11.559999999999999
+;; scheme@(guile-user)> (area 2.3 4.5)
+;; new-funct: #<procedure new-funct args>
+;; new-funct : pred-list = (#<procedure number? (_)> #<procedure number? (_)>)
+;; new-funct : args = (2.3 4.5)
+;; new funct :calling:#<procedure surf-carre-long (x y)>
+;; 10.35
+
+
+
+(display "before add-list-list") (newline)
+
+
+
+;;(define-overload-existing-operator +)
+(define-overload-existing-n-arity-operator +)
+
+(define (add-list-list v1 v2) (implementation-add-list-list v1 v2))
+;;(overload-existing-operator + add-list-list (list? list?))
+
+(define (add-n-lists . vn-lst) (implementation-add-n-lists vn-lst))
+(display "before overload-existing-n-arity-operator") (newline)
+(overload-existing-n-arity-operator + add-n-lists (list? list?))
+
+(display "before mult-num-list") (newline)
+(define (mult-num-list k v) (map (λ (x) (* k x)) v))
+(define-overload-existing-operator *)
+(overload-existing-operator * mult-num-list (number? list?))
+
+(define-overload-operator *b)
+
+;; TODO: use overload with hash table (this will allow use of scheme+ syntax in overloaded functions without using a tierce procedure example: implementation-add-list-list)
+(include "../Scheme-PLUS-for-Guile/scheme-infix.scm")
+
+(include "../Scheme-PLUS-for-Guile/assignment.scm")
+(include "../Scheme-PLUS-for-Guile/apply-square-brackets.scm")
+
+(define (implementation-add-list-list v1 v2) (map + v1 v2))
+
+(define (implementation-add-n-lists vn-lst)
+  {map-args <+ (cons + vn-lst)}
+  (apply map map-args))
+
 
 (include "guile/set+.scm")
 (include "list.scm")
 
-(include "array.scm")
+
 (include "symbolic.scm")
 (include "simplify.scm")
 (include "guile/binary-arithmetic.scm") ;; specialized for 'format'
@@ -106,8 +212,9 @@
 
 (include "guile/subscript+.scm")
 (include "guile/regex+.scm")
-(include "../Scheme-PLUS-for-Guile/included-files/scheme-infix.scm")
-(include "guile/logiki+.scm")
 
+;; now in Scheme+
+
+(include "guile/logiki+.scm")
 
 

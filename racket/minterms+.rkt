@@ -1,17 +1,13 @@
-#lang reader "SRFI-105.rkt"
+#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/SRFI/SRFI-105.rkt"
 
 (provide (all-defined-out)) ;; export all bindings
 
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
 (require (for-syntax r6rs/private/base-for-syntax)) ;; for macro syntax (for ... : identifier-syntax: undefined;
 
 (require "operation+.rkt")
 (require "set+.rkt")
-
-(include "../for_next_step.scm")
-
-(include "../increment.scm")
 
 (include "../debug.scm")
 
@@ -23,15 +19,15 @@
 (include "../simplify.scm")
 (include "../binary-arithmetic.scm")
 
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/scheme-infix.rkt")
+
 
 ;;  minterms definitions
 
-;; Copyright (C) 2014-2022  Damien MATTEI
+;; Copyright (C) 2014-2023  Damien MATTEI
 ;;
 ;;
 ;; e-mail: damien.mattei@gmail.com 
-;;         (damien.mattei@unice.fr , damien.mattei@oca.eu)
-;;   
 
 
 ;;  (var->binary '((not A) B)) -> '(0 1)
@@ -279,7 +275,7 @@
 ;; (unify-two-minterms-iter '(1 0 1 0 0 1 0 1 0 1) '(1 1 1 0 1 0 0 1 0 1)) -> #f
 (def (unify-two-minterms-iter mt1 mt2)
 
-  (if (null? mt1) (return '()))
+  (when (null? mt1) (return '()))
      
   {vmt1 <+ (list->vector mt1)}
   {vmt2 <+ (list->vector mt2)}
@@ -308,19 +304,19 @@
 
   (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
 
-       (if {(null? mt1) and (null? mt2)}
+       (when {(null? mt1) and (null? mt2)}
 	   (return '()))
 
-       (if {{(null? mt1) and (not (null? mt2))} or {(not (null? mt1)) and (null? mt2)}}
+       (when {{(null? mt1) and (not (null? mt2))} or {(not (null? mt1)) and (null? mt2)}}
 	   (return-rec #f))
 
 
        {fst-mt1 <+ (first mt1)}
        {fst-mt2 <+ (first mt2)}
 
-       (if (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
+       (when (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
 						  (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))
-       (if err (return-rec #f))
+       (when err (return-rec #f))
 
        {err <- #t}
        (cons 'x

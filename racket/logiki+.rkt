@@ -1,8 +1,28 @@
-#lang reader "SRFI-105.rkt"
+#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/SRFI/SRFI-105.rkt"
 
 ;;#lang reader "SRFI-105-toplevel.rkt"
 
-;; author: Damien MATTEI
+;;
+;;
+;;                    λογικι
+;;
+;;                    LOGIKI
+;;
+;;
+;; a program to compute logic symbolically
+;;
+;; Copyright (C) 2014-2023  Damien MATTEI
+;;
+;;
+;; e-mail: damien.mattei@gmail.com
+;;        
+;;
+;;
+;;
+;;
+;; version 12 for Racket
+
+
 
 
 ;;(compile-enforce-module-constants #f)
@@ -37,42 +57,37 @@
 
 
 
-(require srfi/69) ;; Basic hash tables
+;;(require srfi/69) ;; Basic hash tables
 
 (require racket/future) ;; for //
 
-(require (for-syntax r6rs/private/base-for-syntax)) ;; for macro syntax (for ... : identifier-syntax: undefined;
+;;(require (for-syntax r6rs/private/base-for-syntax)) ;; for macro syntax (for ... : identifier-syntax: undefined;
 
-(require srfi/43) ;; vector library
+;;(require srfi/43) ;; vector library
 
 ;;(require "transducers.rkt")
 ;;(require srfi-171/transducers)
 
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
-
-
-;;(require Scheme-PLUS-for-Racket/Scheme+)
 
 (require "operation+.rkt")
 (require "set+.rkt")
 (require "subscript+.rkt")
 (require "minterms+.rkt")
 
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
 
-(include "../increment.scm")
-
-
+(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.scm")
 
 (include "display-racket-scheme.scm")
 
-(include "../for_next_step.scm") ;; for macro syntax (for ... : identifier-syntax: undefined; use: (require (for-syntax r6rs/private/base-for-syntax))
+;;(include "../for_next_step.scm") ;; for macro syntax (for ... : identifier-syntax: undefined; use: (require (for-syntax r6rs/private/base-for-syntax))
 
 (include "../debug.scm")
 
 (include "../list.scm")
 
-(include "../array.scm") ;; use SRFI-25 instead, done in Scheme+
+;;(include "../array.scm") ;; use SRFI-25 instead, done in Scheme+
 (include "../symbolic.scm")
 (include "../simplify.scm")
 (include "../binary-arithmetic.scm")
@@ -85,18 +100,46 @@
 
 
 
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/included-files/scheme-infix.rkt")
+;; overload tests
 
-;;(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/included-files/overload.scm")
+(display "before add-list-list") (newline)
+(define (add-list-list v1 v2) (map + v1 v2))
+(display "before define-overload") (newline)
+
+(define-overload-existing-n-arity-operator +)
+;;(define-overload-existing-operator +)
+(define-overload-existing-operator *)
+
+(define-overload-existing-n-arity-operator -)
+
+(define (add-n-lists . vn-lst) (implementation-add-n-lists vn-lst))
+
+(define (sub-n-lists . vn-lst) (implementation-sub-n-lists vn-lst))
+
+(define-overload-existing-procedure length)
+(define-overload-procedure foobie)
+
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/scheme-infix.rkt")
+
+
+;; overload tests
 
 
 
+(define (implementation-add-n-lists vn-lst)
+  {map-args <+ (cons + vn-lst)}
+  (apply map map-args))
+
+
+(define (implementation-sub-n-lists vn-lst)
+  {map-args <+ (cons - vn-lst)}
+  (apply map map-args))
 
 
 ;;
-;;                    λογικι+
+;;                    λογικι
 ;;
-;;                    LOGIKI+
+;;                    LOGIKI
 ;;
 ;;
 ;; a program to compute logic symbolically
@@ -105,12 +148,10 @@
 ;;
 ;;
 ;; e-mail: damien.mattei@gmail.com 
-;;         (damien.mattei@cnrs.fr, damien.mattei@univ-cotedazur.fr, damien.mattei@unice.fr)
 ;; 
 ;;
 ;;
 ;;
-;; version 11 for Racket
 ;;
 ;;
 ;;    This program is free software: you can redistribute it and/or modify
@@ -3694,4 +3735,115 @@ the REDUCE-INIT argument."
 ;;   unified-minterms-set)
 
 
+{ztest <+ 1}
+(display "ztest=") (display ztest) (newline)
+{3 * 5 + ztest}
 
+(declare x)
+{x <- 3 * 5 + ztest}
+
+(define (area-square x) (* x x))
+
+;; (define-overload-procedure area)
+
+;; (if #t
+;;     (overload area area-square (number?))
+;;     #f)
+
+;;(define vector? 3)
+
+
+{#(1 2 3 4 5 6 7)[2 * 3 - 4 + 2]}
+
+
+(overload-existing-n-arity-operator + add-n-lists (list? list?))
+
+
+
+;; > {'(1 2 3) - '(4 5 6) - '(7 8 9)}
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = ((1 2 3) (4 5 6) (7 8 9))
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (1 4 7)
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (2 5 8)
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (3 6 9)
+;; '(-10 -11 -12)
+;; > (+ '(1 2 3) '(4 5 6))
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = ((1 2 3) (4 5 6))
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (1 4)
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (2 5)
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (3 6)
+;; '(5 7 9)
+;; > {'(1 2 3) - '(4 5 6)}
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = ((1 2 3) (4 5 6))
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (1 4)
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (2 5)
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (3 6)
+;; '(-3 -3 -3)
+;; > (- '(1 2 3) '(4 5 6))
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = ((1 2 3) (4 5 6))
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (1 4)
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (2 5)
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (3 6)
+;; '(-3 -3 -3)
+;; > (- '(1 2 3))
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = ((1 2 3))
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (1)
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (2)
+;; check-arguments-for-n-arity : type = #<procedure:list?>
+;; check-arguments-for-n-arity : args = (3)
+;; '(-1 -2 -3)
+(overload-existing-n-arity-operator - sub-n-lists (list? list?))
+
+(display "+ =") (display +) (newline)
+
+(+ '(1 2) '(3 4))
+
+(display "before mult-num-list") (newline)
+(define (mult-num-list k v) (map (λ (x) (* k x)) v))
+
+(overload-existing-operator * mult-num-list (number? list?))
+
+
+
+{t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
+(display t) (newline)
+
+;; ../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.scm:600:7: require: not at module level or top level in: (require (rename-in racket/base (* orig-proc)))
+;; (define (foo) ;; ko
+;;   ;;(declare x)
+;;   (define x 23)
+;;   (display "before define mult-num-list") (newline)
+;;   (define (mult-num-list k v) (map (λ (x) (* k x)) v))
+;;   (display "before overload *") (newline)
+;;   (define-overload-existing-operator *)
+;;   (overload * mult-num-list (number? list?))
+;;   {t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
+;;   {x <- 1 + x + 4 * 5}
+;;   t)
+
+
+
+(overload-existing-procedure length vector-length (vector?))
+(overload-existing-procedure length string-length (string?))
+
+(length #(1 2 3 4))
+(length '(1 2 3))
+(length "abcde")
