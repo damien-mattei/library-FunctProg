@@ -2,7 +2,14 @@
 
 (provide (all-defined-out)) ;; export all bindings
 
+(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.rkt")
+
 (include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
+
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/assignment.rkt")
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/apply-square-brackets.rkt")
+
+
 
 (require (for-syntax r6rs/private/base-for-syntax)) ;; for macro syntax (for ... : identifier-syntax: undefined;
 

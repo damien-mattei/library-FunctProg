@@ -2484,7 +2484,7 @@
   {vct-prime-implicants ⥆ (list->vector prime-implicants)}
   {essential-prime-implicants-list ⥆ '()}
   {cpt-mt ⥆ 0} ;; counter of minterms
-  {x-pos-epi ⥆ 0} ;; position of essential prime implicant in colomn if there exists one
+  {lin-pos-epi ⥆ 0} ;; position of essential prime implicant in colomn if there exists one
   {star-in-column ⥆ #f} ;; at the beginning
 
   {feepi ← #f} ;; at the beginning
@@ -2501,7 +2501,7 @@
   ;; identifying essential prime implicant array
   ;; first line : minterms
   ;; first row : prime-implicants
-  { iepi ← (make-array-2d {lgt-mt + 1} {lgt-pi + 1} 0)} ;; two dimensions array
+  {iepi ← (make-array-2d {lgt-pi + 1} {lgt-mt + 1} 0)} ;; two dimensions array
   (when debug-mode
     (dv-2d iepi))
 
@@ -2515,40 +2515,40 @@
   ;;(display "iepi before") (newline)
   ;; construction of the array
   ;; set the left column containing prime implicants
-  (for-basic (x 0 {lgt-pi - 1})
+  (for-basic (lin 0 {lgt-pi - 1})
 
-	     {iepi[{x + 1} 0] ← vct-prime-implicants[x]})
+	     {iepi[{lin + 1} 0] ← vct-prime-implicants[lin]})
 
   ;;(display "iepi after") (newline)
 
   ;; identify prime implicants
-  (for-basic (y 1 lgt-mt)
+  (for-basic (col 1 lgt-mt)
 
        {cpt-mt ← 0}
 
-       (for-basic (x 1 lgt-pi)
+       (for-basic (lin 1 lgt-pi)
 
-	    (if (compare-minterm-and-implicant {iepi[x 0]}
-					       {iepi[0 y]})
+	    (if (compare-minterm-and-implicant {iepi[lin 0]}
+					       {iepi[0 col]})
 		;; then
 		($>
 		  (incf cpt-mt)
 		  (when (= 1 cpt-mt)
-			{x-pos-epi ← x}) ;; position of essential prime implicant
-		  ;;{iepi[x y] ← " * "})
-		  {iepi[x y] ← 1})
+			{lin-pos-epi ← lin}) ;; position of essential prime implicant
+		  ;;{iepi[lin col] ← " * "})
+		  {iepi[lin col] ← 1})
 
 		;; else
-		;;{iepi[x y] ← "   "})) ;; end for x
-		{iepi[x y] ← 3}))
+		;;{iepi[lin col] ← "   "})) ;; end for lin
+		{iepi[lin col] ← 3}))
 
        (when (= 1 cpt-mt) ;; essential prime implicant
-	     ;;{iepi[x-pos-epi y] ← "(*)"}
-	     {iepi[x-pos-epi y] ← 2}
+	     ;;{iepi[lin-pos-epi col] ← "(*)"}
+	     {iepi[lin-pos-epi col] ← 2}
 	     ;; add essential prime implicant to list
-	     {essential-prime-implicants-list ← (cons {iepi[x-pos-epi 0]} essential-prime-implicants-list)})
+	     {essential-prime-implicants-list ← (cons {iepi[lin-pos-epi 0]} essential-prime-implicants-list)})
 
-     ) ;; end for y
+     ) ;; end for col
 
 
   (when debug-mode
@@ -2562,41 +2562,41 @@
   {feepi ← #t}
 
   ;; check if function is expressed by essential implicants
-  (for-basic/break break-y (y 1 lgt-mt) ;; loop over minterms
+  (for-basic/break break-col (col 1 lgt-mt) ;; loop over minterms
 
-	     (for-basic/break break-x (x 1 lgt-pi) ;; loop over prime implicants
+	     (for-basic/break break-lin (lin 1 lgt-pi) ;; loop over prime implicants
 
 			;; check wether prime implicant is an essential one?
-			(when (member {iepi[x 0]} essential-prime-implicants-list)
+			(when (member {iepi[lin 0]} essential-prime-implicants-list)
 
 			      (nodebug
-			       (de {iepi[x 0]})
-			       (de {iepi[x y]}))
+			       (de {iepi[lin 0]})
+			       (de {iepi[lin col]}))
 
 			      ;; is the essential prime implicant expressing this minterms?
-			      ;; (when (or (string=?  {iepi[x y]} "(*)")
-			      ;; 		(string=?  {iepi[x y]} " * "))
-			      (when (or (= {iepi[x y]} 2)
-					(= {iepi[x y]} 1))
+			      ;; (when (or (string=?  {iepi[lin col]} "(*)")
+			      ;; 		(string=?  {iepi[lin col]} " * "))
+			      (when (or (= {iepi[lin col]} 2)
+					(= {iepi[lin col]} 1))
 
 				    (when debug-mode
 					  (display-nl "star-in-column"))
 
 				    {star-in-column ← #t}
 
-				    (break-x)))) ;; that's enought! we know the minterm is expressed.
+				    (break-lin)))) ;; that's enought! we know the minterm is expressed.
 
-	     ;; end for/break break-x
+	     ;; end for/break break-lin
 
 	     (unless star-in-column
 		     {feepi ← #f} ;; function not expressed by prime implicants
 		     ;; add minterm to non expressed minterms list
-		     {non-expressed-minterms ← (insert {iepi[0 y]} non-expressed-minterms)}
-		     ;;(break-y) ;; removed break-y as we have to check all the minterms now
+		     {non-expressed-minterms ← (insert {iepi[0 col]} non-expressed-minterms)}
+		     ;;(break-col) ;; removed break-col as we have to check all the minterms now
 		     )
 
 	     {star-in-column ← #f})  ;; set it for the next loop
-  ;; end for/break break-y
+  ;; end for/break break-col
 
   essential-prime-implicants-list)
 
@@ -2721,39 +2721,39 @@
 
   ;; create the conjunction of disjunction expression
 
-  (declare mt conj-expr prim-imp col disj-expr disj-expr-sorted mt-var missing-term)
+  (declare mt conj-expr prim-imp colmn disj-expr disj-expr-sorted mt-var missing-term)
 
   ;;(display-nl "Entering Petrick...")
 
-  (for-basic (y 1 lgt-mt) ;; loop over minterms
+  (for-basic (col 1 lgt-mt) ;; loop over minterms
 
-       {mt ← iepi[0 y]}
+       {mt ← iepi[0 col]}
 
        (when (member mt non-expressed-minterms) ;; non expressed minterm
 
-	 {col ← '()}
+	 {colmn ← '()}
 
-	 (for-basic (x 1 lgt-pi) ;; loop over prime implicants
+	 (for-basic (lin 1 lgt-pi) ;; loop over prime implicants
 
-	      {prim-imp ← iepi[x 0]} ;; prime implicant
+	      {prim-imp ← iepi[lin 0]} ;; prime implicant
 
 	      ;; check wether prime implicant is a non essential one?
 	      (when (member prim-imp non-essential-prime-implicants)
 
 		    ;; is the non essential prime implicant expressing this minterms?
-		    ;; (when (string=? {iepi[x y]} " * ")
-		    (when (= {iepi[x y]} 1)
-			  (insert-set! (minterm->var prim-imp) col))))
+		    ;; (when (string=? {iepi[lin col]} " * ")
+		    (when (= {iepi[lin col]} 1)
+			  (insert-set! (minterm->var prim-imp) colmn))))
 
-	 ;; end for x
+	 ;; end for lin
 
-	 (if (singleton-set? col)
-	     {col ← (car col)}  ;; ( V ) -> V
-	     (insert-set! 'or col))  ;; (V1 V2 ...) -> (or V1 V2 ...)
+	 (if (singleton-set? colmn)
+	     {colmn ← (car colmn)}  ;; ( V ) -> V
+	     (insert-set! 'or colmn))  ;; (V1 V2 ...) -> (or V1 V2 ...)
 
-	 (insert-set! col conj-expr)))
+	 (insert-set! colmn conj-expr)))
 
-  ;; end for y
+  ;; end for col
 
   (if (singleton-set? conj-expr)
       {conj-expr ← (car conj-expr)}  ;; ( conj-expr ) -> conj-expr

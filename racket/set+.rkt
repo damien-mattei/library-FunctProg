@@ -7,7 +7,15 @@
 (provide singleton-set? dvs dvsos singleton? include? set-difference product-elem-with-set product-elem-with-set-tail-rec product-set-with-set product-set-with-set-imperative set-of-multiple-empty-sets? set-of-empty-set? display-sos display-set browse-set some? union length-sos product-set-with-set-imperative-sorted product-set-with-set-sorted product-elem-with-set-tail-rec-sorted)
 
 
+(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.rkt")
+
 (include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
+
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/assignment.rkt")
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/apply-square-brackets.rkt")
+
+
+
 
 (include "../debug.scm")
 (include "display-racket-scheme.scm")
