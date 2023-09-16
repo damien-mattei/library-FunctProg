@@ -164,11 +164,9 @@
 
 
 
-;;(define-overload-existing-operator +)
 (define-overload-existing-n-arity-operator +)
 
 (define (add-list-list v1 v2) (implementation-add-list-list v1 v2))
-;;(overload-existing-operator + add-list-list (list? list?))
 
 (define (add-n-lists . vn-lst) (implementation-add-n-lists vn-lst))
 (display "before overload-existing-n-arity-operator") (newline)
@@ -181,7 +179,7 @@
 
 (define-overload-operator *b)
 
-;; TODO: use overload with hash table (this will allow use of scheme+ syntax in overloaded functions without using a tierce procedure example: implementation-add-list-list)
+;; TODO: use overload with hash table (this will allow use of Scheme+ syntax in overloaded operators  without using a tierce procedure example: implementation-add-list-list)
 (include "../Scheme-PLUS-for-Guile/scheme-infix.scm")
 
 (include "../Scheme-PLUS-for-Guile/assignment.scm")
