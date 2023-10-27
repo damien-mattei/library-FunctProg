@@ -20,7 +20,7 @@
 ;;
 ;;
 ;;
-;; version 12 for Racket
+;; version 13 for Racket
 
 
 
@@ -28,9 +28,9 @@
 ;;(compile-enforce-module-constants #f)
 
 ;; for infix operator precedence
-;; (define-namespace-anchor ankh)
-;; (define bsns (namespace-anchor->namespace ankh))
-;; (current-namespace bsns)
+(define-namespace-anchor ankh)
+(define bsns (namespace-anchor->namespace ankh))
+(current-namespace bsns)
 
 ; DrRacket does not like greek characters in filenames
 ;(include "program-λογικι-2.8.scm")
@@ -57,11 +57,13 @@
 
 
 
-;;(require srfi/69) ;; Basic hash tables
+(require srfi/69) ;; Basic hash tables
+
+;;(require srfi/25) ;; Multi-dimensional Array Primitives
 
 (require racket/future) ;; for //
 
-;;(require (for-syntax r6rs/private/base-for-syntax)) ;; for macro syntax (for ... : identifier-syntax: undefined;
+(require (for-syntax r6rs/private/base-for-syntax)) ;; for macro syntax (for ... : identifier-syntax: undefined;
 
 ;;(require srfi/43) ;; vector library
 
@@ -69,21 +71,24 @@
 ;;(require srfi-171/transducers)
 
 
+
+
+(display "before overload loading") (newline)
+
+
+;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload-by-recursive-functions.rkt")
+
+(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
+
 (require "operation+.rkt")
 (require "set+.rkt")
 (require "subscript+.rkt")
 (require "minterms+.rkt")
 
-;; should be included in Scheme+.rkt but 'require' use a relative path from here! and won't load it from Scheme+.rkt
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.rkt")
 
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
-
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/assignment.rkt")
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/apply-square-brackets.rkt")
-
-
-(require "../../AI_Deep_Learning/matrix-by-vectors.rkt")
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/for_next_step.scm")
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/increment.scm")
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/array.scm")  ;; for macro syntax : identifier-syntax: undefined; use: (require (for-syntax r6rs/private/base-for-syntax))
 
 (include "display-racket-scheme.scm")
 
@@ -123,8 +128,6 @@
 
 (define-overload-existing-procedure length)
 (define-overload-procedure foobie)
-
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/scheme-infix.rkt")
 
 
 ;; overload tests

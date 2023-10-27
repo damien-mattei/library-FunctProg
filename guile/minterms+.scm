@@ -262,7 +262,7 @@
 
   {err <+ #f}
   
-  (for ({k <+ 0} {k < lvmt} {k <- {k + 1}})
+  (for ({k <+ 0} {k < lvmt} {k <- k + 1})
        (if {vmt1[k] equal? vmt2[k]}
 	   {vmt[k] <- vmt1[k]}
 	   (if err

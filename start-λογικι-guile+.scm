@@ -185,6 +185,10 @@
 (include "../Scheme-PLUS-for-Guile/assignment.scm")
 (include "../Scheme-PLUS-for-Guile/apply-square-brackets.scm")
 
+(include "../Scheme-PLUS-for-Guile/array.scm")
+
+(create-vector-2d (lambda (l c) (+ l c)) 2 3) ;; for test !
+
 (define (implementation-add-list-list v1 v2) (map + v1 v2))
 
 (define (implementation-add-n-lists vn-lst)

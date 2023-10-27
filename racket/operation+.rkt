@@ -9,13 +9,9 @@
 
 (provide operator arg1 arg2 arg args unary-operation? binary-operation? prefix->infix prefix->infix-C-style prefix->infix-symb prefix->infix-symb-bool insert-op AND-op? OR-op? XOR-op? NOT-op? ADD-op? IMPLIC-op? EQUIV-op? isADD? MULTIPLY-op? isMULTIPLY? isOR? isAND? isOR-AND? isNOT? isIMPLIC? isEQUIV? isXOR? is-monomial-NOT? is-simple-form? prefix-NOT->infix-symbolic-form prefix-NOT->infix-symbolic-form-greek prefix-NOT->infix-symbolic-form-bool bar-string string->bar-string alpha-op->symb-op alpha-op->symb-op-bool n-arity-operation->binary-operation is+? is*? is^? n-arity make-collect-leaves-operator collect-variables collect-var expt->^ is-True? is-False?)
 
-;; should be included in Scheme+.rkt but 'require' use a relative path from here! and won't load it from Scheme+.rkt
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.rkt")
 
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/assignment.rkt")
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/apply-square-brackets.rkt")
+(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
 
 
@@ -24,7 +20,6 @@
 (include "display-racket-scheme.scm")
 (include "../list.scm")
 
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/scheme-infix.rkt")
 
 
 ;; the code below is copy/paste from the Guile code
