@@ -2,8 +2,12 @@
 
 (provide (all-defined-out)) ;; export all bindings
 
+(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.rkt")
 
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
+
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/assignment.rkt")
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/apply-square-brackets.rkt")
 
 
 
@@ -20,10 +24,9 @@
 (include "../map.scm")
 (include "../symbolic.scm")
 (include "../simplify.scm")
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/increment.scm")
 (include "../binary-arithmetic.scm")
 
-
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/scheme-infix.rkt")
 
 
 ;;  minterms definitions
@@ -288,7 +291,7 @@
 
   {err <+ #f}
   
-  (for ({k <+ 0} {k < lvmt} {k <- k + 1})
+  (for ({k <+ 0} {k < lvmt} {k <- {k + 1}})
        (if {vmt1[k] equal? vmt2[k]}
 	   {vmt[k] <- vmt1[k]}
 	   (if err

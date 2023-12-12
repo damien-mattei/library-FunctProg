@@ -7,11 +7,15 @@
 (provide string-subscript-number->string-number string-replace-chars translate-char to-lower-digit)
 
 (require (rename-in srfi/13 (string-hash string-hash-srfi13))) ;; strings
+(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.rkt")
+
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
+
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/assignment.rkt")
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/apply-square-brackets.rkt")
 
 
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
-
-
+(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/scheme-infix.rkt")
 
 ;; scheme@(guile-user)> (string-subscript-number->string-number "₁₂₃")
 ;; "123"
