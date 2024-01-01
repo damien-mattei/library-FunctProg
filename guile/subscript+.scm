@@ -1,3 +1,24 @@
+;;  subscript definitions
+
+;; Copyright (C) 2024  Damien MATTEI
+;;
+;;
+;; e-mail: damien.mattei@gmail.com 
+
+;; use :
+;; (use-modules (subscript+)) 
+
+;; install linux:
+;; sudo cp set+.scm /usr/share/guile/site/3.0
+
+(define-module (subscript+)
+  #:use-module (Scheme+)
+  #:export (string-subscript-number->string-number
+	    string-replace-chars
+	    translate-char
+	    to-lower-digit))
+
+
 ;; scheme@(guile-user)> (string-subscript-number->string-number "₁₂₃")
 ;; "123"
 (define (string-subscript-number->string-number str)

@@ -1,11 +1,69 @@
 ;;  minterms definitions
 
-;; Copyright (C) 2014-2022  Damien MATTEI
+;; Copyright (C) 2014-2024  Damien MATTEI
 ;;
 ;;
 ;; e-mail: damien.mattei@gmail.com 
-;;         (damien.mattei@unice.fr , damien.mattei@oca.eu)
-;;   
+
+;; use :
+;; (use-modules (minterms+)) 
+
+;; install linux:
+;; sudo cp set+.scm /usr/share/guile/site/3.0
+
+(define-module (minterms+)
+  #:use-module (Scheme+)
+  #:use-module (operation+)
+  #:use-module (set+)
+  #:use-module (srfi srfi-1) ;; for 'first' procedure
+  #:export (var->binary
+	    min-term->binary
+	    binary->min-term
+	    binary->term
+	    bin->symb
+	    minterm-binary<?
+	    insert-literal
+	    expand-minterm
+	    bin-minterm-weight
+	    x->0
+	    floor-bin-minterm-weight
+	    minterm-binary-weight<?
+	    minterm-binary-weight=?
+	    minterm-binary-weight-fast=?
+	    minterm-binary-weight-number<?
+	    order-by-weight-minterms
+	    order-by-weight-rec
+	    insert-minterm
+	    order-by-weight-basic
+	    unify-two-minterms
+	    unify-two-minterms-iter
+	    unify-two-minterms-rec
+	    function-compare-2-bits-1-false-tolerant
+	    equal-modulo-1bit-strict?
+	    equal-modulo-1bit?
+	    minterm->string
+	    minterm-digit->string
+	    minterm->var
+	    var-string->minterm-string
+	    char->minterm-digit
+	    minterm-string->minterm
+	    var->minterm
+	    proc-unify-minterms-seg-inner-definitions))
+
+
+(include-from-path "rest.scm")
+(include-from-path "debug.scm")
+(include-from-path "escape-char-r7rs-scheme.scm")
+(include-from-path "display-r6rs-scheme.scm")
+(include-from-path "list.scm")
+(include-from-path "map.scm") ;; specialized for 'andmap'
+(include-from-path "symbol.scm") ;; for symbol<?
+(include-from-path "increment.scm")
+(include-from-path "simplify.scm")
+(include-from-path "binary-arithmetic.scm")
+
+
+
 
 
 ;;  (var->binary '((not A) B)) -> '(0 1)
@@ -262,7 +320,7 @@
 
   {err <+ #f}
   
-  (for ({k <+ 0} {k < lvmt} {k <- {k + 1}})
+  (for ({k <+ 0} {k < lvmt} {k <- k + 1})
        (if {vmt1[k] equal? vmt2[k]}
 	   {vmt[k] <- vmt1[k]}
 	   (if err
@@ -411,12 +469,11 @@
 
 
 
-;; put below because of . period bug in SRFI 105 reader
 
 ;; proc to be called with //
 (define (proc-unify-minterms-seg-inner-definitions seg)
 
-  (define (function-map-with-escaping-by-kontinuation2 clozure list1 . more-lists) ;; ERROR: . period not supported in curly infix reader
+  (define (function-map-with-escaping-by-kontinuation2 clozure list1 . more-lists) 
     (call/cc (lambda (kontinuation)
 	       (let ((lists (cons list1 more-lists))
 		     (funct-continu ;; this function have the kontinuation in his environment 

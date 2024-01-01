@@ -2,6 +2,26 @@
 
 ;; this is a limited version of Racket's regexp-match that only works for regular expression with cluster of size 2
 
+;; Copyright (C) 2024  Damien MATTEI
+;;
+;;
+;; e-mail: damien.mattei@gmail.com 
+
+;; use :
+;; (use-modules (regex+))
+
+
+(define-module (regex+)
+  #:use-module (Scheme+)
+  #:use-module (ice-9 regex)
+  #:export (regexp-match))
+
+
+(include-from-path "debug.scm")
+(include-from-path "escape-char-r7rs-scheme.scm")
+(include-from-path "display-r6rs-scheme.scm")
+
+
 ;; (regexp-match "^([A-Za-z]+)([0-9]+)$" "c1")
 ;; ("c1" "c" "1")
 
@@ -42,12 +62,12 @@
 
      (when {(vector-length vr) ≠ 4} (return #f)) ;; unsupported inputs
      
-     {start <+ (car {vr[2]})}
-     {end <+ (cdr {vr[2]})}
+     {start <+ (car vr[2])}
+     {end <+ (cdr vr[2])}
      {var <+ (substring s start end)}
      
-     {start <- (car {vr[3]})}
-     {end <- (cdr {vr[3]})}
+     {start <- (car vr[3])}
+     {end <- (cdr vr[3])}
      {num <+ (substring s start end)}
      
      (list s var num))

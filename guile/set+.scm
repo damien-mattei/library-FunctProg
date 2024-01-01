@@ -2,6 +2,28 @@
 
 ;; Damien MATTEI
 
+;; use :
+;; (use-modules (set+))
+
+;; install linux:
+;; sudo cp set+.scm /usr/share/guile/site/3.0
+
+(define-module (set+)
+  #:use-module (Scheme+)	  
+  #:use-module (srfi srfi-1) ;; for 'first' procedure
+  #:export (singleton-set? dvs dvsos singleton? include? set-difference product-elem-with-set product-elem-with-set-tail-rec product-set-with-set product-set-with-set-imperative set-of-multiple-empty-sets? set-of-empty-set? display-sos display-set browse-set some? union length-sos product-set-with-set-imperative-sorted product-set-with-set-sorted product-elem-with-set-tail-rec-sorted)
+  )
+
+
+(include-from-path "rest.scm")
+(include-from-path "debug.scm")
+(include-from-path "escape-char-r7rs-scheme.scm")
+(include-from-path "display-r6rs-scheme.scm")
+(include-from-path "list.scm")
+(include-from-path "map.scm") ;; specialized for 'andmap'
+
+
+
 ;; (singleton-set? '(a)) -> #t
 (define-syntax singleton-set?
   (syntax-rules ()

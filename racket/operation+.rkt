@@ -7,15 +7,11 @@
 
 
 
-(provide operator arg1 arg2 arg args unary-operation? binary-operation? prefix->infix prefix->infix-C-style prefix->infix-symb prefix->infix-symb-bool insert-op AND-op? OR-op? XOR-op? NOT-op? ADD-op? IMPLIC-op? EQUIV-op? isADD? MULTIPLY-op? isMULTIPLY? isOR? isAND? isOR-AND? isNOT? isIMPLIC? isEQUIV? isXOR? is-monomial-NOT? is-simple-form? prefix-NOT->infix-symbolic-form prefix-NOT->infix-symbolic-form-greek prefix-NOT->infix-symbolic-form-bool bar-string string->bar-string alpha-op->symb-op alpha-op->symb-op-bool n-arity-operation->binary-operation is+? is*? is^? n-arity make-collect-leaves-operator collect-variables collect-var expt->^ is-True? is-False?)
+(provide operator arg1 arg2 arg args function-without-parameters? unary-operation? binary-operation? prefix->infix prefix->infix-C-style prefix->infix-symb prefix->infix-symb-bool insert-op AND-op? OR-op? XOR-op? NOT-op? ADD-op? IMPLIC-op? EQUIV-op? isADD? MULTIPLY-op? isMULTIPLY? isOR? isAND? isOR-AND? isNOT? isIMPLIC? isEQUIV? isXOR? is-monomial-NOT? is-simple-form? DEFINE-op? ASSIGNMENT-op? is-associative-operator? isASSOCIATIVE? prefix-NOT->infix-symbolic-form prefix-NOT->infix-symbolic-form-greek prefix-NOT->infix-symbolic-form-bool bar-string string->bar-string alpha-op->symb-op alpha-op->symb-op-bool n-arity-operation->binary-operation is+? is*? is^? n-arity make-collect-leaves-operator collect-variables collect-var expt->^ is-True? is-False?)
 
-;; should be included in Scheme+.rkt but 'require' use a relative path from here! and won't load it from Scheme+.rkt
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.rkt")
 
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/assignment.rkt")
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/apply-square-brackets.rkt")
+(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
 
 
 
@@ -24,14 +20,12 @@
 (include "display-racket-scheme.scm")
 (include "../list.scm")
 
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/scheme-infix.rkt")
 
 
 ;; the code below is copy/paste from the Guile code
 
 
 ;; return the operator of an operation
-;; TODO: use macro
 (define (operator expr)
   (car expr))
 
@@ -49,6 +43,11 @@
 ;; return the arguments of an operation
 (define (args expr)
   (cdr expr))
+
+;; function without parameters
+(define (function-without-parameters? expr)
+  ;;(display "!") (display expr) (display "!") (newline)
+  (null? (rest expr)))
 
 ;; (unary-operation? '(not a)) -> #t
 (define (unary-operation? expr)
@@ -391,6 +390,29 @@
 (define (is^? expr)
   (or (eqv? 'expt (first expr)) (eqv? '^ (first expr))))
 
+
+(define (DEFINE-op? oper)
+  (or (eqv? oper '<+) (eqv? oper '+>)))
+
+(define (ASSIGNMENT-op? oper)
+  (or (eqv? oper '<-) (eqv? oper '->)))
+
+(define (is-associative-operator? op)
+  (or (AND-op? op)
+      (OR-op? op)
+      (XOR-op? op)
+      (EQUIV-op? op)
+      (ADD-op? op)
+      (MULTIPLY-op? op)
+      (DEFINE-op? op)
+      (ASSIGNMENT-op? op)))
+
+
+(define (isASSOCIATIVE? expr)
+  (is-associative-operator? (first expr)))
+
+
+
 ;; n-arity function, this version will not show AND & OR case but collect them in one single line code
 ;; n-arity single function replacing n-arity-or and n-arity-and and that use the collect-leaves function 
 ;; with no match special form inside them and no operator show
@@ -453,22 +475,70 @@
 ;;(prefix->infix (n-arity (expt->^ (simplify (hereditary-base-monomial-1 '(expt 4 7))))))
 ;; -> '((3 * (4 ^ 6)) + (3 * (4 ^ 5)) + (3 * (4 ^ 4)) + (3 * (4 ^ 3)) + (3 * (4 ^ 2)) + (3 * 4) + 3)
 ;;
+
+;; > (n-arity '(+ a (+ b c)))
+;; '(+ a b c)
+;; > (n-arity '(- a (- b c)))
+;; '(- a (- b c))
+;;  (n-arity '(- (- (- a b) c) d))
+;; '(- a b c d) 
+;; > (n-arity '(- a (+ b c)))
+;; '(- a (+ b c))
+;; > (n-arity '(+ (+ a (- b c)) d))
+;; '(+ a (- b c) d)
+;; > (n-arity '(+ (+ a (+ e (- b c))) d))
+;; '(+ a e (- b c) d)
+;; > (n-arity '(+ (+ a (+ e (- b (+ f (+ g c)))) d) h))
+;; '(+ a e (- b (+ f g c)) d h)
+;; >
+
+;;  (n-arity '(<- a (<- b (<- c 7))))
+;; '(<- a b c 7)
+;; (n-arity '(<- x (<- a (<- b (- b c)))))
+;; '(<- x a b (- b c))
+
+;; warning: usualy give a false result if operator is not associative
 (define (n-arity expr)
 
-
-;;  (if ((isOR? expr) . or . (isAND? expr))
-  ;; (if (or (isOR? expr) (isAND? expr))
-  ;;     (let ((opera (operator expr)))
-  ;;       (cons opera
-  ;; 	      (apply
-  ;; 	       append
-  ;; 	       (map (make-collect-leaves-operator opera) (args expr)))))
-  ;;     ;;(list expr)))
-  ;;     expr))
+  ;;(display "n-arity : expr =")(display expr) (newline)
 
   ;;(debug-mode-off)
   (when debug-mode
     (display "n-arity : ")
+    (dv expr))
+
+    
+  (cond
+   ((not (list? expr)) expr) ;; symbol,number,boolean,vector,hash table....
+   ((null? expr) expr)
+   ((function-without-parameters? expr) expr)
+   ((unary-operation? expr)
+    (cons
+     (operator expr)
+     (list (n-arity (arg expr)))))
+   ((isASSOCIATIVE? expr)
+    (let ((opera (operator expr)))
+      (cons opera
+	    (apply
+	     append
+	     (map (make-collect-leaves-operator opera) (args expr))))))
+   
+   (else ;; safe else, will not touch non associative operators
+    (let ((opera (operator expr)))
+      (cons opera
+	    (map n-arity (args expr)))))))
+
+
+
+
+
+
+;; backup of n-arity
+(define (binary->n-arity expr)
+
+
+  (when debug-mode
+    (display "binary->n-arity : ")
     (dv expr))
 
   
@@ -481,52 +551,30 @@
    ((unary-operation? expr)
     (cons
      (operator expr)
-     (list (n-arity (arg expr)))))
-   ;;(else #;(binary-operation? expr) #;(or (isOR? expr) (isAND? expr))
+     (list (binary->n-arity (arg expr)))))
+   ;;(else #;(binary-operation? expr) 
     ((or (isOR? expr)
 	 (isAND? expr)
 	 (isADD? expr)
 	 (isMULTIPLY? expr))
      (let ((opera (operator expr)))
        (cons opera
-	     (apply
-	      append
-	      (map (make-collect-leaves-operator opera) (args expr))))))
+	     (apply append
+		    (map (make-collect-leaves-operator-backup opera)
+			 (args expr))))))
    
     (else
      (let ((opera (operator expr)))
        (cons opera
-	     (map n-arity (args expr)))))
+	     (map binary->n-arity (args expr)))))
 
 	;;(list expr)))
     ;;#;(else expr)
     ))
 
 
-
-
 ;; return a closure of collect-leaves function associated with an operator (AND or OR)
-(define (make-collect-leaves-operator oper)
-  ;; TODO : faire une fonction genrique pour tous les operateurs
-  ;;(if (AND-op? oper) 
-      ;; TODO: try a definition with REC instead of LETREC
-      ;; see: http://stackoverflow.com/questions/11231416/scheme-how-do-we-write-recursive-procedure-with-lambda
-      ;; AND operator
-      ;; (letrec ((collect-leaves-operator
-      ;;           (lambda (expr)
-      ;;             (cond
-      ;; 		   ((isAND? expr) (apply append (map collect-leaves-operator (args expr))))
-      ;; 		   ((isOR? expr) (list (n-arity expr)))
-      ;; 		   (else (list expr))))))
-      ;;   collect-leaves-operator)
-      ;; 					;; OR operator
-      ;; (letrec ((collect-leaves-operator
-      ;;           (lambda (expr)
-      ;;             (cond
-      ;; 		   ((isOR? expr) (apply append (map collect-leaves-operator (args expr))))
-      ;; 		   ((isAND? expr) (list (n-arity expr)))
-      ;; 		   (else (list expr))))))
-      ;;   collect-leaves-operator)))
+(define (make-collect-leaves-operator-backup oper)
 
   (let ((ourOperation?
 	 (cond
@@ -544,6 +592,38 @@
 		 ((null? expr) (list expr))
 		 ((number? expr) (list expr))
 		 ((symbol? expr) (list expr))
+		 ((unary-operation? expr)
+		  (list
+		   (cons
+		    (operator expr)
+		    (list (binary->n-arity (arg expr))))))
+		 ((ourOperation? expr) ;; #;(eqv? oper (operator expr))
+		  (apply append (map collect-leaves-operator (args expr))))
+		 (else (list (binary->n-arity expr)))))))
+
+        collect-leaves-operator)))
+
+
+;; return a closure of collect-leaves function associated with an operator (AND or OR)
+(define (make-collect-leaves-operator oper)
+
+  (let ((ourOperation?
+	 (cond
+	  ((AND-op? oper) isAND?)
+	  ((OR-op? oper) isOR?)
+	  ((ADD-op? oper) isADD?)
+	  ((MULTIPLY-op? oper) isMULTIPLY?)
+	  (else ; fonction genrique pour tous les operateurs
+	   (lambda (expr) (and (pair? expr) (equal? (car expr) oper)))))))
+
+    
+    (letrec ((collect-leaves-operator
+
+	      (lambda (expr)
+		(cond
+		 ((not (list? expr)) (list expr)) ;; symbol,number,boolean,vector,hash table....
+		 ((null? expr) (list expr))
+		 ((function-without-parameters? expr) (list expr))
 		 ((unary-operation? expr)
 		  (list
 		   (cons

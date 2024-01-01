@@ -1,5 +1,29 @@
+;; operation definitions
+
+;; Damien MATTEI
+
+;; use :
+;; (use-modules (operation+)) 
+
+;; install linux:
+;; sudo cp set+.scm /usr/share/guile/site/3.0
+
+(define-module (operation+)
+  #:use-module (Scheme+)
+  #:use-module (set+)
+  #:use-module (srfi srfi-1) ;; for 'first' procedure
+  #:export (operator arg1 arg2 arg args function-without-parameters? unary-operation? binary-operation? prefix->infix prefix->infix-C-style prefix->infix-symb prefix->infix-symb-bool insert-op AND-op? OR-op? XOR-op? NOT-op? ADD-op? IMPLIC-op? EQUIV-op? isADD? MULTIPLY-op? isMULTIPLY? isOR? isAND? isOR-AND? isNOT? isIMPLIC? isEQUIV? isXOR? is-monomial-NOT? is-simple-form? DEFINE-op? ASSIGNMENT-op? is-associative-operator? isASSOCIATIVE? prefix-NOT->infix-symbolic-form prefix-NOT->infix-symbolic-form-greek prefix-NOT->infix-symbolic-form-bool bar-string string->bar-string alpha-op->symb-op alpha-op->symb-op-bool n-arity-operation->binary-operation is+? is*? is^? n-arity make-collect-leaves-operator collect-variables collect-var expt->^ is-True? is-False?)
+  )
+
+(include-from-path "rest.scm")
+(include-from-path "debug.scm")
+(include-from-path "escape-char-r7rs-scheme.scm")
+(include-from-path "display-r6rs-scheme.scm")
+(include-from-path "list.scm")
+(include-from-path "map.scm") ;; specialized for 'andmap'
+(include-from-path "symbol.scm") ;; for symbol<?
+
 ;; return the operator of an operation
-;; TODO: use macro
 (define (operator expr)
   (car expr))
 

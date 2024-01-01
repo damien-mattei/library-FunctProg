@@ -2,13 +2,14 @@
 
 ;; Damien Mattei
 
-;; 2023
+;; 2024
 
 ;; Warning: // tests give no speed up!
 ;; export LTDL_LIBRARY_PATH=/usr/lib/llvm-14/lib # for OpenMP under Linux
 ;; export LTDL_LIBRARY_PATH=/opt/homebrew/opt/libomp/lib # for OpenMP under MacOS
 
 ;; (load "start-λογικι-guile+.scm")
+
 
 ;; examples:
 
@@ -58,7 +59,16 @@
 
 
 
-(use-modules ;;(Scheme+)
+(use-modules (Scheme+)
+
+	     (operation+)
+	     (set+)
+	     (minterms+)
+	     (subscript+)
+	     (regex+)
+
+	     (array)
+	     
 	     (ice-9 futures)
 	     ;;(ice-9 format)
 	     (ice-9 threads)
@@ -76,8 +86,6 @@
 	     ((rnrs sorting) #:select (vector-sort))
 	     ;;(parallel vector) ;; In procedure dlsym: Error resolving "timerfd_create": "dlsym(RTLD_DEFAULT, timerfd_create): symbol not found" with Mac OS
 	     )
-
-(include "../Scheme-PLUS-for-Guile/Scheme+.scm")
 
 (include "rest.scm")
 
@@ -180,10 +188,14 @@
 (define-overload-operator *b)
 
 ;; TODO: use overload with hash table (this will allow use of Scheme+ syntax in overloaded operators  without using a tierce procedure example: implementation-add-list-list)
-(include "../Scheme-PLUS-for-Guile/scheme-infix.scm")
+;; (include "../Scheme-PLUS-for-Guile/scheme-infix.scm")
 
-(include "../Scheme-PLUS-for-Guile/assignment.scm")
-(include "../Scheme-PLUS-for-Guile/apply-square-brackets.scm")
+;; (include "../Scheme-PLUS-for-Guile/assignment.scm")
+;; (include "../Scheme-PLUS-for-Guile/apply-square-brackets.scm")
+
+;; (include "../Scheme-PLUS-for-Guile/array.scm")
+
+(create-vector-2d (lambda (l c) (+ l c)) 2 3) ;; for test !
 
 (define (implementation-add-list-list v1 v2) (map + v1 v2))
 
@@ -191,8 +203,6 @@
   {map-args <+ (cons + vn-lst)}
   (apply map map-args))
 
-
-(include "guile/set+.scm")
 (include "list.scm")
 
 
@@ -202,14 +212,14 @@
 
 (include "guile/map.scm") ;; specialized for 'andmap'
 
-(include "guile/operation+.scm")
+;;(include "guile/operation+.scm")
 (include "display-formula.scm")
 (include "symbol.scm")
-(include "guile/minterms+.scm")
+;;(include "guile/minterms+.scm")
 (include "hash-table.scm")
 
-(include "guile/subscript+.scm")
-(include "guile/regex+.scm")
+;;(include "guile/subscript+.scm")
+;;(include "guile/regex+.scm")
 
 ;; now in Scheme+
 
