@@ -9,7 +9,7 @@
 ;; export LTDL_LIBRARY_PATH=/opt/homebrew/opt/libomp/lib # for OpenMP under MacOS
 
 ;; (load "start-λογικι-guile+.scm")
-
+ 
 
 ;; examples:
 
@@ -188,12 +188,6 @@
 (define-overload-operator *b)
 
 ;; TODO: use overload with hash table (this will allow use of Scheme+ syntax in overloaded operators  without using a tierce procedure example: implementation-add-list-list)
-;; (include "../Scheme-PLUS-for-Guile/scheme-infix.scm")
-
-;; (include "../Scheme-PLUS-for-Guile/assignment.scm")
-;; (include "../Scheme-PLUS-for-Guile/apply-square-brackets.scm")
-
-;; (include "../Scheme-PLUS-for-Guile/array.scm")
 
 (create-vector-2d (lambda (l c) (+ l c)) 2 3) ;; for test !
 
@@ -212,17 +206,18 @@
 
 (include "guile/map.scm") ;; specialized for 'andmap'
 
-;;(include "guile/operation+.scm")
 (include "display-formula.scm")
 (include "symbol.scm")
-;;(include "guile/minterms+.scm")
+
 (include "hash-table.scm")
 
-;;(include "guile/subscript+.scm")
-;;(include "guile/regex+.scm")
 
 ;; now in Scheme+
 
-(include "guile/logiki+.scm")
+;;(include "guile/logiki+.scm")
+
+(include "guile/logiki-.scm")
+
+
 
 

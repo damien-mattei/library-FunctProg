@@ -14,6 +14,7 @@
 ;;        
 ;;
 ;;
+;; ./curly-infix2prefix4guile.scm    --infix-optimize --infix-optimize-slice ../library-FunctProg/guile/logiki+.scm > ../library-FunctProg/guile/logiki-.scm
 ;;
 ;;
 ;; version 12 for Guile
@@ -4447,7 +4448,8 @@ the REDUCE-INIT argument."
 (display v) (newline)
 
 (define (bar)
-   {t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}})
+  {t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
+  t)
 
 (define (bar2)
   {x <+ 7}

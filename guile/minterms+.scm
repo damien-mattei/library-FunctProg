@@ -5,11 +5,15 @@
 ;;
 ;; e-mail: damien.mattei@gmail.com 
 
-;; use :
-;; (use-modules (minterms+)) 
+
+;; ./curly-infix2prefix4guile.scm    --infix-optimize --infix-optimize-slice ../library-FunctProg/guile/minterms+.scm > ../library-FunctProg/guile/minterms.scm
 
 ;; install linux:
-;; sudo cp set+.scm /usr/share/guile/site/3.0
+;; sudo cp minterms.scm /usr/local/share/guile/site/3.0/minterms+.scm
+
+;; use :
+;; (use-modules (minterms+))
+
 
 (define-module (minterms+)
   #:use-module (Scheme+)
@@ -48,7 +52,11 @@
 	    char->minterm-digit
 	    minterm-string->minterm
 	    var->minterm
-	    proc-unify-minterms-seg-inner-definitions))
+	    proc-unify-minterms-seg-inner-definitions
+
+	    ;; for debug
+	    ;;binlist2number
+	    ))
 
 
 (include-from-path "rest.scm")
@@ -107,7 +115,9 @@
 ;; (minterm-binary<? '(1 0) '(1 1)) -> #t
 ;; (minterm-binary<? '(1 1) '(1 1)) -> #f
 (define (minterm-binary<? mtb1 mtb2)
-  (< (binlist2number mtb1) (binlist2number mtb2)))
+  (define n-mtb1 (binlist2number mtb1))
+ ;; (display "n-mtb1=") (display n-mtb1) (newline)
+  (< n-mtb1 (binlist2number mtb2)))
 
 
 ;;(insert-literal 'C '((A B))) -> '((C A B) ((not C) A B))
@@ -162,13 +172,12 @@
 
 ;; (bin-minterm-weight '(0 1 0 1 1)) -> 3
 (define (bin-minterm-weight bin-minterm)
-  (no-debug-region
-  (when debug-mode
-	(display-msg-symb-nl  "bin-minterm-weight ::" bin-minterm))
+  
+  ;;(display  "bin-minterm-weight ::") (display  bin-minterm) (newline)
   
   (if (null? bin-minterm)
       0
-      (+ (first bin-minterm) (bin-minterm-weight (rest bin-minterm))))))
+      (+ (first bin-minterm) (bin-minterm-weight (rest bin-minterm)))))
 
 
 ;; change x to 0
@@ -206,6 +215,9 @@
 ;; (minterm-binary-weight-number<? '(0 1 1 0) '(1 1 0 0)) -> #t
 ;; (minterm-binary-weight-number<? '(0 1 1 1) '(1 1 0 0)) -> #f
 (define (minterm-binary-weight-number<? mtb1 mtb2)
+  ;;(display "(minterm-binary-weight-number<? : mtb1=") (display mtb1) (newline)
+  (define b1 (minterm-binary-weight=? mtb1 mtb2))
+  ;;(display "b1 = ") (display b1) (newline)
   (if (minterm-binary-weight=? mtb1 mtb2)
       (minterm-binary<? mtb1 mtb2)
       (minterm-binary-weight<? mtb1 mtb2)))

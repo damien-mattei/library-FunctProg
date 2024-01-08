@@ -11,7 +11,7 @@
 ;;
 ;; a program to compute logic symbolically
 ;;
-;; Copyright (C) 2014-2023  Damien MATTEI
+;; Copyright (C) 2014-2024  Damien MATTEI
 ;;
 ;;
 ;; e-mail: damien.mattei@gmail.com
@@ -20,7 +20,7 @@
 ;;
 ;;
 ;;
-;; version 13 for Racket
+;; version 14 for Racket
 
 
 
@@ -28,11 +28,12 @@
 ;;(compile-enforce-module-constants #f)
 
 ;; for infix operator precedence
-(define-namespace-anchor ankh)
-(define bsns (namespace-anchor->namespace ankh))
-(current-namespace bsns)
+;; warning , in command line mode,  this change the basename of the environment to : "racket/logiki+.rkt"> and program logic-syracuse will not work
+;; (define-namespace-anchor ankh)
+;; (define bsns (namespace-anchor->namespace ankh))
+;; (current-namespace bsns)
 
-; DrRacket does not like greek characters in filenames
+; DrRacket does not like greek characters in filenames like in:
 ;(include "program-λογικι-2.8.scm")
 
 
@@ -86,7 +87,7 @@
 (require "minterms+.rkt")
 
 (require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/array.rkt")
-;;(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/for_next_step.scm")
+
 (include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/increment.scm")
 
 (include "display-racket-scheme.scm")

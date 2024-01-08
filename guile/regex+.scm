@@ -7,6 +7,11 @@
 ;;
 ;; e-mail: damien.mattei@gmail.com 
 
+
+;; ./curly-infix2prefix4guile.scm    --infix-optimize --infix-optimize-slice ../library-FunctProg/guile/regex+.scm > ../library-FunctProg/guile/regex.scm
+
+;; sudo cp regex.scm /usr/local/share/guile/site/3.0/regex+.scm
+
 ;; use :
 ;; (use-modules (regex+))
 

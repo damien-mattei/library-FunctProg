@@ -2,11 +2,17 @@
 
 ;; Damien MATTEI
 
+
+;; ./curly-infix2prefix4guile.scm    --infix-optimize --infix-optimize-slice ../library-FunctProg/guile/set+.scm > ../library-FunctProg/guile/set.scm
+
+
+;; install linux: 
+;; sudo cp set.scm /usr/local/share/guile/site/3.0/set+.scm
+
 ;; use :
 ;; (use-modules (set+))
 
-;; install linux:
-;; sudo cp set+.scm /usr/share/guile/site/3.0
+
 
 (define-module (set+)
   #:use-module (Scheme+)	  

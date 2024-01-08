@@ -2,11 +2,15 @@
 
 ;; Damien MATTEI
 
+
+;; ./curly-infix2prefix4guile.scm    --infix-optimize --infix-optimize-slice ../library-FunctProg/guile/operation+.scm > ../library-FunctProg/guile/operation.scm
+
+;; install linux:
+;; sudo cp operation.scm /usr/local/share/guile/site/3.0/operation+.scm
+
 ;; use :
 ;; (use-modules (operation+)) 
 
-;; install linux:
-;; sudo cp set+.scm /usr/share/guile/site/3.0
 
 (define-module (operation+)
   #:use-module (Scheme+)

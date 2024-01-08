@@ -3,13 +3,22 @@
 ;; Copyright (C) 2024  Damien MATTEI
 ;;
 ;;
-;; e-mail: damien.mattei@gmail.com 
+;; e-mail: damien.mattei@gmail.com
+
+
+;; compilation:
+
+;; ./curly-infix2prefix4guile.scm    --infix-optimize --infix-optimize-slice ../library-FunctProg/guile/subscript+.scm > ../library-FunctProg/guile/subscript.scm
+
+
+;; install linux:
+
+;; sudo cp subscript.scm /usr/local/share/guile/site/3.0/subscript+.scm
+;; note that we must install it in the name of a scheme+ file because the module is loaded this way
 
 ;; use :
 ;; (use-modules (subscript+)) 
 
-;; install linux:
-;; sudo cp set+.scm /usr/share/guile/site/3.0
 
 (define-module (subscript+)
   #:use-module (Scheme+)
