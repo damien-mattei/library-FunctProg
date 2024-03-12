@@ -1,4 +1,4 @@
-#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/SRFI/SRFI-105.rkt"
+#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
 
 (provide (all-defined-out)) ;; export all bindings
 

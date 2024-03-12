@@ -14,7 +14,7 @@
 ;;        
 ;;
 ;;
-;; ./curly-infix2prefix4guile.scm    --infix-optimize --infix-optimize-slice ../library-FunctProg/guile/logiki+.scm > ../library-FunctProg/guile/logiki-.scm
+;; ./curly-infix2prefix4guile.scm   ../library-FunctProg/guile/logiki+.scm > ../library-FunctProg/guile/logiki-.scm
 ;;
 ;;
 ;; version 12 for Guile

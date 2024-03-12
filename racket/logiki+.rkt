@@ -1,4 +1,6 @@
-#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/SRFI/SRFI-105.rkt"
+#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
+
+;; note: modifiy it to be recompiled by Racket !!!
 
 ;;#lang reader "SRFI-105-toplevel.rkt" 
 
