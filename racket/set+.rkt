@@ -4,6 +4,9 @@
 
 ;; Damien MATTEI
 
+
+(module set racket
+
 (provide singleton-set? dvs dvsos singleton? include? set-difference product-elem-with-set product-elem-with-set-tail-rec product-set-with-set product-set-with-set-imperative set-of-multiple-empty-sets? set-of-empty-set? display-sos display-set browse-set some? union length-sos product-set-with-set-imperative-sorted product-set-with-set-sorted product-elem-with-set-tail-rec-sorted)
 
 
@@ -321,6 +324,8 @@
         ((member (first E) F) (union (rest E) F))
         (else (cons (first E) (union (rest E) F)))))
 
+
+) ; end of module
 
 
 	 

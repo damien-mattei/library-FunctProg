@@ -1,5 +1,8 @@
 #lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
 
+(module minterms racket
+
+
 (provide (all-defined-out)) ;; export all bindings
 
 
@@ -436,4 +439,5 @@
 
 
 
+) ; end module
 

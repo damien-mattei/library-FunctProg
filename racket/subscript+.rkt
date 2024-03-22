@@ -4,6 +4,10 @@
 
 ;; Damien MATTEI
 
+
+(module subscript racket
+	
+
 (provide string-subscript-number->string-number string-replace-chars translate-char to-lower-digit)
 
 (require (rename-in srfi/13 (string-hash string-hash-srfi13))) ;; strings
@@ -50,3 +54,7 @@
 
 (def (to-lower-digit str)
   (string-replace-chars str "-+0123456789" "₋₊₀₁₂₃₄₅₆₇₈₉"))
+
+
+) ; end of module
+

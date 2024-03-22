@@ -53,7 +53,7 @@
 
 ;; '((!b ^ !c) v (c ^ !d) v (!a ^ b ^ d))
 
-
+(module logiki racket
 
 
 (provide (all-defined-out)) ;; export all bindings ,when we are at a module level not at toplevel because of racket/lang emulate REPL 
@@ -3857,3 +3857,7 @@ the REDUCE-INIT argument."
 (length #(1 2 3 4))
 (length '(1 2 3))
 (length "abcde")
+
+
+) ; end module
+
