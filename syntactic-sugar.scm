@@ -48,7 +48,7 @@
 ;; toto
 ;; Warning: this 'do' break the one of scheme !
 (define-syntax do
-  (syntax-rules (do)
+  (syntax-rules (while) ;;(do)
     ((do b1 ...
        while pred)
      (let loop () b1 ... (when pred (loop))))))

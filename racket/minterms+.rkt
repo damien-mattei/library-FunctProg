@@ -285,14 +285,14 @@
 
   (when (null? mt1) (return '()))
      
-  {vmt1 <+ (list->vector mt1)}
-  {vmt2 <+ (list->vector mt2)}
-  {lvmt <+ (vector-length vmt1)}
-  {vmt <+ (make-vector lvmt 'x)}
+  {vmt1 <- (list->vector mt1)}
+  {vmt2 <- (list->vector mt2)}
+  {lvmt <- (vector-length vmt1)}
+  {vmt <- (make-vector lvmt 'x)}
 
-  {err <+ #f}
+  {err <- #f}
   
-  (for ({k <+ 0} {k < lvmt} {k <- k + 1})
+  (for ({k <- 0} {k < lvmt} {k <- k + 1})
        (if {vmt1[k] equal? vmt2[k]}
 	   {vmt[k] <- vmt1[k]}
 	   (if err
@@ -308,7 +308,7 @@
 ;; $2 = (1 0 1 0 x 1 0 1 0 1)
 (define (unify-two-minterms-rec mt1 mt2)
 
-  {err <+ #f}
+  {err <- #f}
 
   (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
 
@@ -319,8 +319,8 @@
 	   (return-rec #f))
 
 
-       {fst-mt1 <+ (first mt1)}
-       {fst-mt2 <+ (first mt2)}
+       {fst-mt1 <- (first mt1)}
+       {fst-mt2 <- (first mt2)}
 
        (when (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
 						  (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))

@@ -32,7 +32,7 @@
 ;; scheme@(guile-user)> (translate-char #\₁ "₋₊₀₁₂₃₄₅₆₇₈₉" "-+0123456789")
 ;; #\1
 (def (translate-char c str-before str-after)
-  {i <+ (string-index str-before c)}
+  {i <- (string-index str-before c)}
   (unless i (return c)) ;; if no match return unchanged the character c
   {str-after[i]})
 

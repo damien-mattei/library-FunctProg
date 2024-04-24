@@ -179,18 +179,18 @@
      (when (null? set1) (return set1)) ;; empty set result
      (when (null? set2) (return set2)) ;; empty set result
 
-     {result <+ '()} 
+     {result <- '()} 
      
      (repeat
 
-      {a <+ (first set1)}
+      {a <- (first set1)}
       {set1 <- (rest set1)}
 
-      {set2-iterator <+ set2}
+      {set2-iterator <- set2}
 
       (repeat
 
-       {b <+ (first set2-iterator)}
+       {b <- (first set2-iterator)}
        {set2-iterator <- (rest set2-iterator)}
        {result <- (cons (list a b) result)}
 

@@ -1,6 +1,7 @@
 #lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
 
-;; note: modifiy it to be recompiled by Racket !!!
+;; note: modifiy it to be recompiled by Racket !!! 
+
 
 ;;#lang reader "SRFI-105-toplevel.rkt" 
 
@@ -138,12 +139,12 @@
 
 
 (define (implementation-add-n-lists vn-lst)
-  {map-args <+ (cons + vn-lst)}
+  {map-args <- (cons + vn-lst)}
   (apply map map-args))
 
 
 (define (implementation-sub-n-lists vn-lst)
-  {map-args <+ (cons - vn-lst)}
+  {map-args <- (cons - vn-lst)}
   (apply map map-args))
 
 
@@ -391,10 +392,10 @@
    ((isNOT? expr) `(not ,(elim-equivalence (arg expr))))
    ((isIMPLIC? expr) `(=> ,(elim-equivalence (arg1 expr)) ,(elim-equivalence (arg2 expr))))
    ((isEQUIV? expr) ($+> ;; a <=> b ----> (a => b) and (b => a)
-		     {a <+ (arg1 expr)}
-		     {b <+ (arg2 expr)}
-		     {ae <+ (elim-equivalence a)}
-		     {be <+ (elim-equivalence b)}
+		     {a <- (arg1 expr)}
+		     {b <- (arg2 expr)}
+		     {ae <- (elim-equivalence a)}
+		     {be <- (elim-equivalence b)}
 		     `(and (=> ,ae ,be) (=> ,be ,ae))))
     (else `(,(operator expr) ,(elim-equivalence (arg1 expr)) ,(elim-equivalence (arg2 expr))))))
 
@@ -430,10 +431,10 @@
       ((boolean? expr) expr)
       ((isNOT? expr) `(not ,(elim-exclusive-or (arg expr))))
       ((isXOR? expr) ($+>
-		      {a1 <+ (arg1 expr)}
-		      {a2 <+ (arg2 expr)}
-		      {ea1 <+ (elim-exclusive-or a1)}
-		      {ea2 <+ (elim-exclusive-or a2)}
+		      {a1 <- (arg1 expr)}
+		      {a2 <- (arg2 expr)}
+		      {ea1 <- (elim-exclusive-or a1)}
+		      {ea2 <- (elim-exclusive-or a2)}
 		      `{{(not ,ea1) and ,ea2} or {,ea1 and (not ,ea2)}}))
 
       (else `(,(operator expr) ,(elim-exclusive-or (arg1 expr)) ,(elim-exclusive-or (arg2 expr))))))
@@ -933,10 +934,10 @@
 ;; (is-AND-antilogy?  '(and (not c) F))
 (define (is-AND-antilogy? expr)
 
-  {lep <+ (args expr)}  ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
-  {detect-antilogy <+ (λ (listExpr)
+  {lep <- (args expr)}  ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
+  {detect-antilogy <- (λ (listExpr)
 			(condx ((null? listExpr) #f)
-			       (exec {fst <+ (first listExpr)})
+			       (exec {fst <- (first listExpr)})
 			       ((is-False? fst) #t)
 			       ;; now we search for a literal ex: 'x
 			       ((symbol? fst) (if (search-not-lit? fst lep) ;; search antilogy with literal in the whole operands of AND
@@ -961,7 +962,7 @@
 
      (when (null? andList) (return '()))
 
-     {fst <+ (first andList)}
+     {fst <- (first andList)}
 
      (when (isAND? fst)
 
@@ -1001,10 +1002,10 @@
 
 (define (is-OR-tautology? expr)
 
-  {lep <+ (args expr)}  ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
-  {detect-tautology <+ (λ (listExpr)
+  {lep <- (args expr)}  ;; list of expressions which could be literals (ex 'b , 'x ) or negations (not (b))
+  {detect-tautology <- (λ (listExpr)
 			(condx ((null? listExpr) #f)
-			       (exec {fst <+ (first listExpr)})
+			       (exec {fst <- (first listExpr)})
 			       ((is-True? fst) #t)
 			       ;; now we search for a literal ex: 'x
 			       ((symbol? fst) (if (search-not-lit? fst lep) ;; search tautology with literal in the whole operands of OR
@@ -1045,7 +1046,7 @@
 
      (when (null? orList) (return '()))
 
-     {fst <+ (first orList)}
+     {fst <- (first orList)}
 
      (when (isOR? fst)
 
@@ -1244,18 +1245,18 @@
 
      ;; TODO: modify v1 and v2 to translate subscript symbols and numbers in normal ones
 
-     {re <+ "^([A-Za-z]+)([-+₋₊]?[0123456789₀₁₂₃₄₅₆₇₈₉]+)$"}
+     {re <- "^([A-Za-z]+)([-+₋₊]?[0123456789₀₁₂₃₄₅₆₇₈₉]+)$"}
 
      ;; note that the one below works too in Guile but not in Racket (does not recognize subscript numbers)
      ;; "^([A-Za-z]+)([-₋]?[0-9]+)$"} ;; "^([A-Za-z]+)([0-9]+)$"}
 
-     {v1m <+ (regexp-match re v1)}
+     {v1m <- (regexp-match re v1)}
 
      ;; when not a form like 'c1 we deal the normal way with string<?
      (unless v1m
        (return (string<? v1 v2)))
 
-     {v2m <+ (regexp-match re v2)}
+     {v2m <- (regexp-match re v2)}
 
      (unless v2m
        (return (string<? v1 v2)))
@@ -1264,14 +1265,14 @@
       (dv v1m)
       (dv v2m))
 
-     {var1 <+ (second v1m)}
-     {var2 <+ (second v2m)}
+     {var1 <- (second v1m)}
+     {var2 <- (second v2m)}
 
      (nodebug
       (dv var1)
       (dv var2))
 
-     {str-equal <+ (string=? var1 var2)}
+     {str-equal <- (string=? var1 var2)}
 
      (nodebug
       (dv str-equal))
@@ -1279,14 +1280,14 @@
      (unless str-equal (return (string<? var1 var2)))
 
      ;; possible subscript characters
-     {str-index-subscript1 <+ (third v1m)}
-     {str-index-subscript2 <+ (third v2m)}
+     {str-index-subscript1 <- (third v1m)}
+     {str-index-subscript2 <- (third v2m)}
 
-     {str-index1 <+ (string-subscript-number->string-number str-index-subscript1)}
-     {str-index2 <+ (string-subscript-number->string-number str-index-subscript2)}
+     {str-index1 <- (string-subscript-number->string-number str-index-subscript1)}
+     {str-index2 <- (string-subscript-number->string-number str-index-subscript2)}
 
-     {index1 <+ (string->number str-index1)}
-     {index2 <+ (string->number str-index2)}
+     {index1 <- (string->number str-index1)}
+     {index2 <- (string->number str-index2)}
 
      (nodebug
       (dv index1)
@@ -1335,10 +1336,10 @@
 	(else (if (equal? (first L1) (first L2))
 		  (compare-list-args<? (rest L1) (rest L2))
 		  ($+> ;; something is not equal (not ...) ?
-		   {fl1 <+ (first L1)}
-		   {fl2 <+ (first L2)}
-		   {lit1 <+ (expression->string (get-first-literal fl1))}
-		   {lit2 <+ (expression->string (get-first-literal fl2))}
+		   {fl1 <- (first L1)}
+		   {fl2 <- (first L2)}
+		   {lit1 <- (expression->string (get-first-literal fl1))}
+		   {lit2 <- (expression->string (get-first-literal fl2))}
 		   (if (equal? lit1 lit2)
 		       (isNOT? fl2) ;; 'a '(not a)
 		       ;;(string<? lit1 lit2)))))))
@@ -1479,13 +1480,13 @@
 
   (if (isOR-AND? expr)
 
-      ($+> {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
+      ($+> {exprs-list <- (args expr)} ;;'(or c a b) -> '(c a b)
 	 (nodebug (display "sort-expressions-in-operation : ")
 		(dv exprs-list))
-	 {sorted-exprs <+ (sort-expressions exprs-list)}
+	 {sorted-exprs <- (sort-expressions exprs-list)}
 	 (nodebug
 	  (dv sorted-exprs))
-	 {oper <+ (operator expr)} ;; define operator : (or Ci a b) -> or
+	 {oper <- (operator expr)} ;; define operator : (or Ci a b) -> or
 	 (cons oper sorted-exprs))
 
       ;;(sort-arguments-in-operation expr))) ;; we have not an expression composed of expressions but a single expression
@@ -1499,13 +1500,13 @@
 
   (if (isOR-AND? expr)
 
-      ($+> {exprs-list <+ (args expr)} ;;'(or c a b) -> '(c a b)
+      ($+> {exprs-list <- (args expr)} ;;'(or c a b) -> '(c a b)
 	 (nodebug (display "sort-expressions-in-operation-var-index : ")
 		(dv exprs-list))
-	 {sorted-exprs <+ (sort-expressions-var-index exprs-list)}
+	 {sorted-exprs <- (sort-expressions-var-index exprs-list)}
 	 (nodebug
 	  (dv sorted-exprs))
-	 {oper <+ (operator expr)} ;; define operator : (or Ci a b) -> or
+	 {oper <- (operator expr)} ;; define operator : (or Ci a b) -> or
 	 (cons oper sorted-exprs))
 
       expr))
@@ -1522,7 +1523,7 @@
    (display "sort-expressions : ")
    (dv exprs-list))
 
-  {exprs-with-args-sorted <+ (map sort-arguments-in-operation exprs-list)}
+  {exprs-with-args-sorted <- (map sort-arguments-in-operation exprs-list)}
 
   (sort exprs-with-args-sorted expression-literal-first-negation-tested<?)) ;; expression-negation-tested<?)) ;; expression<?))
 
@@ -1537,13 +1538,13 @@
    (display "sort-expressions : ")
    (dv exprs-list))
 
-  {exprs-with-args-sorted <+ (map sort-arguments-in-operation-var-index exprs-list)}
+  {exprs-with-args-sorted <- (map sort-arguments-in-operation-var-index exprs-list)}
 
   (sort exprs-with-args-sorted expression-literal-first-negation-tested<?))
 
 
 
-;;{cpt <+ 0}
+;;{cpt <- 0}
 
 ;; (sort-arguments '(Ci c d (not a) b )) -> '((not a) b c Ci d)
 ;; (sort-arguments '( Ci (and c d) (not a) b )) -> '((not a) b (and c d) Ci)
@@ -1558,7 +1559,7 @@
    (display-nl "sort-arguments :")
    (dv args-list))
 
-  {res <+ (sort args-list  expression<?)} ;;expression-var-index<?)};BUG ;  expression-negation-tested<?))
+  {res <- (sort args-list  expression<?)} ;;expression-var-index<?)};BUG ;  expression-negation-tested<?))
 
   ;;{cpt <- {cpt + 1}}
 
@@ -1575,7 +1576,7 @@
    (display-nl "sort-arguments-var-index :")
    (dv args-list))
 
-  {res <+ (sort args-list expression-var-index<?)}
+  {res <- (sort args-list expression-var-index<?)}
 
   (nodebug
    (dv res))
@@ -1757,7 +1758,7 @@
 
 	   (maximal-disj-norm-form (cons 'or expanded-and-term)))
 
-      {maximal-disj-norm-form-sorted <+ (sort-expressions-in-operation-var-index maximal-disj-norm-form)}
+      {maximal-disj-norm-form-sorted <- (sort-expressions-in-operation-var-index maximal-disj-norm-form)}
 
       (nodebug
 	(display "maximal-dnf:")
@@ -1839,26 +1840,26 @@
 	   min-expr
 	   petrick-expr)
 
-  ;;{collected-vars <+ (collect-var expr)}
+  ;;{collected-vars <- (collect-var expr)}
 
   (nodebug
    (display "minimal-dnf : ")
    (dv collected-vars))
 
-  ;;{var-list <+ (sort (remove-duplicates collected-vars) symbol-var-index<?)} ;; variable list , previously was : (collect-variables expr)
+  ;;{var-list <- (sort (remove-duplicates collected-vars) symbol-var-index<?)} ;; variable list , previously was : (collect-variables expr)
   ;; changed in maximal-dnf too
-  {var-list <+  (collect-variables expr)}
+  {var-list <-  (collect-variables expr)}
 
   (nodebug
    (dv var-list))
 
-  {disj-norm-form <+ (dnf-n-arity-simp expr)} ;; disjunctive form
+  {disj-norm-form <- (dnf-n-arity-simp expr)} ;; disjunctive form
 
   (nodebug
    (display "minimal-dnf : ")
    (dv disj-norm-form))
 
-  {infix-disj-norm-form <+ (dnf-infix-symb disj-norm-form)} ;; infix only used for display, not for computation
+  {infix-disj-norm-form <- (dnf-infix-symb disj-norm-form)} ;; infix only used for display, not for computation
 
 
   (if (not (pre-check-Quine-Mc-Cluskey disj-norm-form))
@@ -1988,10 +1989,10 @@
    (dvs set1)
    (dvs set2))
 
-  {function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
+  {function-unify-minterms-list <- (λ (L) (apply function-unify-two-minterms-and-tag L))}
 
   ;; note : sorting is useless
-  {minterms-set <+ (product-set-with-set-imperative set1 set2)} ;; (product-set-with-set-imperative-sorted set1 set2)}  ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms MODIF
+  {minterms-set <- (product-set-with-set-imperative set1 set2)} ;; (product-set-with-set-imperative-sorted set1 set2)}  ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms MODIF
 
   (nodebug
    ;;(display "after call of recursive function associate-set-with-set: ")
@@ -1999,26 +2000,26 @@
 
   (nodebug
    (display-nl "before (map function-unify-minterms-list minterms-set)")
-   {minterms-set-length <+ (length minterms-set)}
-   {minterms-set-first <+ (first minterms-set)}
+   {minterms-set-length <- (length minterms-set)}
+   {minterms-set-first <- (first minterms-set)}
    (dv minterms-set-length)
    (dv minterms-set-first))
 
-  {unified-minterms-set-1 <+ (map function-unify-minterms-list minterms-set)}
+  {unified-minterms-set-1 <- (map function-unify-minterms-list minterms-set)}
   (nodebug
    (display-nl "after (map function-unify-minterms-list minterms-set)"))
 
   (nodebug
    (dvs unified-minterms-set-1))
 
-  {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  {unified-minterms-set-2 <- (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   (nodebug
-   {unified-minterms-set-length <+ (length unified-minterms-set-2)}
+   {unified-minterms-set-length <- (length unified-minterms-set-2)}
    (dv unified-minterms-set-length))
 
-  {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  {unified-minterms-set <- (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
   (nodebug
-   {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+   {unified-minterms-set-uniq-length <- (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
 
   (nodebug
@@ -2102,12 +2103,12 @@
 	 '() ) ;; return '()
 
       ;; at least 2 elements in set of sets
-      ($+> {mt-set1 <+ (car sos)} ;; minterm set 1
-	 {mt-set2 <+ (cadr sos)} ;; minterm set 2
-	 {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
-	 {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
-	 {weight-mt-set2 <+ (floor-bin-minterm-weight (car mt-set2))}
-	 {delta-weight <+ {weight-mt-set2 - weight-mt-set1}}
+      ($+> {mt-set1 <- (car sos)} ;; minterm set 1
+	 {mt-set2 <- (cadr sos)} ;; minterm set 2
+	 {mt-set2-to-mt-setn <- (cdr sos)} ;; minterm sets 2 to n
+	 {weight-mt-set1 <- (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
+	 {weight-mt-set2 <- (floor-bin-minterm-weight (car mt-set2))}
+	 {delta-weight <- {weight-mt-set2 - weight-mt-set1}}
 
 	 (nodebug
 	  (dvs mt-set1)
@@ -2117,11 +2118,11 @@
 	  (dv delta-weight))
 
 	 ;; this was not original code! here we do first the computation from set 2 to set n and after set 1 and set 2! so no tail recursion optimisation
-	 {unified-minterms-set2-to-setn <+ (funct-unify-minterms-set-of-sets-rec mt-set2-to-mt-setn)} ;; in any case we continue with sets from 2 to n
+	 {unified-minterms-set2-to-setn <- (funct-unify-minterms-set-of-sets-rec mt-set2-to-mt-setn)} ;; in any case we continue with sets from 2 to n
 
 	 (if {delta-weight = 1} ;; if minterms set are neighbours
 
-	     ($+> {unified-mt-set1-and-mt-set2 <+ (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
+	     ($+> {unified-mt-set1-and-mt-set2 <- (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; unify neighbours minterms sets
 
 		(if (null? unified-mt-set1-and-mt-set2)
 		    unified-minterms-set2-to-setn ;; the result will be the continuation with sets from 2 to n
@@ -2135,53 +2136,33 @@
 
 ;; a tail recursive version
 (define (funct-unify-minterms-set-of-sets-rec-tail sos acc) ;; with accumulator
-
-  ;;(newline)
-  ;;(display "(funct-unify-minterms-set-of-sets-rec-tail :")
-  {zorglub <+ 1}
-  {zorglub <- zorglub + 3 * 5 + 2}
   
-  ;;(debug-region-name "region inside funct-unify-minterms-set-of-sets-rec-tail"
-  (nodebug
-   (display-nl "funct-unify-minterms-set-of-sets-rec-tail : begin"))
-  (if (singleton-set? sos)
+  (if (singleton-set? sos) then
 
       ;; singleton
-      ($> (nodebug ;; debug
-	  (display-nl "funct-unify-minterms-set-of-sets-rec :: singleton-set? ")
-	  (dvsos sos)
-	  )
+      (reverse acc)
 
-	 (reverse acc) )
+   else
+      
+         ;; at least 2 elements in set of sets
+         {mt-set1 <- (car sos)} ;; minterm set 1
+	 {mt-set2 <- (cadr sos)} ;; minterm set 2
+	 {mt-set2-to-mt-setn <- (cdr sos)} ;; minterm sets 2 to n
+	 {weight-mt-set1 <- (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
+	 {weight-mt-set2 <- (floor-bin-minterm-weight (car mt-set2))}
+	 {delta-weight <- {weight-mt-set2 - weight-mt-set1}}
 
-      ;; at least 2 elements in set of sets
-      ($+> {mt-set1 <+ (car sos)} ;; minterm set 1
-	 {mt-set2 <+ (cadr sos)} ;; minterm set 2
-	 {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
-	 {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
-	 {weight-mt-set2 <+ (floor-bin-minterm-weight (car mt-set2))}
-	 {delta-weight <+ {weight-mt-set2 - weight-mt-set1}}
+	 (if {delta-weight = 1} then ;; if minterms set are neighbours
 
-	 (nodebug
-	  (dvs mt-set1)
-	  (newline)
-	  (dvs mt-set2)
-	  (newline)
-	  (dv delta-weight))
+	     {unified-mt-set1-and-mt-set2 <-  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
-	 (if {delta-weight = 1} ;; if minterms set are neighbours
-
-	     ($+> {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
-
-		(nodebug
-		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
-		(if (null? unified-mt-set1-and-mt-set2)
-		    (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc) ;; the result will be the continuation with sets from 2 to n
-		    (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn (insert unified-mt-set1-and-mt-set2 acc)))) ;; end &
-
-	     ($> (nodebug
-		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
-		(funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc)))))) ;; continue with sets from 2 to n
+		
+	     (if (null? unified-mt-set1-and-mt-set2)
+		 (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc) ;; the result will be the continuation with sets from 2 to n
+		 (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn (insert unified-mt-set1-and-mt-set2 acc))) ;; end &
+	  else
+	     
+	     (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc)))) ;; continue with sets from 2 to n
 
        ;; this procedure returns a set of unified minterms of the current level and
        ;; and when there is no more minterms set to unify this procedure returns '() and perheaps
@@ -2192,7 +2173,7 @@
 
   (nodebug
    (display-nl "funct-unify-minterms-set-of-sets-rec")
-   {lgt-sos <+ (length-sos sos)}
+   {lgt-sos <- (length-sos sos)}
    (dv lgt-sos)
    ;;(dvsos sos)
    (newline)
@@ -2746,9 +2727,9 @@
      ;; possible BUG :
      ;;{sorted-expanded-var-terms  ⥆ (map sort-arguments-var-index expanded-var-terms)} ;; sorted variable list of expanded minterms
 
-     {sorted-minterms-list <+ (sort sorted-expanded-var-terms compare-list-args<?)} ;; sort expanded minterms list
+     {sorted-minterms-list <- (sort sorted-expanded-var-terms compare-list-args<?)} ;; sort expanded minterms list
 
-     {uniq-sorted-minterms <+ (uniq sorted-minterms-list)} ;; (remove-duplicates-sorted sorted-minterms-list)}
+     {uniq-sorted-minterms <- (uniq sorted-minterms-list)} ;; (remove-duplicates-sorted sorted-minterms-list)}
 
      (nodebug
       ;; dv : display value
@@ -2894,7 +2875,7 @@
 ;; $2 = (1 0 1 0 x 1 0 1 0 1)
 ;; (define (unify-two-minterms-rec mt1 mt2)
 
-;;   {err <+ #f}
+;;   {err <- #f}
 
 ;;   (def (unify-two-lists-tolerant-one-mismatch mt1 mt2)
 
@@ -2905,8 +2886,8 @@
 ;; 	   (return-rec #f))
 
 
-;;        {fst-mt1 <+ (first mt1)}
-;;        {fst-mt2 <+ (first mt2)}
+;;        {fst-mt1 <- (first mt1)}
+;;        {fst-mt2 <- (first mt2)}
 
 ;;        (if (equal? fst-mt1 fst-mt2) (return (cons fst-mt1
 ;; 						  (unify-two-lists-tolerant-one-mismatch (rest mt1) (rest mt2)))))
@@ -3059,7 +3040,7 @@
 ;;                          ;; #:optional
 ;;                          ;; (max-thread (current-processor-count)))
 
-;;   {max-thread <+ (processor-count)} ;;(current-processor-count)}
+;;   {max-thread <- (processor-count)} ;;(current-processor-count)}
   
 ;;   (if (< (vector-length input) max-thread) 
       
@@ -3140,7 +3121,7 @@ used to calculate the start of the starting point of the
 following segment from the ending point of the previous
 segment."
 
-	   {next <+ (λ (num) (+ num 1))}
+	   {next <- (λ (num) (+ num 1))}
 	   
 	   (let ([segment-size
 		  (ceiling
@@ -3226,8 +3207,8 @@ the REDUCE-INIT argument."
 ;; call sequentially in post processing after the // region
 (define (tag-minterms i umt)
   (when umt
-	{mt1 <+ (first minterms-vector[i])}
-	{mt2 <+ (second minterms-vector[i])}
+	{mt1 <- (first minterms-vector[i])}
+	{mt2 <- (second minterms-vector[i])}
 	{minterms-ht[mt1] <- #t}
 	{minterms-ht[mt2] <- #t}))
 
@@ -3235,12 +3216,12 @@ the REDUCE-INIT argument."
 ;; proc to be called with futures
 (define (proc-unify-minterms-seg-and-tag seg)
 
-  {function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
+  {function-unify-minterms-list <- (λ (L) (apply function-unify-two-minterms-and-tag L))}
    
-  {start <+ (segment-start seg)}
-  {end <+ (segment-end seg)}
-  (for ({i <+ start} {i <= end} {i <- i + 1})
-       {mtL <+ minterms-vector[i]}
+  {start <- (segment-start seg)}
+  {end <- (segment-end seg)}
+  (for ({i <- start} {i <= end} {i <- i + 1})
+       {mtL <- minterms-vector[i]}
        ;; (nodebug
        ;; 	(dv mtL))
        {unified-minterms-vector-1[i] <- (function-unify-minterms-list mtL)}
@@ -3251,12 +3232,12 @@ the REDUCE-INIT argument."
 ;; proc to be called with futures
 (define (proc-unify-minterms-seg seg)
 
-  {function-unify-minterms-list <+ (λ (L) (apply unify-two-minterms L))}
+  {function-unify-minterms-list <- (λ (L) (apply unify-two-minterms L))}
    
-  {start <+ (segment-start seg)}
-  {end <+ (segment-end seg)}
-  (for ({i <+ start} {i <= end} {i <- i + 1})
-       {mtL <+ minterms-vector[i]}
+  {start <- (segment-start seg)}
+  {end <- (segment-end seg)}
+  (for ({i <- start} {i <= end} {i <- i + 1})
+       {mtL <- minterms-vector[i]}
        ;; (nodebug
        ;; 	(dv mtL))
        {unified-minterms-vector-1[i] <- (function-unify-minterms-list mtL)}
@@ -3327,8 +3308,8 @@ the REDUCE-INIT argument."
    (display-nl "funct-unify-minterms-set-1-unit-thread : begin"))
   
   (nodebug
-   {set1-length <+ (length set1)}
-   {set2-length <+ (length set2)}
+   {set1-length <- (length set1)}
+   {set2-length <- (length set2)}
    (dv set1-length)
    (dv set2-length)
    (display-nl "before Cartesian product set"))
@@ -3339,15 +3320,15 @@ the REDUCE-INIT argument."
 
   ;; note : sorting is useless
 
-  {minterms-set <+ (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list MODIF
+  {minterms-set <- (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list MODIF
 
   (nodebug
    (dvs minterms-set))
 
   (nodebug
    (display-nl "after Cartesian product set")
-   {minterms-set-length <+ (length minterms-set)}
-   {minterms-set-first <+ (first minterms-set)}
+   {minterms-set-length <- (length minterms-set)}
+   {minterms-set-first <- (first minterms-set)}
    (dv minterms-set-length)
    (dv minterms-set-first))
 
@@ -3356,19 +3337,19 @@ the REDUCE-INIT argument."
   (nodebug
    (dv minterms-vector))
 
-  {minterms-vector-length <+ (vector-length minterms-vector)}
+  {minterms-vector-length <- (vector-length minterms-vector)}
 
   (nodebug
    (dv minterms-vector-length))
 
   ;; warning : // gives almost no better result
   ;; it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists 
-  {nb-procs <+ 8} ;; 16} ;;(processor-count)} ;; 4};; C12 :1'25" with processor-count
+  {nb-procs <- 8} ;; 16} ;;(processor-count)} ;; 4};; C12 :1'25" with processor-count
 
   (when {minterms-vector-length < 500000} ;; 1'21" C12 with 16 threads on Mac OS M1 , 1'57" on Linux intel, 1' 52" with 8 threads
 	{nb-procs <- 1})
   
-  {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
+  {segmts <- (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
 
   (nodebug
    (dv segmts))
@@ -3383,7 +3364,7 @@ the REDUCE-INIT argument."
 	(display-nl "before //"))
        
        ;; run the parallel code
-       {threads <+ (map (λ (seg)
+       {threads <- (map (λ (seg)
 			  ;;(display "initialising thread ")
 			  ;;(dv seg)
 			  (thread
@@ -3407,7 +3388,7 @@ the REDUCE-INIT argument."
 	(display-nl "after //"))))
 
   (nodebug
-   {unified-minterms-vector-1-length <+ (vector-length unified-minterms-vector-1)}
+   {unified-minterms-vector-1-length <- (vector-length unified-minterms-vector-1)}
    (dv unified-minterms-vector-1-length)
    (newline))
 
@@ -3415,19 +3396,19 @@ the REDUCE-INIT argument."
   ;; 	  (vector-for-each tag-minterms unified-minterms-vector-1))
   ;; tag the minterms in the hash table
   
-  {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
+  {unified-minterms-set-1 <- (vector->list unified-minterms-vector-1)}
   
   (nodebug
    (dvs unified-minterms-set-1))
   
-  {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  {unified-minterms-set-2 <- (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   (nodebug
-   {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+   {unified-minterms-set-2-length <- (length unified-minterms-set-2)}
    (dv unified-minterms-set-2-length))
 
-  {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  {unified-minterms-set <- (remove-duplicates unified-minterms-set-2)} ;;(remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
   (nodebug
-   {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+   {unified-minterms-set-uniq-length <- (length unified-minterms-set)}
    (dv unified-minterms-set-uniq-length))
   
   (nodebug
@@ -3452,14 +3433,14 @@ the REDUCE-INIT argument."
 
   ;; note : sorting is useless
 
-  {minterms-set <+ (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list      MODIF
+  {minterms-set <- (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list      MODIF
 
   (nodebug
    (dvs minterms-set))
 
   (nodebug
-   {minterms-set-length <+ (length minterms-set)}
-   {minterms-set-first <+ (first minterms-set)}
+   {minterms-set-length <- (length minterms-set)}
+   {minterms-set-first <- (first minterms-set)}
    (dv minterms-set-length)
    (dv minterms-set-first))
 
@@ -3468,15 +3449,15 @@ the REDUCE-INIT argument."
   (nodebug
    (dv minterms-vector))
 
-  {minterms-vector-length <+ (vector-length minterms-vector)}
+  {minterms-vector-length <- (vector-length minterms-vector)}
 
-  {nb-procs <+ 1}  ;; 32} ;; (processor-count)} ;; 32 : 1'25" for C12 on mac os M1 , 1' 42" on intel linux
+  {nb-procs <- 1}  ;; 32} ;; (processor-count)} ;; 32 : 1'25" for C12 on mac os M1 , 1' 42" on intel linux
   ;; 32" for C12 in Terminal mode with MacOS Ventura M1 and 31" with transducers
 
   (nodebug
    (dv nb-procs))
   
-  {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
+  {segmts <- (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
 
   (nodebug
    (dv segmts))
@@ -3499,27 +3480,27 @@ the REDUCE-INIT argument."
   
   ;;(vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
   
-  {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
+  {unified-minterms-set-1 <- (vector->list unified-minterms-vector-1)}
   
   
   (nodebug
    (dvs unified-minterms-set-1))
   
-  ;;{unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  ;;{unified-minterms-set-2 <- (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   ;; (nodebug
-  ;;  {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+  ;;  {unified-minterms-set-2-length <- (length unified-minterms-set-2)}
   ;;  (dv unified-minterms-set-2-length))
 
-  ;;{unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;; (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  ;;{unified-minterms-set <- (remove-duplicates unified-minterms-set-2)} ;; (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
   ;; C12 in Terminal mode with MacOS Ventura M1 and 32"
   
   ;; (nodebug
-  ;;  {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+  ;;  {unified-minterms-set-uniq-length <- (length unified-minterms-set)}
   ;;  (dv unified-minterms-set-uniq-length))
 
-  {unified-minterms-set <+ (remove-duplicates (filter (λ (x) x) unified-minterms-set-1))} ;; C12 in Terminal mode with MacOS Ventura M1 and 32"
+  {unified-minterms-set <- (remove-duplicates (filter (λ (x) x) unified-minterms-set-1))} ;; C12 in Terminal mode with MacOS Ventura M1 and 32"
   
-  ;;{unified-minterms-set <+ (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)} ;; C12 in Terminal mode with MacOS Ventura M1 and 31"
+  ;;{unified-minterms-set <- (list-transduce (compose (tfilter (λ (x) x)) (tdelete-duplicates)) rcons unified-minterms-set-1)} ;; C12 in Terminal mode with MacOS Ventura M1 and 31"
   
   (nodebug
    (dvs unified-minterms-set))
@@ -3539,18 +3520,18 @@ the REDUCE-INIT argument."
   ;;  (dvs set1)
   ;;  (dvs set2))
 
-  ;;{function-unify-minterms-list <+ (λ (L) (apply function-unify-two-minterms-and-tag L))}
+  ;;{function-unify-minterms-list <- (λ (L) (apply function-unify-two-minterms-and-tag L))}
   
   ;; note : sorting is useless
 
-  {minterms-set <+ (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list      MODIF
+  {minterms-set <- (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list      MODIF
 
   ;; (nodebug
   ;;  (dvs minterms-set))
 
   ;; (nodebug
-  ;;  {minterms-set-length <+ (length minterms-set)}
-  ;;  {minterms-set-first <+ (first minterms-set)}
+  ;;  {minterms-set-length <- (length minterms-set)}
+  ;;  {minterms-set-first <- (first minterms-set)}
   ;;  (dv minterms-set-length)
   ;;  (dv minterms-set-first))
 
@@ -3559,17 +3540,17 @@ the REDUCE-INIT argument."
   ;; (nodebug
   ;;  (dv minterms-vector))
 
-  {minterms-vector-length <+ (vector-length minterms-vector)}
+  {minterms-vector-length <- (vector-length minterms-vector)}
 
   ;; (nodebug
   ;;  (dv minterms-vector-length))
 
-  {nb-procs <+ 1} ;; (processor-count)} ;; 
+  {nb-procs <- 1} ;; (processor-count)} ;; 
 
   ;; (nodebug
   ;;  (dv nb-procs))
   
-  {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segment (only one !)
+  {segmts <- (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segment (only one !)
 
   ;; (nodebug
   ;;  (dv segmts))
@@ -3587,19 +3568,19 @@ the REDUCE-INIT argument."
   
   ;;(vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
   
-  {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
+  {unified-minterms-set-1 <- (vector->list unified-minterms-vector-1)}
   
   ;; (nodebug
   ;;  (dvs unified-minterms-set-1))
   
-  {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+  {unified-minterms-set-2 <- (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
   ;; (nodebug
-  ;;  {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+  ;;  {unified-minterms-set-2-length <- (length unified-minterms-set-2)}
   ;;  (dv unified-minterms-set-2-length))
 
-  {unified-minterms-set <+ (remove-duplicates unified-minterms-set-2)} ;; (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
+  {unified-minterms-set <- (remove-duplicates unified-minterms-set-2)} ;; (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq MODIF
   ;; (nodebug
-  ;;  {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+  ;;  {unified-minterms-set-uniq-length <- (length unified-minterms-set)}
   ;;  (dv unified-minterms-set-uniq-length))
   
   ;; (nodebug
@@ -3622,18 +3603,18 @@ the REDUCE-INIT argument."
 ;;    (dvs set1)
 ;;    (dvs set2))
   
-;;   {function-unify-minterms-list <+ (λ (L) (apply unify-two-minterms L))}
+;;   {function-unify-minterms-list <- (λ (L) (apply unify-two-minterms L))}
 
 ;;   ;; note : sorting is useless
-;;   {minterms-set <+ (product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set-imperative set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
+;;   {minterms-set <- (product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set-imperative set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
 
 ;;   (nodebug
 ;;    (dvs minterms-set))
 
 ;;   (debug
 ;;    (display-nl "before (par-map-vector function-unify-minterms-list minterms-vector)")
-;;    {minterms-set-length <+ (length minterms-set)}
-;;    {minterms-set-first <+ (first minterms-set)}
+;;    {minterms-set-length <- (length minterms-set)}
+;;    {minterms-set-first <- (first minterms-set)}
 ;;    (dv minterms-set-length)
 ;;    (dv minterms-set-first))
 
@@ -3649,21 +3630,21 @@ the REDUCE-INIT argument."
 
 ;;   (vector-for-each tag-minterms unified-minterms-vector-1) ;; tag the minterms in the hash table
   
-;;   {unified-minterms-set-1 <+ (vector->list unified-minterms-vector-1)}
+;;   {unified-minterms-set-1 <- (vector->list unified-minterms-vector-1)}
   
   
 
 ;;   (nodebug
 ;;    (dvs unified-minterms-set-1))
   
-;;   {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+;;   {unified-minterms-set-2 <- (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
 ;;   (nodebug
-;;    {unified-minterms-set-2-length <+ (length unified-minterms-set-2)}
+;;    {unified-minterms-set-2-length <- (length unified-minterms-set-2)}
 ;;    (dv unified-minterms-set-2-length))
 
-;;   {unified-minterms-set <+ (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq
+;;   {unified-minterms-set <- (remove-duplicates-sorted unified-minterms-set-2)} ;; uniq
 ;;   (nodebug
-;;    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+;;    {unified-minterms-set-uniq-length <- (length unified-minterms-set)}
 ;;    (dv unified-minterms-set-uniq-length))
   
 ;;   (nodebug
@@ -3683,10 +3664,10 @@ the REDUCE-INIT argument."
 
 ;;   ;; call sequentially in post processing after the // region
 ;;   (define (extract-unified-minterm-and-tag-minterms umt-res-lst)
-;;     {umt <+ (first umt-res-lst)}
-;;     {mtL <+ (second umt-res-lst)}
-;;     {mt1 <+ (first mtL)}
-;;     {mt2 <+ (second mtL)}
+;;     {umt <- (first umt-res-lst)}
+;;     {mtL <- (second umt-res-lst)}
+;;     {mt1 <- (first mtL)}
+;;     {mt2 <- (second mtL)}
 ;;     {minterms-ht[mt1] <- #t}
 ;;     {minterms-ht[mt2] <- #t}
 ;;     umt)
@@ -3698,14 +3679,14 @@ the REDUCE-INIT argument."
 ;;    (dvs set1)
 ;;    (dvs set2))
   
-;;   {function-unify-minterms-list <+ (λ (L)
-;; 				     {res <+ (apply unify-two-minterms L)}
+;;   {function-unify-minterms-list <- (λ (L)
+;; 				     {res <- (apply unify-two-minterms L)}
 ;; 				     (if res
 ;; 					 (list res L)
 ;; 					 res))} ;; return (unified-minterm (minterm1 minterm2)) or #f 
 
 ;;   ;; note : sorting is useless
-;;   {minterms-set <+ (product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set-imperative set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
+;;   {minterms-set <- (product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set-imperative set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms
 
 ;;   (nodebug
 ;;    ;;(display "after call of recursive function associate-set-with-set: ")
@@ -3713,28 +3694,28 @@ the REDUCE-INIT argument."
 
 ;;   (debug
 ;;    (display-nl "before (par-map function-unify-minterms-list minterms-set)")
-;;    {minterms-set-length <+ (length minterms-set)}
-;;    {minterms-set-first <+ (first minterms-set)}
+;;    {minterms-set-length <- (length minterms-set)}
+;;    {minterms-set-first <- (first minterms-set)}
 ;;    (dv minterms-set-length)
 ;;    (dv minterms-set-first))
   
-;;   {unified-minterms-set-1 <+ (par-map function-unify-minterms-list minterms-set)} ;; // code
+;;   {unified-minterms-set-1 <- (par-map function-unify-minterms-list minterms-set)} ;; // code
 ;;   (debug
 ;;    (display-nl "after (par-map function-unify-minterms-list minterms-set)"))
 
 ;;   (nodebug
 ;;    (dvs unified-minterms-set-1))
 
-;;   {unified-minterms-set-2 <+ (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
+;;   {unified-minterms-set-2 <- (filter (λ (x) x) unified-minterms-set-1)} ;; remove #f results
 ;;   (nodebug
-;;    {unified-minterms-set-length <+ (length unified-minterms-set-2)}
+;;    {unified-minterms-set-length <- (length unified-minterms-set-2)}
 ;;    (dv unified-minterms-set-length))
 
-;;   {unified-minterms-set-3 <+ (map extract-unified-minterm-and-tag-minterms unified-minterms-set-2)} ;;  tag minterms and construct a list of unified minterms
+;;   {unified-minterms-set-3 <- (map extract-unified-minterm-and-tag-minterms unified-minterms-set-2)} ;;  tag minterms and construct a list of unified minterms
   
-;;   {unified-minterms-set <+ (remove-duplicates-sorted unified-minterms-set-3)} ;; uniq
+;;   {unified-minterms-set <- (remove-duplicates-sorted unified-minterms-set-3)} ;; uniq
 ;;   (nodebug
-;;    {unified-minterms-set-uniq-length <+ (length unified-minterms-set)}
+;;    {unified-minterms-set-uniq-length <- (length unified-minterms-set)}
 ;;    (dv unified-minterms-set-uniq-length))
   
 ;;   (nodebug
@@ -3746,7 +3727,7 @@ the REDUCE-INIT argument."
 ;;   unified-minterms-set)
 
 
-{ztest <+ 1}
+{ztest <- 1}
 (display "ztest=") (display ztest) (newline)
 {3 * 5 + ztest}
 
@@ -3834,7 +3815,7 @@ the REDUCE-INIT argument."
 
 
 
-{t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
+{t <- {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
 (display t) (newline)
 
 ;; ../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.scm:600:7: require: not at module level or top level in: (require (rename-in racket/base (* orig-proc)))
@@ -3846,7 +3827,7 @@ the REDUCE-INIT argument."
 ;;   (display "before overload *") (newline)
 ;;   (define-overload-existing-operator *)
 ;;   (overload * mult-num-list (number? list?))
-;;   {t <+ {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
+;;   {t <- {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
 ;;   {x <- 1 + x + 4 * 5}
 ;;   t)
 

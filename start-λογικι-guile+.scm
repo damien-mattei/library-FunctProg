@@ -9,6 +9,8 @@
 ;; export LTDL_LIBRARY_PATH=/opt/homebrew/opt/libomp/lib # for OpenMP under MacOS
 
 ;; (load "start-λογικι-guile+.scm")
+
+;; modify the file or touch it to be sure it is recompiled by guile
  
 
 ;; examples:

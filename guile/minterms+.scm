@@ -6,7 +6,7 @@
 ;; e-mail: damien.mattei@gmail.com 
 
 
-;; ./curly-infix2prefix4guile.scm    --infix-optimize --infix-optimize-slice ../library-FunctProg/guile/minterms+.scm > ../library-FunctProg/guile/minterms.scm
+;; ./curly-infix2prefix4guile.scm   ../library-FunctProg/guile/minterms+.scm > ../library-FunctProg/guile/minterms.scm
 
 ;; install linux:
 ;; sudo cp minterms.scm /usr/local/share/guile/site/3.0/minterms+.scm

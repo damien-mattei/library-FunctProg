@@ -317,11 +317,11 @@
 ;; scheme@(guile-user)> (string->bar-string "12345")
 ;; $4 = "1̅2̅3̅4̅5̅"
 (define (string->bar-string s)
-  {lg <+ (string-length s)}
-  {sr <+ ""}
+  {lg <- (string-length s)}
+  {sr <- ""}
   (for-basic (i 0 {lg - 1})
-       {c <+ {s[i]}} ;;(string-ref s i)}
-       {scbar <+ (bar-string c)}
+       {c <- {s[i]}} ;;(string-ref s i)}
+       {scbar <- (bar-string c)}
        {sr <- (string-append sr scbar)})
   sr)
 
@@ -393,7 +393,7 @@
 
 
 (define (DEFINE-op? oper)
-  (or (eqv? oper '<+) (eqv? oper '+>)))
+  (or (eqv? oper '<-) (eqv? oper '+>)))
 
 (define (ASSIGNMENT-op? oper)
   (or (eqv? oper '<-) (eqv? oper '->)))
