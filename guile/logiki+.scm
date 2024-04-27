@@ -16,6 +16,7 @@
 ;;
 ;; ./curly-infix2prefix4guile.scm   ../library-FunctProg/guile/logiki+.scm > ../library-FunctProg/guile/logiki-.scm
 ;;
+;; or: make
 ;;
 ;; version 12 for Guile
 ;;

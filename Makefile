@@ -57,6 +57,7 @@ $(MODULE_DIRECTORY)/%+.scm $(SRC_DIR)/%-.scm: $(SRC_DIR)/%+.scm
 
 clean:
 	rm -rf $(OBJECT)
+	rm -rf $(MODULE_DIRECTORY)
 
 
 install:
