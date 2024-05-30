@@ -1307,6 +1307,7 @@
 
 ;; (literal<? 'V0x10x11 'V1x11x10) -> #f
 (define (literal<? a b)
+  (display "literal<?") (newline)
   (let* ((ax 0)
 	 (bx 0)
 	 (a1 0)
@@ -2034,31 +2035,31 @@
 		      (insert unified-mt-set1-and-mt-set2 unified-minterms-set2-to-setn))) ;; end &
 	      
 	      unified-minterms-set2-to-setn))))) ;; continue with sets from 2 to n
-;; this procedure returns a set of unified minterms of the current level and
+
+;; this procedure returns a set of unified minterms of the current level
 ;; and when there is no more minterms set to unify this procedure returns '() and perheaps
 ;; sort of '(()) or '(() () ...)
 
 
+
+
+;; argument: a set of sets of minterms
+
+;; this function advance of a level in unify minterms set of sets
+;; when there is no more things to do it returns a set of empty set i.e : '(()) or an empty set '() (for this reason this function will be wrapped)
+
 ;; a tail recursive version
 (define (funct-unify-minterms-set-of-sets-rec-tail sos acc) ;; with accumulator
 
-  {zorglub <+ 1}
-  {zorglub <- zorglub + 3 * 5 + 2}
-  ;;(debug-region-name "region inside funct-unify-minterms-set-of-sets-rec-tail"
-  (nodebug
-   (display-nl "funct-unify-minterms-set-of-sets-rec-tail : begin"))
-  (if (singleton-set? sos)
+  (if (singleton-set? sos) then
 
       ;; singleton
-      ($> (nodebug ;; debug
-	  (display-nl "funct-unify-minterms-set-of-sets-rec :: singleton-set? ")
-	  (dvsos sos)
-	  )
+      (reverse acc) 
 
-	 (reverse acc) )
+   else
 
       ;; at least 2 elements in set of sets
-      ($+> {mt-set1 <+ (car sos)} ;; minterm set 1
+          {mt-set1 <+ (car sos)} ;; minterm set 1
 	  {mt-set2 <+ (cadr sos)} ;; minterm set 2
 	  {mt-set2-to-mt-setn <+ (cdr sos)} ;; minterm sets 2 to n
 	  {weight-mt-set1 <+ (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
@@ -2072,23 +2073,28 @@
 	  (newline)
 	  (dv delta-weight))
 
-	 (if {delta-weight = 1} ;; if minterms set are neighbours
+	 (if {delta-weight = 1} then ;; if minterms set are neighbours
 
-	     ($+> {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     {unified-mt-set1-and-mt-set2 <+  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
-		(nodebug
+	     (nodebug
 		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
-		(if (null? unified-mt-set1-and-mt-set2)
-		    (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc) ;; the result will be the continuation with sets from 2 to n
-		    (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn (insert unified-mt-set1-and-mt-set2 acc)))) ;; end &
+	     (if (null? unified-mt-set1-and-mt-set2)
+		 (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc) ;; the result will be the continuation with sets from 2 to n
+		 (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn (insert unified-mt-set1-and-mt-set2 acc))) ;; end &
 
-	     ($> (nodebug
-		 (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
-		(funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc)))))) ;; continue with sets from 2 to n
+	  else
+	     (nodebug
+	      (display-nl "funct-unify-minterms-set-of-sets-rec-tail : leaving this level..."))
+	     (funct-unify-minterms-set-of-sets-rec-tail mt-set2-to-mt-setn acc)))) ;; continue with sets from 2 to n
 
-       ;; this procedure returns a set of unified minterms of the current level and
-       ;; and when there is no more minterms set to unify this procedure returns '() and perheaps
-       ;; sort of '(()) or '(() () ...)
+
+
+
+
+;; this procedure returns a set of unified minterms of the current level and
+;; and when there is no more minterms set to unify this procedure returns '() and perheaps
+;; sort of '(()) or '(() () ...)
 
 ;; a tail recursive version
 (define (funct-unify-minterms-set-of-sets-rec sos)
@@ -2514,14 +2520,20 @@
     (dv-2d iepi)
     )
 
-  ;;(display "iepi before") (newline)
+  
+  
+  ;(display "iepi before") (newline)
+  
   ;; construction of the array
   ;; set the left column containing prime implicants
   (for-basic (lin 0 {lgt-pi - 1})
-
+	     ;;(display "lin=") (display lin) (newline)
+	     ;;(display "{vct-prime-implicants[lin]}=") (display {vct-prime-implicants[lin]}) (newline)
+	     ;;(display "{iepi[{lin + 1} 0]}=") (display {iepi[{lin + 1} 0]}) (newline)
 	     {iepi[{lin + 1} 0] ← vct-prime-implicants[lin]})
+	     ;;{iepi[{lin + 1} 0] <- vct-prime-implicants[lin]})
 
-  ;;(display "iepi after") (newline)
+  ;(display "iepi after") (newline)
 
   ;; identify prime implicants
   (for-basic (col 1 lgt-mt)
@@ -3189,10 +3201,10 @@ the REDUCE-INIT argument."
 
   (define (unify-two-minterms mt1 mt2)
 
-    (nodebug
-     (display-nl "unify-two-minterms : ")
-     (dv mt1)
-     (dv mt2))
+  
+     ;(display-nl "unify-two-minterms : ")
+     ;(dv mt1)
+     ;(dv mt2)
 
     (function-map-with-escaping-by-kontinuation2  (macro-function-compare-2-bits-with-continuation) mt1 mt2))
 
@@ -4455,3 +4467,5 @@ the REDUCE-INIT argument."
 (define (bar2)
   {x <+ 7}
   {x <- 1 + x + 4 * 5})
+
+

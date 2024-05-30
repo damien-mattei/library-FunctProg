@@ -10,7 +10,7 @@
 
 ;; (load "start-λογικι-guile+.scm")
 
-;; modify the file or touch it to be sure it is recompiled by guile
+;; modify the file or touch it to be sure it is recompiled by guile         
  
 
 ;; examples:
@@ -216,9 +216,10 @@
 
 ;; now in Scheme+
 
-;;(include "guile/logiki+.scm")
+(include "guile/logiki+.scm")
 
-(include "guile/logiki-.scm")
+;;(include "guile/logiki-.scm") ; parsed version created in command line or by Makefile
+
 
 
 
