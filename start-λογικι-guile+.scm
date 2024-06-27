@@ -10,10 +10,14 @@
 
 ;; (load "start-λογικι-guile+.scm")
 
-;; modify the file or touch it to be sure it is recompiled by guile         
+;; modify the file or touch it to be sure it is recompiled by guile or :   rm -rf .cache/guile/
+
+
  
 
 ;; examples:
+
+;; (logic-test)
 
 ;;scheme@(guile-user)> (infix-symb-min-dnf '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} )
 
@@ -89,6 +93,7 @@
 	     ;;(parallel vector) ;; In procedure dlsym: Error resolving "timerfd_create": "dlsym(RTLD_DEFAULT, timerfd_create): symbol not found" with Mac OS
 	     )
 
+;; TODO: remove the 2 below they should exist as module in scheme+
 (include "rest.scm")
 
 (include "increment.scm")

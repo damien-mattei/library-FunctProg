@@ -182,7 +182,7 @@
 ;;>  (binlist2number '(1 1 0 0 1 1 1 1)) -> 207
 (define (binlist2number L)
 
-  (display "binlist2number") (newline)
+  ;;(display "binlist2number") (newline)
   ;;(debug-mode-off)
   (letrec ((revL (reverse L)) ; reversed list
 	   (reverseBinList->number
@@ -214,7 +214,7 @@
 
 	   (result (reverseBinList->number revL 0))) ; expo set to 0 at beginning
     
-    (display "binlist2number : result =") (display result) (newline)
+    ;;(display "binlist2number : result =") (display result) (newline)
     
     result))
 

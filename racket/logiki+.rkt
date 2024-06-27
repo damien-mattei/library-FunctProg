@@ -3736,13 +3736,26 @@ the REDUCE-INIT argument."
 
 (define (area-square x) (* x x))
 
-;; (define-overload-procedure area)
+(define-overload-procedure area)
+
+(define-overload-procedure volume)
 
 ;; (if #t
 ;;     (overload area area-square (number?))
 ;;     #f)
 
-;;(define vector? 3)
+(overload-procedure area area-square (number?))
+
+(define (area-rect x y) (* x y))
+
+(overload-procedure area area-rect (number? number?))
+
+
+(define (volume-cube x) (* x x x))
+(define (volume-parallepipede-droit x y z) (* x y z))
+
+(overload-procedure volume volume-cube (number?))
+(overload-procedure volume volume-parallepipede-droit (number? number? number?))
 
 
 {#(1 2 3 4 5 6 7)[2 * 3 - 4 + 2]}

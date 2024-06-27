@@ -20,6 +20,8 @@
   #:use-module (operation+)
   #:use-module (set+)
   #:use-module (srfi srfi-1) ;; for 'first' procedure
+  #:use-module (increment)
+  
   #:export (var->binary
 	    min-term->binary
 	    binary->min-term
@@ -59,14 +61,14 @@
 	    ))
 
 
-(include-from-path "rest.scm")
+(define rest cdr)
 (include-from-path "debug.scm")
 (include-from-path "escape-char-r7rs-scheme.scm")
 (include-from-path "display-r6rs-scheme.scm")
 (include-from-path "list.scm")
 (include-from-path "map.scm") ;; specialized for 'andmap'
 (include-from-path "symbol.scm") ;; for symbol<?
-(include-from-path "increment.scm")
+;;(include-from-path "increment.scm")
 (include-from-path "simplify.scm")
 (include-from-path "binary-arithmetic.scm")
 
@@ -484,7 +486,7 @@
 
 ;; proc to be called with //
 (define (proc-unify-minterms-seg-inner-definitions seg)
-
+  
   (define (function-map-with-escaping-by-kontinuation2 clozure list1 . more-lists) 
     (call/cc (lambda (kontinuation)
 	       (let ((lists (cons list1 more-lists))
@@ -527,6 +529,8 @@
   (define start (segment-start seg))
   (define end (segment-end seg))
   (for ((define i start) (<= i end) (set! i (+ i 1)))
+  ;;(define i start)
+  ;;(for ('() (<= i end) (set! i (+ i 1)))
        (define mtL (vector-ref minterms-vector i))
        (nodebug
 	(dv mtL))
