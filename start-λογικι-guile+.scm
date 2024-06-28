@@ -173,6 +173,22 @@
 ;; new funct :calling:#<procedure surf-carre-long (x y)>
 ;; 10.35
 
+(define-overload-procedure volume)
+
+(define (volume-cube x) (* x x x))
+(define (volume-parallepipede-droit x y z) (* x y z))
+
+(overload-procedure volume volume-cube (number?))
+(overload-procedure volume volume-parallepipede-droit (number? number? number?))
+
+;; scheme@(guile-user)> (area 3.4)
+;; $1 = 11.559999999999999
+;; scheme@(guile-user)> (area 2.3 4.5)
+;; $2 = 10.35
+;; scheme@(guile-user)> (volume 3.1)
+;; $3 = 29.791000000000004
+;; scheme@(guile-user)> (volume 3 4 5)
+;; $4 = 60
 
 
 (display "before add-list-list") (newline)

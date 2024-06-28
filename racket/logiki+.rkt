@@ -3757,6 +3757,14 @@ the REDUCE-INIT argument."
 (overload-procedure volume volume-cube (number?))
 (overload-procedure volume volume-parallepipede-droit (number? number? number?))
 
+;; > (area 3)
+;; 9
+;; > (area 2 3)
+;; 6
+;; > (volume 3)
+;; 27
+;; > (volume 3 4 5)
+;; 60
 
 {#(1 2 3 4 5 6 7)[2 * 3 - 4 + 2]}
 
