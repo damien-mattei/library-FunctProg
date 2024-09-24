@@ -8,6 +8,13 @@
 ;; export LTDL_LIBRARY_PATH=/usr/lib/llvm-14/lib # for OpenMP under Linux
 ;; export LTDL_LIBRARY_PATH=/opt/homebrew/opt/libomp/lib # for OpenMP under MacOS
 
+;; install:
+
+;; sudo cp guile/minterms+.scm guile/operation+.scm guile/regex+.scm guile/set+.scm guile/subscript+.scm /usr/share/guile/site/3.0
+
+;; sudo cp debug.scm r7rs/escape-char-r7rs-scheme.scm r6rs/display-r6rs-scheme.scm list.scm guile/map.scm symbol.scm simplify.scm guile/binary-arithmetic.scm /usr/share/guile/site/3.0
+
+
 ;; (load "start-λογικι-guile+.scm")
 
 ;; modify the file or touch it to be sure it is recompiled by guile or :   rm -rf .cache/guile/

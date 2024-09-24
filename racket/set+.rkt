@@ -1,4 +1,6 @@
-#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
+#lang reader SRFI-105
+
+;;#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
 
 ;; set definitions
 
@@ -10,9 +12,9 @@
 (provide singleton-set? dvs dvsos singleton? include? set-difference product-elem-with-set product-elem-with-set-tail-rec product-set-with-set product-set-with-set-imperative set-of-multiple-empty-sets? set-of-empty-set? display-sos display-set browse-set some? union length-sos product-set-with-set-imperative-sorted product-set-with-set-sorted product-elem-with-set-tail-rec-sorted)
 
 
-
+(require Scheme+)
 ;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/main.rkt")
+;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/main.rkt")
 
 
 (include "../debug.scm")

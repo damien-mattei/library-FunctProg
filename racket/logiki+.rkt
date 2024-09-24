@@ -1,6 +1,7 @@
-#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
+#lang reader SRFI-105
+;;#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
 
-;; note: modifiy it to be recompiled by Racket !!! ok
+;; note: modifiy it to be recompiled by Racket !!! ok  
 
 
 ;;#lang reader "SRFI-105-toplevel.rkt" 
@@ -80,19 +81,20 @@
 (display "before overload loading") (newline)
 
 
-;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload-by-recursive-functions.rkt")
-
+(require Scheme+)
 ;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/main.rkt")
+;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/main.rkt")
 
 (require "operation+.rkt")
 (require "set+.rkt")
 (require "subscript+.rkt")
 (require "minterms+.rkt")
 
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/array.rkt")
+(require Scheme+/array)
+;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/array.rkt")
 
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/increment.scm")
+(require Scheme+/increment)
+;;(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/increment.scm")
 
 (include "display-racket-scheme.scm")
 

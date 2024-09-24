@@ -1,13 +1,15 @@
-#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
+#lang reader SRFI-105
+
+;;#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
 
 (module minterms racket
 
 
 (provide (all-defined-out)) ;; export all bindings
 
-
+(require Scheme+)
 ;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
-(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/main.rkt")
+;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/main.rkt")
 
 
 
@@ -24,7 +26,9 @@
 (include "../map.scm")
 (include "../symbolic.scm")
 (include "../simplify.scm")
-(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/increment.scm")
+
+(require Scheme+/increment)
+;;(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/increment.scm")
 (include "../binary-arithmetic.scm")
 
 
