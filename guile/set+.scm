@@ -21,7 +21,7 @@
   )
 
 
-(define rest cdr)
+;;(define rest cdr)
 (include-from-path "debug.scm")
 (include-from-path "escape-char-r7rs-scheme.scm")
 (include-from-path "display-r6rs-scheme.scm")

@@ -20,7 +20,7 @@
   #:use-module (operation+)
   #:use-module (set+)
   #:use-module (srfi srfi-1) ;; for 'first' procedure
-  #:use-module (increment)
+  #:use-module (Scheme+ increment)
   
   #:export (var->binary
 	    min-term->binary

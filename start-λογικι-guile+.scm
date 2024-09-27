@@ -73,6 +73,7 @@
 
 
 (use-modules (Scheme+)
+	     (Scheme+ increment)
 
 	     (operation+)
 	     (set+)
@@ -80,7 +81,7 @@
 	     (subscript+)
 	     (regex+)
 
-	     (array)
+	     (Scheme+ array)
 	     
 	     (ice-9 futures)
 	     ;;(ice-9 format)
@@ -101,9 +102,9 @@
 	     )
 
 ;; TODO: remove the 2 below they should exist as module in scheme+
-(include "rest.scm")
+;;(include "rest.scm")
 
-(include "increment.scm")
+;;(include "increment.scm")
 
 (include "r7rs/escape-char-r7rs-scheme.scm")
 (include "r6rs/display-r6rs-scheme.scm")
