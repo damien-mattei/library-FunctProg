@@ -1,10 +1,8 @@
 #lang reader SRFI-105
-;;#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
 
-;; note: modifiy it to be recompiled by Racket !!! ok  
+;; note: modify it to be recompiled by Racket !!! ok  1 2 
 
 
-;;#lang reader "SRFI-105-toplevel.rkt" 
 
 ;;
 ;;
@@ -24,18 +22,8 @@
 ;;
 ;;
 ;;
-;; version 14 for Racket
+;; version 17 for Racket
 
-
-
-
-;;(compile-enforce-module-constants #f)
-
-;; for infix operator precedence
-;; warning , in command line mode,  this change the basename of the environment to : "racket/logiki+.rkt"> and program logic-syracuse will not work
-;; (define-namespace-anchor ankh)
-;; (define bsns (namespace-anchor->namespace ankh))
-;; (current-namespace bsns)
 
 ; DrRacket does not like greek characters in filenames like in:
 ;(include "program-λογικι-2.8.scm")
@@ -82,19 +70,17 @@
 
 
 (require Scheme+)
-;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
-;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/main.rkt")
 
 (require "operation+.rkt")
 (require "set+.rkt")
 (require "subscript+.rkt")
 (require "minterms+.rkt")
 
+
+
 (require Scheme+/array)
-;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/array.rkt")
 
 (require Scheme+/increment)
-;;(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/increment.scm")
 
 (include "display-racket-scheme.scm")
 
@@ -108,7 +94,8 @@
 (include "../simplify.scm")
 (include "../binary-arithmetic.scm")
 
-(include "../map.scm")
+;;(include "../map.scm")
+(require "map.rkt")
 
 (include "display-formula.scm")
 
@@ -141,12 +128,14 @@
 
 
 (define (implementation-add-n-lists vn-lst)
-  {map-args <- (cons + vn-lst)}
+  ;;{map-args <- (cons + vn-lst)}
+  (define map-args (cons + vn-lst))
   (apply map map-args))
 
 
 (define (implementation-sub-n-lists vn-lst)
-  {map-args <- (cons - vn-lst)}
+  ;;{map-args <- (cons - vn-lst)}
+  (define map-args (cons - vn-lst))
   (apply map map-args))
 
 
@@ -437,7 +426,9 @@
 		      {a2 <- (arg2 expr)}
 		      {ea1 <- (elim-exclusive-or a1)}
 		      {ea2 <- (elim-exclusive-or a2)}
-		      `{{(not ,ea1) and ,ea2} or {,ea1 and (not ,ea2)}}))
+		      ;;`{{(not ,ea1) and ,ea2} or {,ea1 and (not ,ea2)}}
+		      `(or (and (not ,ea1) ,ea2) (and ,ea1 (not ,ea2)))
+		      ))
 
       (else `(,(operator expr) ,(elim-exclusive-or (arg1 expr)) ,(elim-exclusive-or (arg2 expr))))))
 
@@ -2110,8 +2101,10 @@
 	 {mt-set2-to-mt-setn <- (cdr sos)} ;; minterm sets 2 to n
 	 {weight-mt-set1 <- (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
 	 {weight-mt-set2 <- (floor-bin-minterm-weight (car mt-set2))}
-	 {delta-weight <- {weight-mt-set2 - weight-mt-set1}}
+	 ;;{delta-weight <- {weight-mt-set2 - weight-mt-set1}}
+	 (define delta-weight   weight-mt-set2 - weight-mt-set1)
 
+	 
 	 (nodebug
 	  (dvs mt-set1)
 	  (newline)
@@ -2912,7 +2905,13 @@
 
      ;; test 1
      (display-nl "test 1")
-     {expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} }
+     ;;{expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} }
+
+     ;; works too (probably parsed at runtime as above):
+     {expr <- '(((not a) and (not b) and (not c) and (not d)) or ((not a) and (not b) and (not c) and d) or ((not a) and (not b) and c and (not d)) or ((not a) and b and (not c) and d) or ((not a) and b and c and (not d)) or ((not a) and b and c and d) or (a and (not b) and (not c) and (not d)) or (a and (not b) and (not c) and d) or (a and (not b) and c and (not d)) or (c and (not d)))}
+
+     ;;{expr <- '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d) (and (not a) b c (not d)) (and (not a) b c d) (and a (not b) (not c) (not d)) (and a (not b) (not c) d) (and a (not b) c (not d)) (and c (not d)))}
+     
      (display expr)
      (display " = ")
      {res-expr <- (infix-symb-min-dnf expr)}
@@ -2954,9 +2953,20 @@
 	  (return #f)))
      (newline)
 
-     ;; test 4
+     ;; test 4  
      (display-nl "test 4")
-     {expr <- '{{B1 · B0} ⊕ {C1 · {B1 ⊕ B0}}}}
+     ;;{expr <- '{{B1 · B0} ⊕ {C1 · {B1 ⊕ B0}}}}
+     {expr <- '(B1 · B0 ⊕ C1 · (B1 ⊕ B0))} ; with operator precedence
+
+     ;;{expr <- '(B1 · B0 ⊕ C1 · B1 ⊕ B0)} ; wrong
+     ;; test 4
+     ;; (⊕ (⊕ (· B1 B0) (· C1 B1)) B0) = ((B0 ∧ ¬B1) ∨ (B1 ∧ C1))
+     ;; test 4 ******* DIFFER *******
+     ;; #f
+     
+     ;;{expr <- '((B1 · B0) ⊕ (C1 · (B1 ⊕ B0)))}
+
+     ;;{expr <- '(⊕ (· B1 B0) (· C1 (⊕ B1 B0)))}
      (display expr)
      (display " = ")
      {res-expr <- (infix-symb-min-dnf expr)}
@@ -2986,17 +2996,21 @@
 
      ;; test 6
      (display-nl "test 6")
-     {expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}}}
+     ;;{expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}}}
+     {expr <- '(((not a) and (not b) and (not c) and (not d)) or ((not a) and (not b) and (not c) and d) or ((not a) and (not b) and c and (not d)) or ((not a) and b and (not c) and d) or ((not a) and b and c and (not d)) or ((not a) and b and c and d) or (a and (not b) and (not c) and (not d)) or (a and (not b) and (not c) and d) or (a and (not b) and c and (not d)) or (c and (not d)))}
+     ;;{expr <- '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d) (and (not a) b c (not d)) (and (not a) b c d) (and a (not b) (not c) (not d)) (and a (not b) (not c) d) (and a (not b) c (not d)) (and c (not d)))}
      (display expr)
      (display " = ")
      {res-expr <- (cnf-infix-symb expr)}
      (display-nl res-expr)
      {res-expr-exact <- '((¬a ∨ ¬b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬d) ∧ (¬a ∨ ¬c ∨ ¬d) ∧ (b ∨ ¬c ∨ ¬d) ∧ (¬b ∨ c ∨ d))}
-     (if (equal? res-expr res-expr-exact)
+     
+     (if (equal? res-expr res-expr-exact) then
 	 (display-nl "EXACT")
-	 ($>
+       else
 	  (display-nl "test 6 ******* DIFFER *******")
-	  (return #f)))
+	  (return #f))
+     
      (newline)
 
      ;; test 7
@@ -3839,7 +3853,7 @@ the REDUCE-INIT argument."
 
 
 {t <- {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
-(display t) (newline)
+(display "t=") (display t) (newline)
 
 ;; ../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.scm:600:7: require: not at module level or top level in: (require (rename-in racket/base (* orig-proc)))
 ;; (define (foo) ;; ko
@@ -3859,10 +3873,11 @@ the REDUCE-INIT argument."
 (overload-existing-procedure length vector-length (vector?))
 (overload-existing-procedure length string-length (string?))
 
+(display "before lengths") (newline)
 (length #(1 2 3 4))
 (length '(1 2 3))
 (length "abcde")
-
+(display "after lengths") (newline)
 
 ) ; end module
 

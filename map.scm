@@ -1,3 +1,13 @@
+(define (some? function list)
+    ;; returns true if for at least one element x of list function(x) is true
+    ;;  
+    ;; returns #f if (function x) returns #f for 
+    ;; some x in the list
+    (and (pair? list)
+         (or (function (car list))
+             (some? function (cdr list)))))
+
+
 ;; (define-syntax get-out
 ;;      (identifier-syntax break)) 
 

@@ -14,16 +14,16 @@
 ;; bad
 ;; bof
 ;; > (if-t (= 1 0) (display-nl 'good) (display-nl 'bad) (display-nl 'bof)) ->  '()
-(define-syntax if-t
-  (syntax-rules ()
-    ((_ tst ev)  (if tst ev '()))
-    ((_ tst ev ...)  (if tst (begin ev ...) '()))))
+;; (define-syntax if-t
+;;   (syntax-rules ()
+;;     ((_ tst ev)  (if tst ev '()))
+;;     ((_ tst ev ...)  (if tst (begin ev ...) '()))))
 
-;; then and else do as begin-ners ;-)
-(define-syntax then
-  (syntax-rules ()
-    ((_ ev)  ev)
-    ((_ ev ...) (begin ev ...))))
+;; ;; then and else do as begin-ners ;-)
+;; (define-syntax then
+;;   (syntax-rules ()
+;;     ((_ ev)  ev)
+;;     ((_ ev ...) (begin ev ...))))
 
 ;; commented? conflict with cond ?
 ;; (define-syntax else

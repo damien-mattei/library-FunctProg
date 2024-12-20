@@ -1,6 +1,6 @@
 #lang reader SRFI-105
 
-;;#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
+;; modity to recompile
 
 (module minterms racket
 
@@ -8,8 +8,6 @@
 (provide (all-defined-out)) ;; export all bindings
 
 (require Scheme+)
-;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
-;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/main.rkt")
 
 
 
@@ -23,12 +21,13 @@
 (include "display-racket-scheme.scm")
 
 (include "../list.scm")
-(include "../map.scm")
+;;(include "../map.scm")
+(require "map.rkt")
 (include "../symbolic.scm")
 (include "../simplify.scm")
 
 (require Scheme+/increment)
-;;(include "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/increment.scm")
+
 (include "../binary-arithmetic.scm")
 
 

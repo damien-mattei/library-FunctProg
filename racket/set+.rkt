@@ -80,7 +80,7 @@
 (define (set-difference aA B)
   (cond ((null? aA)
 	 '())
-	((member (first aA) B) ;; a C-? B
+	((member (first aA) B) ;; a C-? B      C- means "include"
 	 (set-difference (rest aA) B)) ;; set-difference(A,B)
 	(else
 	 (cons (first aA) (set-difference (rest aA) B))))) ;; { a ,  set-difference(A,B) }
