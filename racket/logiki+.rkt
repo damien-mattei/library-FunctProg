@@ -1404,7 +1404,7 @@
 	 (as (expression->string a)) ;;(symbol->string a))
 	 (bs (expression->string b))) ;;(symbol->string b)))
 
-    (for-basic (i 1 (- (string-length as) 1))
+    (for-basic (i 1 {string-length(as) - 1})
 
 	 (case {as[i]} ;;(string-ref as i)
 
@@ -1471,17 +1471,19 @@
 ;; $2 = (or (and B2 B3) (and B2 B4) (and (not B12) B3))
 (define (sort-expressions-in-operation expr)
 
-  (if (isOR-AND? expr)
+  (if (isOR-AND? expr) then
 
-      ($+> {exprs-list <- (args expr)} ;;'(or c a b) -> '(c a b)
-	 (nodebug (display "sort-expressions-in-operation : ")
-		(dv exprs-list))
-	 {sorted-exprs <- (sort-expressions exprs-list)}
-	 (nodebug
-	  (dv sorted-exprs))
-	 {oper <- (operator expr)} ;; define operator : (or Ci a b) -> or
-	 (cons oper sorted-exprs))
+      {exprs-list <- (args expr)} ;;'(or c a b) -> '(c a b)
+      (nodebug (display "sort-expressions-in-operation : ")
+	       (dv exprs-list))
+      {sorted-exprs <- (sort-expressions exprs-list)}
+      (nodebug
+       (dv sorted-exprs))
+      {oper <- (operator expr)} ;; define operator : (or Ci a b) -> or
+      (cons oper sorted-exprs)
 
+      else
+      
       ;;(sort-arguments-in-operation expr))) ;; we have not an expression composed of expressions but a single expression
       expr))
 
@@ -2576,7 +2578,7 @@
   ;; identifying essential prime implicant array
   ;; first line : minterms
   ;; first row : prime-implicants
-  {iepi ← (make-array-2d {lgt-pi + 1} {lgt-mt + 1} 0)} ;; two dimensions array
+  {iepi ← (make-array-2d (lgt-pi + 1) (lgt-mt + 1) 0)} ;; two dimensions array
   (when debug-mode
     (dv-2d iepi))
 
@@ -2591,7 +2593,7 @@
   ;; set the left column containing prime implicants
   (for-basic (lin 0 {lgt-pi - 1})
 
-       {iepi[{lin + 1} 0] ← vct-prime-implicants[lin]})
+       {iepi[(lin + 1) 0] ← vct-prime-implicants[lin]})
 
   ;; identify prime implicants
   (for-basic (col 1 lgt-mt)
@@ -2648,8 +2650,7 @@
 			      ;; is the essential prime implicant expressing this minterms?
 			      ;; (when (or (string=?  {iepi[lin col]} "(*)")
 			      ;; 		(string=?  {iepi[lin col]} " * "))
-			      (when (or (= {iepi[lin col]} 2)
-					(= {iepi[lin col]} 1))
+			      (when {iepi[lin col] = 2 or iepi[lin col] = 1}
 
 				    (when debug-mode
 					  (display-nl "star-in-column"))
