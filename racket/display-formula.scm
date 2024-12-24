@@ -55,3 +55,12 @@
   (begin
     (eval task ( make-base-namespace ))
     (display "")))
+
+;; (display-without-brackets '((B₁ ∧ B₃) ∨ (B₂ ∧ B₃) ∨ (B₂ ∧ B₄) ∨ (B₃ ∧ B₄)))
+;; (B₁ ∧ B₃) ∨ (B₂ ∧ B₃) ∨ (B₂ ∧ B₄) ∨ (B₃ ∧ B₄)
+(define (display-without-brackets expr)
+  (if (list? expr)
+      (for-each #;map (lambda (e) (display e) (display " "))
+		      expr)
+      (display expr)))
+
