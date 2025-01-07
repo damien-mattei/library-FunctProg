@@ -1,6 +1,5 @@
 #lang reader SRFI-105
 
-;;#lang reader "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/src/SRFI-105.rkt"
 
 ;; subscript definitions
 
@@ -15,8 +14,6 @@
 (require (rename-in srfi/13 (string-hash string-hash-srfi13))) ;; strings
 
 (require Scheme+)
-;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/Scheme+.rkt")
-;;(require "../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/main.rkt")
 
 
 ;; scheme@(guile-user)> (string-subscript-number->string-number "₁₂₃")

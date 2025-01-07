@@ -97,4 +97,88 @@ Goodstein sequences:
 
 ```
 
+A math-logic problem:
 
+
+
+I'm calculating a **logical expression** defined by a **recurrence relation**.  
+  
+I'm calculating boolean values $X_{k+1}$, where $X_{k+1}$ could be $True$ (noted $T$) or $False$ (noted $F$) but as i do the calculus symbolically you will almost never see $T$ or $F$ in the calculus result unless in the first steps of computations (for $k+1<5$). 
+ 
+In the calculus $X_{k+1}$ depends of $X_k$ and of other independent boolean variables named $Y_k$ and $Y_{k-1}$. "Independent" meaning there is no existing or hidden relationship between $Y_k$ and $Y_{k-1}$, it is independent as tossing 2 different pieces of money and considering $T$ or $F$ as heads and tails.
+
+The **recurrence relation** is :  
+
+$X_{k+1}=Y_k \cdot Y_{k-1} \oplus X_k \cdot (Y_k \oplus Y_{k-1})$  
+
+with $\cdot$ noting the logical *and* and $\oplus$ noting the logical *exclusive or*.  
+
+the previous expression can be set in **minimal disjunctive normal form** ([computer calculated by my program][1]):
+
+$X_{k+1}=(Y_k \land Y_{k-1}) \lor (Y_k \land X_k) \lor (Y_{k-1} \land X_k)$
+
+The system is calculated with these **initial conditions**:  
+$X_0=T$  
+$Y_{-1}=F$  
+$Y_0=T$
+
+Then the computation give those results (manually computed for the first steps, computer calculated after):  
+$X_1 = T$  
+$X_2 = T$  
+$X_3 = Y_1 \lor Y_2$  
+$X_4 = Y_2 \lor (Y_1 \land Y_3)$  
+
+
+Note that for a given $X_{n+1}$ the $Y_n$ are with $n \in ]-1,n-1[$ but concretely $n \in ]1,n-1[$ because the values of $n=-1$ or $n=0$ only occurring in the first steps of iteration,but not after as $X_1$ and $X_2$ are simply **tautologies** that do not depends anymore of variables when calculus is done.
+
+$X_5 = (Y_1 \land Y_3) \lor (Y_2 \land Y_3) \lor (Y_2 \land Y_4) \lor (Y_3 \land Y_4)$  
+$X_6 = (Y_1 \land Y_3 \land Y_5) \lor (Y_2 \land Y_3 \land Y_5) \lor (Y_2 \land Y_4) \lor (Y_3 \land Y_4) \lor (Y_4 \land Y_5)$  
+$X_7 = (Y_1 \land Y_3 \land Y_5) \lor (Y_2 \land Y_3 \land Y_5) \lor (Y_2 \land Y_4 \land Y_6) \lor (Y_3 \land Y_4 \land Y_6) \lor (Y_4 \land Y_5) \lor (Y_5 \land Y_6)$  
+$X_8 = (Y_1 \land Y_3 \land Y_5 \land Y_7) \lor (Y_2 \land Y_3 \land Y_5 \land Y_7) \lor (Y_2 \land Y_4 \land Y_6) \lor (Y_3 \land Y_4 \land Y_6) \lor (Y_4 \land Y_5 \land Y_7) \lor (Y_5 \land Y_6) \lor (Y_6 \land Y_7)$  
+$X_9 = (Y_1 \land Y_3 \land Y_5 \land Y_7) \lor (Y_2 \land Y_3 \land Y_5 \land Y_7) \lor (Y_2 \land Y_4 \land Y_6 \land Y_8) \lor (Y_3 \land Y_4 \land Y_6 \land Y_8) \lor (Y_4 \land Y_5 \land Y_7) \lor (Y_5 \land Y_6 \land Y_8) \lor (Y_6 \land Y_7) \lor (Y_7 \land Y_8)$  
+$X_{10} = (Y_1 \land Y_3 \land Y_5 \land Y_7 \land Y_9) \lor (Y_2 \land Y_3 \land Y_5 \land Y_7 \land Y_9) \lor (Y_2 \land Y_4 \land Y_6 \land Y_8) \lor (Y_3 \land Y_4 \land Y_6 \land Y_8) \lor (Y_4 \land Y_5 \land Y_7 \land Y_9) \lor (Y_5 \land Y_6 \land Y_8) \lor (Y_6 \land Y_7 \land Y_9) \lor (Y_7 \land Y_8) \lor (Y_8 \land Y_9)$  
+$X_{11} = (Y_1 \land Y_3 \land Y_5 \land Y_7 \land Y_9) \lor (Y_2 \land Y_3 \land Y_5 \land Y_7 \land Y_9) \lor (Y_2 \land Y_4 \land Y_6 \land Y_8 \land Y_{10}) \lor (Y_3 \land Y_4 \land Y_6 \land Y_8 \land Y_{10}) \lor (Y_4 \land Y_5 \land Y_7 \land Y_9) \lor (Y_5 \land Y_6 \land Y_8 \land Y_{10}) \lor (Y_6 \land Y_7 \land Y_9) \lor (Y_7 \land Y_8 \land Y_{10}) \lor (Y_8 \land Y_9) \lor (Y_9 \land Y_{10})$  
+$X_{12} = (Y_1 \land Y_3 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_2 \land Y_3 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_2 \land Y_4 \land Y_6 \land Y_8 \land Y_{10}) \lor (Y_3 \land Y_4 \land Y_6 \land Y_8 \land Y_{10}) \lor (Y_4 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_5 \land Y_6 \land Y_8 \land Y_{10}) \lor (Y_6 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_7 \land Y_8 \land Y_{10}) \lor (Y_8 \land Y_9 \land Y_{11}) \lor (Y_9 \land Y_{10}) \lor (Y_{10} \land Y_{11})$  
+$X_{13} = (Y_1 \land Y_3 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_2 \land Y_3 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_2 \land Y_4 \land Y_6 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_3 \land Y_4 \land Y_6 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_4 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_5 \land Y_6 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_6 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_7 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_8 \land Y_9 \land Y_{11}) \lor (Y_9 \land Y_{10} \land Y_{12}) \lor (Y_{10} \land Y_{11}) \lor (Y_{11} \land Y_{12})$  
+
+Note: the above expressions have been verified with my Scheme program and the SymPy Python library to avoid any risk of error in the source code.(Mathematica software has also been used for some tests and verify a few calculus)
+
+Note that the computer calculated calculus above use the [Quine–McCluskey algorithm][2] and the [Petrick's method][3] to generate *minimal disjunctive normal forms* and the time complexity of those algorithms are exponential relative to the number of variables.So the compute time grows fast and after $X_{13}$ it would be long (many hours) to compute on a personal computer.
+
+
+But i find a way to pass from $X_k$ to $X_{k+1}$ without having to do the long computer calculus :  
+
+***Conjectured method to pass from  $X_n$ to $X_{n+1}$ : in the disjunctive expression of $X_n$ insert $Y_n$ in the conjunctive terms whose do not contains $Y_{n-1}$, and finally append a conjunctive term of expression $Y_{n-1} \land Y_n$ (in the global disjunctive expression).***  
+
+Examples:  
+
+starting from $X_5$ (not working below 5)  
+
+example 1 :  
+n=5 , pass from $X_5 = (Y_1 \land Y_3) \lor (Y_2 \land Y_3) \lor (Y_2 \land Y_4) \lor (Y_3 \land Y_4)$ to $X_6$:  
+ insert $Y_n = Y_5$ in the conjunctive terms whose do not contains $Y_{n-1} = Y_{5-1} = Y_4$
+ we have then :  
+$(Y_1 \land Y_3 \land Y_5) \lor (Y_2 \land Y_3 \land Y_5) \lor (Y_2 \land Y_4) \lor (Y_3 \land Y_4)$  
+ now append a conjunctive term of expression $Y_{n-1} \land Y_n = Y_4 \land Y_5$ in the disjunctive expression, this give the result:  
+ $X_6 = (Y_1 \land Y_3 \land Y_5) \lor (Y_2 \land Y_3 \land Y_5) \lor (Y_2 \land Y_4) \lor (Y_3 \land Y_4) \lor (Y_4 \land Y_5)$  
+which is the same as the mathematically computed expression more above.  
+
+example 2:  
+n=12 , pass from $X_{12} = (Y_1 \land Y_3 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_2 \land Y_3 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_2 \land Y_4 \land Y_6 \land Y_8 \land Y_{10}) \lor (Y_3 \land Y_4 \land Y_6 \land Y_8 \land Y_{10}) \lor (Y_4 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_5 \land Y_6 \land Y_8 \land Y_{10}) \lor (Y_6 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_7 \land Y_8 \land Y_{10}) \lor (Y_8 \land Y_9 \land Y_{11}) \lor (Y_9 \land Y_{10}) \lor (Y_{10} \land Y_{11})$  
+ to $X_{13}$:  
+ insert $Y_n = Y_{12}$ in the conjunctive terms whose do not contains $Y_{n-1} = Y_{12-1} = Y_{11}$
+ we have then :  
+$(Y_1 \land Y_3 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_2 \land Y_3 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_2 \land Y_4 \land Y_6 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_3 \land Y_4 \land Y_6 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_4 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_5 \land Y_6 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_6 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_7 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_8 \land Y_9 \land Y_{11}) \lor (Y_9 \land Y_{10} \land Y_{12}) \lor (Y_{10} \land Y_{11})$    
+ now append a conjunctive term of expression $Y_{n-1} \land Y_n = Y_{11} \land Y_{12}$ in the disjunctive expression, this give the result:  
+ $X_{13} = (Y_1 \land Y_3 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_2 \land Y_3 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_2 \land Y_4 \land Y_6 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_3 \land Y_4 \land Y_6 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_4 \land Y_5 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_5 \land Y_6 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_6 \land Y_7 \land Y_9 \land Y_{11}) \lor (Y_7 \land Y_8 \land Y_{10} \land Y_{12}) \lor (Y_8 \land Y_9 \land Y_{11}) \lor (Y_9 \land Y_{10} \land Y_{12}) \lor (Y_{10} \land Y_{11}) \lor (Y_{11} \land Y_{12})$   
+which is the same as the mathematically computed expression more above.  
+
+As this worked from $X_5$ to $X_{12}$ i suppose it is not hasard and it will works for every $X_n$ with $n\geq5$.
+
+How to prove what is conjectured above?
+
+
+
+  [1]: https://github.com/damien-mattei/library-FunctProg/blob/master/racket/logiki%2B.rkt#L2697
+  [2]: https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm
+  [3]: https://en.wikipedia.org/wiki/Petrick%27s_method
