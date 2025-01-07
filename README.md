@@ -148,7 +148,7 @@ Note that the computer calculated calculus above use the [Quine–McCluskey algo
 
 But i find a way to pass from $X_k$ to $X_{k+1}$ without having to do the long computer calculus :  
 
-***Conjectured method to pass from  $X_n$ to $X_{n+1}$ : in the disjunctive expression of $X_n$ insert $Y_n$ in the conjunctive terms whose do not contains $Y_{n-1}$, and finally append a conjunctive term of expression $Y_{n-1} \land Y_n$ (in the global disjunctive expression).***  
+Conjectured method to pass from  $X_n$ to $X_{n+1}$ : in the disjunctive expression of $X_n$ insert $Y_n$ in the conjunctive terms whose do not contains $Y_{n-1}$, and finally append a conjunctive term of expression $Y_{n-1} \land Y_n$ (in the global disjunctive expression).  
 
 Examples:  
 
