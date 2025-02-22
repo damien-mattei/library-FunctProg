@@ -201,3 +201,19 @@
       (cons (list (first L)
 		  (first (rest L)))
 	    (pair-list-elements (rest (rest L))))))
+
+
+
+;; > (between '(1 2 3) 'A)
+;; '(1 A 2 A 3)
+;; > (between '(1 2) 'A)
+;; '(1 A 2)
+;; > (between '(1) 'A)
+;; '(1)
+(define (between L elem)
+  (if (null? (cdr L))
+      L
+      (cons (car L)
+	    (cons elem
+		  (between (cdr L) elem)))))
+
