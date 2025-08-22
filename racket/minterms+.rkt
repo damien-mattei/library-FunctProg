@@ -1,6 +1,6 @@
 #lang reader SRFI-105
 
-;; modity to recompile
+;; modity to recompile 
 
 (module minterms racket
 

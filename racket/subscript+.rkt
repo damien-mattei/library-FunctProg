@@ -1,7 +1,7 @@
 #lang reader SRFI-105
 
 
-;; subscript definitions
+;; subscript definitions 
 
 ;; Damien MATTEI
 

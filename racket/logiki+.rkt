@@ -1,6 +1,6 @@
 #lang reader SRFI-105
 
-;; note: modify it to be recompiled by Racket !!! ok  1 2 
+;; note: modify it to be recompiled by Racket !!! ok  1 2 3
 
 
 
@@ -3146,7 +3146,7 @@ segment."
 		      segment-count))])
 	     (let loop ([pos start])
 	       (cond
-		[(>= (+ pos segment-size) end)
+		[(≥ (+ pos segment-size) end)
 		 (list (make-segment pos end))]
 		[else
 		 (cons (make-segment pos (+ pos segment-size))
@@ -3237,7 +3237,7 @@ the REDUCE-INIT argument."
    
   {start <- (segment-start seg)}
   {end <- (segment-end seg)}
-  (for ({i <- start} {i <= end} {i <- i + 1})
+  (for ({i <- start} {i ≤ end} {i <- i + 1})
        {mtL <- minterms-vector[i]}
        ;; (nodebug
        ;; 	(dv mtL))
@@ -3253,7 +3253,7 @@ the REDUCE-INIT argument."
    
   {start <- (segment-start seg)}
   {end <- (segment-end seg)}
-  (for ({i <- start} {i <= end} {i <- i + 1})
+  (for ({i <- start} {i ≤ end} {i <- i + 1})
        {mtL <- minterms-vector[i]}
        ;; (nodebug
        ;; 	(dv mtL))
@@ -3309,7 +3309,7 @@ the REDUCE-INIT argument."
    
   (define start (segment-start seg))
   (define end (segment-end seg))
-  (for ((define i start) (<= i end) (set! i (+ i 1)))
+  (for ((define i start) (≤ i end) (set! i (+ i 1)))
        (define mtL (vector-ref minterms-vector i))
        (nodebug
 	(dv mtL))
@@ -3879,6 +3879,9 @@ the REDUCE-INIT argument."
 (length '(1 2 3))
 (length "abcde")
 (display "after lengths") (newline)
+(display "testing superscripts:(should return 9):") (newline)
+(define (foo) (define n 3) {3 ⁻²·⁽ⁿ⁻⁴⁾})
+(foo)
 
 ) ; end module
 

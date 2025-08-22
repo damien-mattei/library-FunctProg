@@ -4,8 +4,6 @@
 
 ;; Copyright (C) 2014-2024  Damien MATTEI
 ;;
-;;
-;; e-mail: damien.mattei@gmail.com 
 
 
 (module operation racket
