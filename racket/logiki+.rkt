@@ -3268,12 +3268,11 @@ the REDUCE-INIT argument."
 
 
 
-;; put below because of . period bug in SRFI 105 reader
 
 ;; proc to be called with //
 (define (proc-unify-minterms-seg-inner-definitions seg)
 
-  (define (function-map-with-escaping-by-kontinuation2 clozure list1 . more-lists) ;; ERROR: . period not supported in curly infix reader
+  (define (function-map-with-escaping-by-kontinuation2 clozure list1 . more-lists)
     (call/cc (lambda (kontinuation)
 	       (let ((lists (cons list1 more-lists))
 		     (funct-continu ;; this function have the kontinuation in his environment 
