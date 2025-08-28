@@ -13,7 +13,7 @@
 ;;
 ;; a program to compute logic symbolically
 ;;
-;; Copyright (C) 2014-2024  Damien MATTEI
+;; Copyright (C) 2014-2025  Damien MATTEI
 ;;
 ;;
 ;; e-mail: damien.mattei@gmail.com
@@ -22,7 +22,7 @@
 ;;
 ;;
 ;;
-;; version 17 for Racket
+;; version 18 for Racket
 
 
 ; DrRacket does not like greek characters in filenames like in:
@@ -2151,7 +2151,12 @@
 
 	 (if {delta-weight = 1} then ;; if minterms set are neighbours
 
-	     {unified-mt-set1-and-mt-set2 <-  (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;;(funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)} ;; (funct-unify-minterms-set-1-unit-par-for-each mt-set1 mt-set2)} ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
+	     ;; unify neighbours minterms sets
+	     {unified-mt-set1-and-mt-set2 <- (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ; (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)}
+	     ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; with lists
+
+	     ;; Guile only?
+	     ;;(funct-unify-minterms-set-1-unit-para mt-set1 mt-set2)} ;;  (funct-unify-minterms-set-1-unit-par-map mt-set1 mt-set2)} ;; ;; unify neighbours minterms sets
 
 		
 	     (if (null? unified-mt-set1-and-mt-set2)
@@ -3317,7 +3322,7 @@ the REDUCE-INIT argument."
 
 
 
-
+{p <- (make-parallel-thread-pool)} ; C12 : 43" in Racket GUI ,25" in CLI (command line)
 
 (define (funct-unify-minterms-set-1-unit-threads set1 set2)
 
@@ -3336,8 +3341,8 @@ the REDUCE-INIT argument."
    (dvs set2))
 
   ;; note : sorting is useless
-
-  {minterms-set <- (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list MODIF
+  ;; modified code
+  {minterms-set <- (product-set-with-set-imperative set1 set2)} ;;(product-set-with-set-imperative-sorted set1 set2)} ;;(product-set-with-set set1 set2)} ;;(associate-set-with-set set1 set2)} ;; set multiplication : create list of pair of minterms - pair is a 2 element list 
 
   (nodebug
    (dvs minterms-set))
@@ -3359,23 +3364,35 @@ the REDUCE-INIT argument."
   (nodebug
    (dv minterms-vector-length))
 
+  ;; on Acer Aspire 5 17" the result below display 16 processors
+  ;;(display "logiki+ : funct-unify-minterms-set-1-unit-threads : (processor-count) = ") (display (processor-count)) (newline)
+  
   ;; warning : // gives almost no better result
   ;; it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists 
-  {nb-procs <- 8} ;; 16} ;;(processor-count)} ;; 4};; C12 :1'25" with processor-count
+  {nb-procs <- (processor-count)} ;16}; 10} ;1} ;2} ; 4};; 8} ;; 16} ;;(processor-count)} ;; 4};; C12 :1'25" with processor-count ; 10 seems to be the number of hardware core of 12th Gen Intel(R) Core(TM) i7-12650H and on of the best performance for computing C12: 44", 42" on 16 threads, 25" in command line !
 
-  (when {minterms-vector-length < 500000} ;; 1'21" C12 with 16 threads on Mac OS M1 , 1'57" on Linux intel, 1' 52" with 8 threads
-	{nb-procs <- 1})
+
+  ;; (when {minterms-vector-length < 500000} ;; 1'21" C12 with 16 threads on Mac OS M1 , 1'57" on Linux intel, 1' 52" with 8 threads
+  ;;   (display "logiki+ : funct-unify-minterms-set-1-unit-threads : WARNING : falling back on one cpu (number of elements below threshold)") (newline)
+  ;;   {nb-procs <- 1})
+
+  ;; (when (not {minterms-vector-length < 500000})
+  ;;   (display "logiki+ : funct-unify-minterms-set-1-unit-threads : run on multiple processors") (newline))
   
-  {segmts <- (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
+  {segmts <- (segment 0
+		      {minterms-vector-length - 1}
+		      nb-procs)} ;; compute the segments
 
   (nodebug
    (dv segmts))
 
   {unified-minterms-vector-1 <- (make-vector minterms-vector-length #f)}
 
-  (if {nb-procs = 1}
+  (if {nb-procs = 1} ; when only one statement in then block, 'then' is useless in scheme+
+      
       (proc-unify-minterms-seg-and-tag (first segmts)) ;;(proc-unify-minterms-seg (first segmts))
-      ($+>
+
+    else
 
        (nodebug
 	(display-nl "before //"))
@@ -3384,11 +3401,14 @@ the REDUCE-INIT argument."
        {threads <- (map (λ (seg)
 			  ;;(display "initialising thread ")
 			  ;;(dv seg)
-			  (thread
-			   (λ ()
-			     ;;(display "starting thread ")
-			     ;;(dv seg)
-			     (proc-unify-minterms-seg-and-tag seg)))) ;; (proc-unify-minterms-seg-inner-definitions seg))));; (proc-unify-minterms-seg seg))))
+			  (thread (λ ()
+				    ;;(display "starting thread ")
+				    ;;(dv seg)
+				    (proc-unify-minterms-seg-and-tag seg))
+				  #:pool ; added for Racket 8.18
+				  ;;'own
+				  p
+				  )) ;; (proc-unify-minterms-seg-inner-definitions seg))));; (proc-unify-minterms-seg seg))))
 			segmts)}
 
        (nodebug
@@ -3402,7 +3422,7 @@ the REDUCE-INIT argument."
 	    threads)
        
        (nodebug
-	(display-nl "after //"))))
+	(display-nl "after //"))) ; end if ... then ... else
 
   (nodebug
    {unified-minterms-vector-1-length <- (vector-length unified-minterms-vector-1)}
@@ -3468,7 +3488,7 @@ the REDUCE-INIT argument."
 
   {minterms-vector-length <- (vector-length minterms-vector)}
 
-  {nb-procs <- 1}  ;; 32} ;; (processor-count)} ;; 32 : 1'25" for C12 on mac os M1 , 1' 42" on intel linux
+  {nb-procs <- (processor-count)} ;; 1'21" for C12 ;; 32 : 1'25" for C12 on mac os M1 , 1' 42" on intel linux
   ;; 32" for C12 in Terminal mode with MacOS Ventura M1 and 31" with transducers
 
   (nodebug
@@ -3742,6 +3762,15 @@ the REDUCE-INIT argument."
 ;;    (display-nl "funct-unify-minterms-set-1-unit-par-map : end"))
       
 ;;   unified-minterms-set)
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;; below is test code of Scheme+ which should not be here !!!!! (nothing to see with logic)
 
 
 {ztest <- 1}

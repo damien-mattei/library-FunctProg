@@ -4161,7 +4161,7 @@ the REDUCE-INIT argument."
 
   ;; warning : // gives almost no better result, for this reason i use it on 1 CPU ,if you change to greater number of CPUs it slow down the code !
   ;; but has it (// procedures) uses Vectors instead of Lists, with Guile it is faster than the sequential procedures written initially in Lists
-  {nb-procs <+ 2} ;;32} ;;(current-processor-count)} ;;{(current-processor-count) - 1}} ;;1} ;;  -1 leaves on CPU for system
+  {nb-procs <+ 2} ;;32} ;;(current-processor-count)} ;;{(current-processor-count) - 1}} ;;1} ;;  -1 leaves one CPU for system
 
   {segmts <+ (segment 0 {minterms-vector-length - 1} nb-procs)} ;; compute the segments
 
