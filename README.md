@@ -175,7 +175,7 @@ which is the same as the mathematically computed expression more above.
 
 As this worked from $X_5$ to $X_{12}$ i suppose it is not hasard and it will works for every $X_n$ with $n\geq5$.
 
-How to prove what is conjectured above?
+But how to prove what is conjectured above?
 
 
 
