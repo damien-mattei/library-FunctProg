@@ -22,7 +22,7 @@
 ;;
 ;;
 ;;
-;; version 18 for Racket
+;; version 19 for Racket
 
 
 ; DrRacket does not like greek characters in filenames like in:
@@ -64,7 +64,7 @@
 ;;(require srfi-171/transducers)
 
 
-
+(require version-case)
 
 (display "before overload loading") (newline)
 
@@ -115,13 +115,14 @@
 
 (define-overload-existing-n-arity-operator -)
 
-(define (add-n-lists . vn-lst) (implementation-add-n-lists vn-lst))
+(define (add-n-lists . vn-lst) ;;(implementation-add-n-lists vn-lst))
+  {map-args <- (cons + vn-lst)}
+  ;;(define map-args (cons + vn-lst))
+  (apply map map-args))
 
 (define (sub-n-lists . vn-lst) (implementation-sub-n-lists vn-lst))
 
 (define-overload-existing-procedure length)
-(define-overload-procedure foobie)
-
 
 ;; overload tests
 
@@ -147,7 +148,7 @@
 ;;
 ;; a program to compute logic symbolically
 ;;
-;; Copyright (C) 2014-2023  Damien MATTEI
+;; Copyright (C) 2014-2025  Damien MATTEI
 ;;
 ;;
 ;; e-mail: damien.mattei@gmail.com 
@@ -383,11 +384,11 @@
    ((isNOT? expr) `(not ,(elim-equivalence (arg expr))))
    ((isIMPLIC? expr) `(=> ,(elim-equivalence (arg1 expr)) ,(elim-equivalence (arg2 expr))))
    ((isEQUIV? expr) ($+> ;; a <=> b ----> (a => b) and (b => a)
-		     {a <- (arg1 expr)}
-		     {b <- (arg2 expr)}
-		     {ae <- (elim-equivalence a)}
-		     {be <- (elim-equivalence b)}
-		     `(and (=> ,ae ,be) (=> ,be ,ae))))
+		      {a <- (arg1 expr)}
+		      {b <- (arg2 expr)}
+		      {ae <- (elim-equivalence a)}
+		      {be <- (elim-equivalence b)}
+		      `(and (=> ,ae ,be) (=> ,be ,ae))))
     (else `(,(operator expr) ,(elim-equivalence (arg1 expr)) ,(elim-equivalence (arg2 expr))))))
 
 
@@ -2104,7 +2105,7 @@
 	 {weight-mt-set1 <- (floor-bin-minterm-weight (car mt-set1))} ;; in a set all minterms have same weight
 	 {weight-mt-set2 <- (floor-bin-minterm-weight (car mt-set2))}
 	 ;;{delta-weight <- {weight-mt-set2 - weight-mt-set1}}
-	 (define delta-weight   weight-mt-set2 - weight-mt-set1)
+	 (def delta-weight   weight-mt-set2 - weight-mt-set1)
 
 	 
 	 (nodebug
@@ -2152,7 +2153,12 @@
 	 (if {delta-weight = 1} then ;; if minterms set are neighbours
 
 	     ;; unify neighbours minterms sets
-	     {unified-mt-set1-and-mt-set2 <- (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)} ; (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}  ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)}
+	     (declare unified-mt-set1-and-mt-set2)
+	     (version-case
+	      [(version>= (version) "8.18") 
+	       {unified-mt-set1-and-mt-set2 <- (funct-unify-minterms-set-1-unit-threads mt-set1 mt-set2)}]
+	      [else
+	       {unified-mt-set1-and-mt-set2 <- (funct-unify-minterms-set-1-unit-future mt-set1 mt-set2)}])  ;; (funct-unify-minterms-set-1-unit-vector-1cpu mt-set1 mt-set2)}
 	     ;;    (funct-unify-minterms-set-1-unit mt-set1 mt-set2)} ;; with lists
 
 	     ;; Guile only?
@@ -2667,11 +2673,14 @@
 	     ;; end for/break break-lin
 
 	     (unless star-in-column
-		     {feepi ← #f} ;; function not expressed by prime implicants
-		     ;; add minterm to non expressed minterms list
-		     {non-expressed-minterms ← (insert {iepi[0 col]} non-expressed-minterms)}
-		     ;;(break-col) ;; removed break-col as we have to check all the minterms now
-		     )
+	       ;;(define xx 7) ; for test
+	       {feepi ← #f} ;; function not expressed by prime implicants
+	       ;; add minterm to non expressed minterms list
+	       ;;{non-expressed-minterms ← (insert {iepi[0 col]} non-expressed-minterms)}
+	       {non-expressed-minterms ← (insert iepi[0 col] non-expressed-minterms)}
+	       ;;(display "unless") (newline)
+	       ;;(break-col) ;; removed break-col as we have to check all the minterms now
+	       )
 
 	     {star-in-column ← #f})  ;; set it for the next loop
   ;; end for/break break-col
@@ -2911,6 +2920,7 @@
 
      ;; test 1
      (display-nl "test 1")
+     ;; all commented code should work
      ;;{expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} }
 
      ;; works too (probably parsed at runtime as above):
@@ -3319,9 +3329,12 @@ the REDUCE-INIT argument."
 	(dv mtL))
        (vector-set! unified-minterms-vector-1 i (function-unify-minterms-list mtL))))
 
+{ver <- (string->number (version))}
 
-
-{p <- (make-parallel-thread-pool)} ; C12 : 43" in Racket GUI ,25" in CLI (command line)
+(declare p)
+(version-case
+  [(version>= (version) "8.18") {p <- (make-parallel-thread-pool)}])
+					; C12 : 43" in Racket GUI ,25" in CLI (command line)
 
 (define (funct-unify-minterms-set-1-unit-threads set1 set2)
 
@@ -3771,14 +3784,6 @@ the REDUCE-INIT argument."
 
 ;; below is test code of Scheme+ which should not be here !!!!! (nothing to see with logic)
 
-
-{ztest <- 1}
-(display "ztest=") (display ztest) (newline)
-{3 * 5 + ztest}
-
-(declare x)
-{x <- 3 * 5 + ztest}
-
 (define (area-square x) (* x x))
 
 (define-overload-procedure area)
@@ -3810,8 +3815,6 @@ the REDUCE-INIT argument."
 ;; 27
 ;; > (volume 3 4 5)
 ;; 60
-
-{#(1 2 3 4 5 6 7)[2 * 3 - 4 + 2]}
 
 
 (overload-existing-n-arity-operator + add-n-lists (list? list?))
@@ -3881,7 +3884,7 @@ the REDUCE-INIT argument."
 
 
 
-{t <- {3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}}
+{t <- 3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}
 (display "t=") (display t) (newline)
 
 ;; ../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.scm:600:7: require: not at module level or top level in: (require (rename-in racket/base (* orig-proc)))
@@ -3906,7 +3909,7 @@ the REDUCE-INIT argument."
 (length #(1 2 3 4))
 (length '(1 2 3))
 (length "abcde")
-(display "after lengths") (newline)
+(display "after lengths : should have returned 4 3 5") (newline)
 (display "testing superscripts:(should return 9):") (newline)
 (define (foo) (define n 3) {3 ⁻²·⁽ⁿ⁻⁴⁾})
 (foo)
