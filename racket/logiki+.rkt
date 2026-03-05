@@ -1944,7 +1944,7 @@
   ;; use srfi 69 hash-table->alist
   (map car ;; or car , works in Guile because first is a procedure (usable with map)
        (filter (λ (p)
-		 (not (cdr p))) ;; when working with pair i prefer be using car and cdr rather than first an rest
+		 (not (cdr p))) ;; when working with pair i prefer be using car and cdr rather than first and rest
 	       (hash-table->alist mt-ht)))) ;; SRFI 69 , Guile
 
   ;;(map first (filter (λ (p) (not (cdr p))) (hash->list mt-ht)))) ;; DrRacket
