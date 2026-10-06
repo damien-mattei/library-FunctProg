@@ -1,5 +1,5 @@
 #lang reader SRFI-105
-
+ 
 ;; note: modify it to be recompiled by Racket !!! ok  1 2 3
 
 
@@ -22,7 +22,7 @@
 ;;
 ;;
 ;;
-;; version 19 for Racket
+;; version 20 for Racket
 
 
 ; DrRacket does not like greek characters in filenames like in:
@@ -71,6 +71,8 @@
 
 (require Scheme+)
 
+ANNOTATION-ON
+
 (require "operation+.rkt")
 (require "set+.rkt")
 (require "subscript+.rkt")
@@ -109,11 +111,6 @@
 (define (add-list-list v1 v2) (map + v1 v2))
 (display "before define-overload") (newline)
 
-(define-overload-existing-n-arity-operator +)
-;;(define-overload-existing-operator +)
-(define-overload-existing-operator *)
-
-(define-overload-existing-n-arity-operator -)
 
 (define (add-n-lists . vn-lst) ;;(implementation-add-n-lists vn-lst))
   {map-args <- (cons + vn-lst)}
@@ -122,7 +119,20 @@
 
 (define (sub-n-lists . vn-lst) (implementation-sub-n-lists vn-lst))
 
-(define-overload-existing-procedure length)
+(display "before mult-num-list") (newline)
+(define (mult-num-list k v) (map (λ (x) (* k x)) v))
+
+;; overloadings : overload-operator and overload-procedure define the overloaded operator or procedure
+;; the first time (the original one is taken from racket/base), then add the overload.
+;; They are at the beginning of the module : the overloaded operators and procedures must be defined
+;; before any use of them at module level.
+(overload-operator + add-n-lists (list?)) ; n-ary : any number of lists
+(overload-operator - sub-n-lists (list?)) ; n-ary : any number of lists
+; integer? must be used instead of number? because find-type will test and return integer? before testing number? which is too general
+; (list?) is the return type, for the type annotation
+(overload-operator * (list?) mult-num-list (integer? list?)) ; binary
+(overload-procedure length vector-length (vector?))
+(overload-procedure length string-length (string?))
 
 ;; overload tests
 
@@ -1929,6 +1939,7 @@
 
 ;; the hash table for minterms, better to be a top-level definition,it's nightmare otherwise...
 
+(type hash-table? minterms-ht)
 (define minterms-ht (make-hash-table)) ;; SRFI 69
 ;;(define minterms-ht (make-hashtable)) ;; Bigloo
 
@@ -1939,6 +1950,7 @@
 ;;> (prime-implicants minterms-ht) -> '((x 1 x 1) (1 x x 0) (1 1 x x))
 (define (prime-implicants mt-ht) ;; argument is a minterms hash table
 
+  (type hash-table? mt-ht)
   ;; return prime-implicant list when the value of hashtable key-value pair is #f
 
   ;; use srfi 69 hash-table->alist
@@ -2522,6 +2534,7 @@
 ;; used by Quine - Mc Cluskey
 (define (init-hash-table-with-set-and-value ht s val)
 
+  (type hash-table? ht)
   ;;(debug-mode-off)
   (when debug-mode
 	(display "init-hash-table-with-set-and-value") (newline))
@@ -2921,10 +2934,13 @@
      ;; test 1
      (display-nl "test 1")
      ;; all commented code should work
-     ;;{expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} }
+     ;;{expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}} } ; outside a region CARE-OF-QUOTES-OFF : in a quote only the { } are infix
 
-     ;; works too (probably parsed at runtime as above):
+     ;; a region for the symbolic computation : the quoted lists are infix expressions (only around the formula : the
+     ;; expected results below are data)
+     CARE-OF-QUOTES-OFF
      {expr <- '(((not a) and (not b) and (not c) and (not d)) or ((not a) and (not b) and (not c) and d) or ((not a) and (not b) and c and (not d)) or ((not a) and b and (not c) and d) or ((not a) and b and c and (not d)) or ((not a) and b and c and d) or (a and (not b) and (not c) and (not d)) or (a and (not b) and (not c) and d) or (a and (not b) and c and (not d)) or (c and (not d)))}
+     CARE-OF-QUOTES-ON
 
      ;;{expr <- '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d) (and (not a) b c (not d)) (and (not a) b c d) (and a (not b) (not c) (not d)) (and a (not b) (not c) d) (and a (not b) c (not d)) (and c (not d)))}
      
@@ -2971,8 +2987,10 @@
 
      ;; test 4  
      (display-nl "test 4")
-     ;;{expr <- '{{B1 · B0} ⊕ {C1 · {B1 ⊕ B0}}}}
+     ;;{expr <- '{{B1 · B0} ⊕ {C1 · {B1 ⊕ B0}}}} ; outside a region CARE-OF-QUOTES-OFF
+     CARE-OF-QUOTES-OFF
      {expr <- '(B1 · B0 ⊕ C1 · (B1 ⊕ B0))} ; with operator precedence
+     CARE-OF-QUOTES-ON
 
      ;;{expr <- '(B1 · B0 ⊕ C1 · B1 ⊕ B0)} ; wrong
      ;; test 4
@@ -3012,8 +3030,10 @@
 
      ;; test 6
      (display-nl "test 6")
-     ;;{expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}}}
+     ;;{expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}}} ; outside a region CARE-OF-QUOTES-OFF
+     CARE-OF-QUOTES-OFF
      {expr <- '(((not a) and (not b) and (not c) and (not d)) or ((not a) and (not b) and (not c) and d) or ((not a) and (not b) and c and (not d)) or ((not a) and b and (not c) and d) or ((not a) and b and c and (not d)) or ((not a) and b and c and d) or (a and (not b) and (not c) and (not d)) or (a and (not b) and (not c) and d) or (a and (not b) and c and (not d)) or (c and (not d)))}
+     CARE-OF-QUOTES-ON
      ;;{expr <- '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d) (and (not a) b c (not d)) (and (not a) b c d) (and a (not b) (not c) (not d)) (and a (not b) (not c) d) (and a (not b) c (not d)) (and c (not d)))}
      (display expr)
      (display " = ")
@@ -3786,26 +3806,24 @@ the REDUCE-INIT argument."
 
 (define (area-square x) (* x x))
 
-(define-overload-procedure area)
-
-(define-overload-procedure volume)
+;; area and volume are defined by their first overload-procedure below
 
 ;; (if #t
 ;;     (overload area area-square (number?))
 ;;     #f)
 
-(overload-procedure area area-square (number?))
+(overload-procedure area area-square (integer?))
 
 (define (area-rect x y) (* x y))
 
-(overload-procedure area area-rect (number? number?))
+(overload-procedure area area-rect (integer? integer?))
 
 
 (define (volume-cube x) (* x x x))
 (define (volume-parallepipede-droit x y z) (* x y z))
 
-(overload-procedure volume volume-cube (number?))
-(overload-procedure volume volume-parallepipede-droit (number? number? number?))
+(overload-procedure volume volume-cube (integer?))
+(overload-procedure volume volume-parallepipede-droit (integer? integer? integer?))
 
 ;; > (area 3)
 ;; 9
@@ -3817,7 +3835,7 @@ the REDUCE-INIT argument."
 ;; 60
 
 
-(overload-existing-n-arity-operator + add-n-lists (list? list?))
+; + is overloaded with add-n-lists at the beginning of the module : (overload-operator + add-n-lists (list?))
 
 
 
@@ -3871,22 +3889,25 @@ the REDUCE-INIT argument."
 ;; check-arguments-for-n-arity : type = #<procedure:list?>
 ;; check-arguments-for-n-arity : args = (3)
 ;; '(-1 -2 -3)
-(overload-existing-n-arity-operator - sub-n-lists (list? list?))
+; - is overloaded with sub-n-lists at the beginning of the module : (overload-operator - sub-n-lists (list?))
 
 (display "+ =") (display +) (newline)
 
 (+ '(1 2) '(3 4))
 
-(display "before mult-num-list") (newline)
-(define (mult-num-list k v) (map (λ (x) (* k x)) v))
+(unless (equal? (+ '(1 2) '(3 4))
+		'(4 6))
+  (error "(+ '(1 2) '(3 4)) fails : " (+ '(1 2) '(3 4))))
 
-(overload-existing-operator * mult-num-list (number? list?))
-
-
+; * is overloaded with mult-num-list (defined at the beginning of the module too) : (overload-operator * (list?) mult-num-list (integer? list?))
 
 {t <- 3 * '(1 2 3) + '(4 5 6) + '(7 8 9)}
 (display "t=") (display t) (newline)
+(unless (equal? t
+		'(14 19 24))
+  (error "{t <- 3 * '(1 2 3) + '(4 5 6) + '(7 8 9)} fails : " t))
 
+; overload declaration not allowed in procedure:
 ;; ../../Scheme-PLUS-for-Racket/main/Scheme-PLUS-for-Racket/overload.scm:600:7: require: not at module level or top level in: (require (rename-in racket/base (* orig-proc)))
 ;; (define (foo) ;; ko
 ;;   ;;(declare x)
@@ -3902,8 +3923,7 @@ the REDUCE-INIT argument."
 
 
 
-(overload-existing-procedure length vector-length (vector?))
-(overload-existing-procedure length string-length (string?))
+; length is overloaded with vector-length and string-length at the beginning of the module
 
 (display "before lengths") (newline)
 (length #(1 2 3 4))
