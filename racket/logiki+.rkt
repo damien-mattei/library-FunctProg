@@ -2938,9 +2938,14 @@ ANNOTATION-ON
 
      ;; a region for the symbolic computation : the quoted lists are infix expressions (only around the formula : the
      ;; expected results below are data)
-     CARE-OF-QUOTES-OFF
-     {expr <- '(((not a) and (not b) and (not c) and (not d)) or ((not a) and (not b) and (not c) and d) or ((not a) and (not b) and c and (not d)) or ((not a) and b and (not c) and d) or ((not a) and b and c and (not d)) or ((not a) and b and c and d) or (a and (not b) and (not c) and (not d)) or (a and (not b) and (not c) and d) or (a and (not b) and c and (not d)) or (c and (not d)))}
-     CARE-OF-QUOTES-ON
+     ;CARE-OF-QUOTES-OFF
+     ;{expr <- '(((not a) and (not b) and (not c) and (not d)) or ((not a) and (not b) and (not c) and d) or ((not a) and (not b) and c and (not d)) or ((not a) and b and (not c) and d) or ((not a) and b and c and (not d)) or ((not a) and b and c and d) or (a and (not b) and (not c) and (not d)) or (a and (not b) and (not c) and d) or (a and (not b) and c and (not d)) or (c and (not d)))}
+     ;CARE-OF-QUOTES-ON
+     ;; not as a prefix operator : not binds more tightly than and , and more tightly than or (no region CARE-OF-QUOTES-OFF needed)
+     {expr <- '{not a and not b and not c and not d or not a and not b and not c and d or not a and not b and c and not d
+                or not a and b and not c and d or not a and b and c and not d or not a and b and c and d
+                or a and not b and not c and not d or a and not b and not c and d or a and not b and c and not d
+                or c and not d}}
 
      ;;{expr <- '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d) (and (not a) b c (not d)) (and (not a) b c d) (and a (not b) (not c) (not d)) (and a (not b) (not c) d) (and a (not b) c (not d)) (and c (not d)))}
      
@@ -3031,9 +3036,14 @@ ANNOTATION-ON
      ;; test 6
      (display-nl "test 6")
      ;;{expr <- '{{(not a) and (not b) and (not c) and (not d)} or {(not a) and (not b) and (not c) and d} or {(not a) and (not b) and c and (not d)} or {(not a) and b and (not c) and d} or {(not a) and b and c and (not d)} or {(not a) and b and c and d} or {a and (not b) and (not c) and (not d)} or {a and (not b) and (not c) and d} or {a and (not b) and c and (not d)} or {c and (not d)}}} ; outside a region CARE-OF-QUOTES-OFF
-     CARE-OF-QUOTES-OFF
-     {expr <- '(((not a) and (not b) and (not c) and (not d)) or ((not a) and (not b) and (not c) and d) or ((not a) and (not b) and c and (not d)) or ((not a) and b and (not c) and d) or ((not a) and b and c and (not d)) or ((not a) and b and c and d) or (a and (not b) and (not c) and (not d)) or (a and (not b) and (not c) and d) or (a and (not b) and c and (not d)) or (c and (not d)))}
-     CARE-OF-QUOTES-ON
+     ;CARE-OF-QUOTES-OFF
+     ;{expr <- '(((not a) and (not b) and (not c) and (not d)) or ((not a) and (not b) and (not c) and d) or ((not a) and (not b) and c and (not d)) or ((not a) and b and (not c) and d) or ((not a) and b and c and (not d)) or ((not a) and b and c and d) or (a and (not b) and (not c) and (not d)) or (a and (not b) and (not c) and d) or (a and (not b) and c and (not d)) or (c and (not d)))}
+     ;CARE-OF-QUOTES-ON
+     ;; not as a prefix operator : not binds more tightly than and , and more tightly than or (no region CARE-OF-QUOTES-OFF needed)
+     {expr <- '{not a and not b and not c and not d or not a and not b and not c and d or not a and not b and c and not d
+                or not a and b and not c and d or not a and b and c and not d or not a and b and c and d
+                or a and not b and not c and not d or a and not b and not c and d or a and not b and c and not d
+                or c and not d}}
      ;;{expr <- '(or (and (not a) (not b) (not c) (not d)) (and (not a) (not b) (not c) d) (and (not a) (not b) c (not d)) (and (not a) b (not c) d) (and (not a) b c (not d)) (and (not a) b c d) (and a (not b) (not c) (not d)) (and a (not b) (not c) d) (and a (not b) c (not d)) (and c (not d)))}
      (display expr)
      (display " = ")
