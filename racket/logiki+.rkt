@@ -1,6 +1,5 @@
 #lang reader SRFI-105
  
-;; note: modify it to be recompiled by Racket !!! ok  1 2 3
 
 
 
@@ -22,11 +21,10 @@
 ;;
 ;;
 ;;
-;; version 20 for Racket
+;; version 21 for Racket
 
 
-; DrRacket does not like greek characters in filenames like in:
-;(include "program-λογικι-2.8.scm")
+; DrRacket does not like greek characters in filenames likes λογικι.scm
 
 
 ;; test
