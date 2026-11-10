@@ -3086,7 +3086,7 @@ ANNOTATION-ON
 	  (display-nl "test 8 ******* DIFFER *******")
 	  (return #f)))
      (newline)
-
+     (collect-garbage)
      #t)
 
 
